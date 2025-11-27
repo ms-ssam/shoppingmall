@@ -1,19 +1,22 @@
 spring:
   profiles:
     active: local
-
   application:
     name: shoppingMall
-
   thymeleaf:
-    cache: false
-
+    cache: true
   jpa:
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
 
-logging:
-  level:
-    p6spy: info
+  springdoc:
+    api-docs:
+      enabled: true
+      path: /api-docs
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui
+      operations-sorter: method
+      tags-sorter: alpha

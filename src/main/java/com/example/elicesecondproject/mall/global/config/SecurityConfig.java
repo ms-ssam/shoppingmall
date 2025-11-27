@@ -56,7 +56,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**"/*, "/swagger-ui.html"*/).permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
                         .requestMatchers("/login", "/signup", "/").permitAll()
                         .anyRequest().authenticated()
                 )
