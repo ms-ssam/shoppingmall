@@ -1,6 +1,7 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.inventory.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.option.entity.OptionDetail;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

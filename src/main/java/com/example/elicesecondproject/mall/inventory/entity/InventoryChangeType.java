@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.inventory.entity;
 
 public enum InventoryChangeType {
     IN,      // 입고

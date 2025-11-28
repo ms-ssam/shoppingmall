@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.product.entity;
 
 public enum ImageType {
     MAIN,        // 대표 이미지 (목록 썸네일 + 상세 상단 첫번째)

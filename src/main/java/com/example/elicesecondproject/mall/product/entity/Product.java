@@ -1,7 +1,9 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.product.entity;
 
 
+import com.example.elicesecondproject.mall.category.entity.Category;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.option.entity.ProductOptionGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

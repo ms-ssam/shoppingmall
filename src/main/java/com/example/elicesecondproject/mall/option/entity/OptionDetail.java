@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.option.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
