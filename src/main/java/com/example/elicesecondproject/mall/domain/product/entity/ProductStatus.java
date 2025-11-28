@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.product.entity;
+package com.example.elicesecondproject.mall.domain.product.entity;
 
 public enum ProductStatus {
     SELLING,    // 판매중
