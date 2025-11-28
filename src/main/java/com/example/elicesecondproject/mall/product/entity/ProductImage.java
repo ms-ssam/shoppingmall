@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.product.entity;
 
-import com.example.elicesecondproject.mall.global.entity.BaseTimeEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 접근 제한자 추가
-public class ProductImage extends BaseTimeEntity {
+public class ProductImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

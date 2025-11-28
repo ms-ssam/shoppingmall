@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.option.entity;
 
-import com.example.elicesecondproject.mall.global.entity.BaseTimeEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import jakarta.persistence.*;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OptionDetail extends BaseTimeEntity {
+public class OptionDetail extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

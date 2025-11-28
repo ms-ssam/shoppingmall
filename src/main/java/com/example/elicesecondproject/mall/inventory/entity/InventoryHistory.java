@@ -1,6 +1,7 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.inventory.entity;
 
-import com.example.elicesecondproject.mall.global.entity.BaseTimeEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.option.entity.OptionDetail;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +26,7 @@ import org.springframework.util.Assert;
                         columnList = "related_order_id")
         }
 )
-public class InventoryHistory extends BaseTimeEntity {
+public class InventoryHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

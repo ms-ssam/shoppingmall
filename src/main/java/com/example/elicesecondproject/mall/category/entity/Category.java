@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.product.domain;
+package com.example.elicesecondproject.mall.category.entity;
 
-import com.example.elicesecondproject.mall.global.entity.BaseTimeEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseTimeEntity{
+public class Category extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
