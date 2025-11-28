@@ -1,7 +1,7 @@
 package com.example.elicesecondproject.mall.product.domain;
 
 
-import com.example.elicesecondproject.mall.global.entity.BaseTimeEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Product extends BaseTimeEntity{
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
