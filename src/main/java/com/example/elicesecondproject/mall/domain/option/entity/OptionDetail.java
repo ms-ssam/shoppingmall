@@ -23,14 +23,13 @@ public class OptionDetail extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // [수정] 부모 엔티티 타입 및 필드명 변경 (ProductOption -> ProductOptionGroup)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_option_group_id", nullable = false)
     private ProductOptionGroup productOptionGroup;
 
-    @NotBlank(message = "상세 옵션명은 필수입니다.")
+    @NotBlank(message = "상세 옵션명은 필수입니다.") //사이즈 넣기
     @Column(nullable = false)
-    private String name; // 예: "Large", "270", "Free"
+    private String name;
 
     @NotNull(message = "추가 금액은 필수입니다.")
     @Min(value = 0, message = "추가 금액은 0원 이상이어야 합니다.")
@@ -51,13 +50,8 @@ public class OptionDetail extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
-    // [수정] 생성자 이름 변경 (ProductDetail -> OptionDetail)
     @Builder
     public OptionDetail(String name, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
-        if (addPrice < 0) throw new IllegalArgumentException("추가 금액은 0원 이상이어야 합니다.");
-        if (stockQuantity < 0) throw new IllegalArgumentException("재고 수량은 0개 이상이어야 합니다.");
-        if (name == null || name.isBlank()) throw new IllegalArgumentException("상세 옵션명은 필수입니다.");
-
         this.name = name;
         this.addPrice = addPrice;
         this.stockQuantity = stockQuantity;
@@ -78,10 +72,11 @@ public class OptionDetail extends BaseEntity {
     }
 
     public void addStock(int quantity) {
-        if (quantity <= 0) throw new IllegalArgumentException("재고 증가량은 0보다 커야 합니다.");
+        if (quantity <= 0) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
         this.stockQuantity += quantity;
     }
-
     public void delete() {
         this.deletedAt = LocalDateTime.now();
     }

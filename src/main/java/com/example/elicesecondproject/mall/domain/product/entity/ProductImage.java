@@ -58,7 +58,7 @@ public class ProductImage extends BaseEntity {
         this.product = product;
     }
 
-    // 비즈니스 메서드 추가
+
     public void updateImageInfo(String imageUrl, ImageType imageType, Integer displayOrder) {
         if (imageUrl != null && !imageUrl.isBlank()) {
             this.imageUrl = imageUrl;

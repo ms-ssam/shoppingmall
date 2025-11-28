@@ -3,13 +3,13 @@ package com.example.elicesecondproject.mall.domain.inventory.entity;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
-import org.springframework.util.Assert;
-
 
 @Entity
 @Getter
@@ -18,12 +18,9 @@ import org.springframework.util.Assert;
 @Table(
         name = "inventory_history",
         indexes = {
-                @Index(name = "idx_option_detail_created",
-                        columnList = "option_detail_id, created_at"),
-                @Index(name = "idx_change_type_created",
-                        columnList = "change_type, created_at"),
-                @Index(name = "idx_related_order",
-                        columnList = "related_order_id")
+                @Index(name = "idx_option_detail_created", columnList = "option_detail_id, created_at"),
+                @Index(name = "idx_change_type_created", columnList = "change_type, created_at"),
+                @Index(name = "idx_related_order", columnList = "related_order_id")
         }
 )
 public class InventoryHistory extends BaseEntity {
@@ -32,16 +29,21 @@ public class InventoryHistory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull(message = "옵션 정보는 필수입니다.")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_detail_id", nullable = false)
     private OptionDetail optionDetail;
 
+    @NotNull(message = "변동 수량은 필수입니다.")
     @Column(nullable = false)
-    private Integer changeAmount; // 양수: 증가, 음수: 감소
+    private Integer changeAmount; // 양수: 입고/반품, 음수: 주문/폐기
 
+    @NotNull(message = "변경 후 재고는 필수입니다.")
+    @Min(value = 0, message = "재고는 0보다 작을 수 없습니다.")
     @Column(nullable = false)
-    private Integer stockAfterChange; // 변경 후 재고 (스냅샷)
+    private Integer stockAfterChange; // 스냅샷
 
+    @NotNull(message = "변동 타입은 필수입니다.")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private InventoryChangeType changeType;
@@ -50,10 +52,10 @@ public class InventoryHistory extends BaseEntity {
     private String description;
 
     @Column(length = 100)
-    private String performedBy; // 작업자 (userId 또는 "SYSTEM")
+    private String performedBy; // 작업자
 
     @Column(length = 100)
-    private String relatedOrderId; // 관련 주문 ID (주문/취소의 경우)
+    private String relatedOrderId; // 관련 주문 ID
 
     @Builder
     public InventoryHistory(OptionDetail optionDetail,
@@ -63,19 +65,6 @@ public class InventoryHistory extends BaseEntity {
                             String description,
                             String performedBy,
                             String relatedOrderId) {
-        // 필수 값 검증
-        Assert.notNull(optionDetail, "상품 상세 정보는 필수입니다.");
-        Assert.notNull(changeAmount, "변동 수량은 필수입니다.");
-        Assert.notNull(stockAfterChange, "변경 후 재고는 필수입니다.");
-        Assert.notNull(changeType, "변동 타입은 필수입니다.");
-
-        // 비즈니스 규칙 검증
-        if (stockAfterChange < 0) {
-            throw new IllegalArgumentException(
-                    String.format("변경 후 재고는 음수일 수 없습니다. (현재 값: %d)", stockAfterChange)
-            );
-        }
-
         this.optionDetail = optionDetail;
         this.changeAmount = changeAmount;
         this.stockAfterChange = stockAfterChange;
@@ -85,18 +74,7 @@ public class InventoryHistory extends BaseEntity {
         this.relatedOrderId = relatedOrderId;
     }
 
-    /**
-     * 재고 이력 생성 (주문/취소용)
-     *
-     * @param optionDetail 옵션 상세 정보
-     * @param changeType 변동 타입
-     * @param changeAmount 변동 수량 (증가: 양수, 감소: 음수)
-     * @param stockAfterChange 변경 후 재고 (명시적으로 전달)
-     * @param description 변동 사유
-     * @param performedBy 작업자 (userId 또는 "SYSTEM")
-     * @param relatedOrderId 관련 주문 ID
-     * @return 생성된 재고 이력
-     */
+
     public static InventoryHistory createHistory(
             OptionDetail optionDetail,
             InventoryChangeType changeType,
@@ -115,25 +93,5 @@ public class InventoryHistory extends BaseEntity {
                 .performedBy(performedBy)
                 .relatedOrderId(relatedOrderId)
                 .build();
-    }
-
-
-    public static InventoryHistory createStockHistory(
-            OptionDetail optionDetail,
-            InventoryChangeType changeType,
-            int changeAmount,
-            int stockAfterChange,
-            String description,
-            String performedBy) {
-
-        return createHistory(
-                optionDetail,
-                changeType,
-                changeAmount,
-                stockAfterChange,
-                description,
-                performedBy,
-                null
-        );
     }
 }
