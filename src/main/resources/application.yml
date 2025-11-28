@@ -11,12 +11,12 @@ spring:
         format_sql: true
         default_batch_fetch_size: 100
 
-  springdoc:
-    api-docs:
-      enabled: true
-      path: /api-docs
-    swagger-ui:
-      enabled: true
-      path: /swagger-ui
-      operations-sorter: method
-      tags-sorter: alpha
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+    operations-sorter: method
+    tags-sorter: alpha
