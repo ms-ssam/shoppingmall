@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.user.entity;
+package com.example.elicesecondproject.mall.domain.Member.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

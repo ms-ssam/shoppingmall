@@ -1,5 +1,6 @@
-package com.example.elicesecondproject.mall.domain.user.entity;
+package com.example.elicesecondproject.mall.domain.Member.entity;
 
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,11 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Table(name = "users")
+@Table(name = "members")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class User implements UserDetails {
+public class Member extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,7 @@ public class User implements UserDetails {
     private Role role;
 
     @Builder
-    public User(String email, String password, Role role) {
+    public Member(String email, String password, Role role) {
         this.email = email;
         this.password = password;
         this.role = (role != null) ? role : Role.USER;

@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.global.jwt;
 
-import com.example.elicesecondproject.mall.global.common.UserConstants;
+import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -44,41 +44,50 @@ public class JwtProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    public String getUsername(String token) {
+        return parseClaims(token).getSubject();
+    }
+
     public String createAccessToken(Authentication authentication) {
-        return createToken(authentication, accessTokenValidityInMilliseconds);
-    }
-
-    public String createRefreshToken(Authentication authentication) {
-        return createToken(authentication, refreshTokenValidityInMilliseconds);
-    }
-
-    public String createToken(Authentication authentication, long validity) {
         String authorities = authentication.getAuthorities().stream() // 인증 유저의 권한(role)을 토큰에 담아주기 위해 가져옴. STATELESS라 서버가 유저의 정보를 가지고 있지 않기 때문에 권한 정보도 포함해서 보내줘야함.
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validityDate = new Date(now + validity);
+        Date validityDate = new Date(now + accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .subject(authentication.getName())                          // JWT의 Payload의 subject에 username을 넣음
-                .claim(UserConstants.AUTH_CLAIM, authorities)     // JWT의 Payload에 role 정보를 넣음
+                .claim(MemberConstants.AUTH_CLAIM, authorities)     // JWT의 Payload에 role 정보를 넣음
                 .signWith(key)                                              // SecretKey를 넣음. (JWT가 변조 검증용)
                 .expiration(validityDate)                                   // JWT의 만료 시간 넣음
                 .compact();
     }
 
-    // 토큰으로 인증된 유저 객체 가져오기
+    // Refresh Token은 재발급 용도만 담당하므로 authorities(권한)은 필요없음
+    public String createRefreshToken(Authentication authentication) {
+        long now = (new Date()).getTime();
+        Date validityDate = new Date(now + refreshTokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .subject(authentication.getName())
+                .signWith(key)
+                .expiration(validityDate)
+                .compact();
+    }
+
+
+    // 토큰으로 인증된 유저 객체 가져오기 (accessToken용)
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 
-        if (claims.get(UserConstants.AUTH_CLAIM) == null) {
+        if (claims.get(MemberConstants.AUTH_CLAIM) == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
         // 권한을 GrantedAuthority 타입으로 변환해야 스프링 시큐리티에 사용 가능
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(UserConstants.AUTH_CLAIM).toString().split(","))
+                Arrays.stream(claims.get(MemberConstants.AUTH_CLAIM).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 

@@ -1,9 +1,9 @@
-package com.example.elicesecondproject.mall.domain.user.controller;
+package com.example.elicesecondproject.mall.domain.Member.controller;
 
-import com.example.elicesecondproject.mall.domain.user.dto.AddUserRequest;
-import com.example.elicesecondproject.mall.domain.user.dto.LoginRequest;
-import com.example.elicesecondproject.mall.domain.user.dto.TokenResponse;
-import com.example.elicesecondproject.mall.domain.user.service.UserService;
+import com.example.elicesecondproject.mall.domain.Member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.Member.dto.LoginRequest;
+import com.example.elicesecondproject.mall.domain.Member.dto.TokenResponse;
+import com.example.elicesecondproject.mall.domain.Member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,16 +23,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "회원 API", description = "로그인 및 회원가입 API")
 @RequiredArgsConstructor
 @RestController
-public class UserController {
+public class MemberController {
 
-    private final UserService userService;
+    private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
 
     @Operation(summary = "회원 가입")
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody AddUserRequest request) {
-        userService.save(request);
+    public ResponseEntity<String> signup(@RequestBody AddMemberRequest request) {
+        memberService.save(request);
         return ResponseEntity.ok("회원가입 성공");
     }
 

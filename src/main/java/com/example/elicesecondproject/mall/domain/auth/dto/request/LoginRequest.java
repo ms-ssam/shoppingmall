@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.user.dto;
+package com.example.elicesecondproject.mall.domain.auth.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

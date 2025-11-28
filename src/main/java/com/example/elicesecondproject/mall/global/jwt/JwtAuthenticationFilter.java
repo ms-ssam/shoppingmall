@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.global.jwt;
 
-import com.example.elicesecondproject.mall.global.common.UserConstants;
+import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(UserConstants.AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(UserConstants.BEARER_PREFIX)) {
-            return bearerToken.substring(UserConstants.BEARER_PREFIX.length());
+        String bearerToken = request.getHeader(MemberConstants.AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(MemberConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(MemberConstants.BEARER_PREFIX.length());
         }
         return null;
     }
