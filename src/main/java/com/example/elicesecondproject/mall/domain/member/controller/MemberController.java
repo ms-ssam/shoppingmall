@@ -1,9 +1,9 @@
-package com.example.elicesecondproject.mall.domain.Member.controller;
+package com.example.elicesecondproject.mall.domain.member.controller;
 
-import com.example.elicesecondproject.mall.domain.Member.dto.AddMemberRequest;
-import com.example.elicesecondproject.mall.domain.Member.dto.LoginRequest;
-import com.example.elicesecondproject.mall.domain.Member.dto.TokenResponse;
-import com.example.elicesecondproject.mall.domain.Member.service.MemberService;
+import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.LoginRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.TokenResponse;
+import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

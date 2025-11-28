@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.domain.Member.repositorty;
+package com.example.elicesecondproject.mall.domain.member.repositorty;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

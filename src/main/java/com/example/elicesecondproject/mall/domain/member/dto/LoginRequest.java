@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.Member.dto;
+package com.example.elicesecondproject.mall.domain.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;

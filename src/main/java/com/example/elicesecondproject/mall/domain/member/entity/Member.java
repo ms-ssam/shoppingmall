@@ -1,5 +1,6 @@
-package com.example.elicesecondproject.mall.domain.Member.entity;
+package com.example.elicesecondproject.mall.domain.member.entity;
 
+import com.example.elicesecondproject.mall.domain.address.entity.Address;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,6 +34,9 @@ public class Member extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<Address> addresses;
 
     @Builder
     public Member(String email, String password, Role role) {
