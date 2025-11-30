@@ -36,6 +36,10 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "슬러그는 필수입니다.")
+    @Column(nullable = false, unique = true, length = 100)
+    private String slug; // URL용 고유 문자열 (예: mens-outer)
+
     // [경로] 검색 성능을 위한 반정규화 필드 (Service에서 생성 로직 관리 필요)
     @Column(nullable = false)
     private String path; // ex: /1/5/19/
@@ -56,9 +60,10 @@ public class Category extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Category(Category parent, String name, String path, Integer depth, Integer displayOrder, Boolean isVisible) {
+    public Category(Category parent, String name, String slug, String path, Integer depth, Integer displayOrder, Boolean isVisible) {
         this.parent = parent;
         this.name = name;
+        this.slug = slug;
         this.path = path;
         this.depth = depth;
         this.displayOrder = displayOrder;
@@ -72,9 +77,12 @@ public class Category extends BaseEntity {
         }
     }
 
-    public void updateDetails(String name, Boolean isVisible, Integer displayOrder) {
+    public void updateDetails(String name, String slug, Boolean isVisible, Integer displayOrder) {
         if (name != null && !name.isBlank()) {
             this.name = name;
+        }
+        if (slug != null && !slug.isBlank()) {
+            this.slug = slug;
         }
         if (isVisible != null) {
             this.isVisible = isVisible;

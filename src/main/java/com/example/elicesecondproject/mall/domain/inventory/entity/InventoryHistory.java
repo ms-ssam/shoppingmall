@@ -54,6 +54,8 @@ public class InventoryHistory extends BaseEntity {
     @Column(length = 100)
     private String performedBy; // 작업자
 
+
+
     @Column(length = 100)
     private String relatedOrderId; // 관련 주문 ID
 

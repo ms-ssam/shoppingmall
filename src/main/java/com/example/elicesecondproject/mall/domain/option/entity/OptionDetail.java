@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class OptionDetail extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,10 @@ public class OptionDetail extends BaseEntity {
     @NotBlank(message = "상세 옵션명은 필수입니다.") //사이즈 넣기
     @Column(nullable = false)
     private String name;
+
+    @NotBlank(message = "SKU는 필수입니다.") //sku 자동 생성 같은 경우는 서비스에서 정의
+    @Column(nullable = false, unique = true, length = 100)
+    private String sku;
 
     @NotNull(message = "추가 금액은 필수입니다.")
     @Min(value = 0, message = "추가 금액은 0원 이상이어야 합니다.")
@@ -51,16 +55,41 @@ public class OptionDetail extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    public OptionDetail(String name, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
+    public OptionDetail(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
         this.name = name;
+        this.sku = sku;
         this.addPrice = addPrice;
         this.stockQuantity = stockQuantity;
         this.displayOrder = displayOrder != null ? displayOrder : 0;
     }
 
+    public void updateDetails(String name, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (addPrice != null) {
+            this.addPrice = addPrice;
+        }
+        if (stockQuantity != null) {
+            this.stockQuantity = stockQuantity;
+        }
+        if (displayOrder != null) {
+            this.displayOrder = displayOrder;
+        }
+    }
+
+
     // [수정] 부모 설정 편의 메서드 변경
     public void initProductOptionGroup(ProductOptionGroup productOptionGroup) {
         this.productOptionGroup = productOptionGroup;
+    }
+
+    public static String generateSku(String productCode, String colorName, String sizeName) {
+        return String.format("%s-%s-%s",
+                productCode.toUpperCase(),
+                colorName.toUpperCase(),
+                sizeName.toUpperCase()
+        );
     }
 
     public void removeStock(int quantity) {
