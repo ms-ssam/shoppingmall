@@ -23,14 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
 
-    //private final DbRedisRefreshTokenStore refreshTokenStore;
-    private final DbOnlyRefreshTokenStore refreshTokenStore; // 현재는 db에만 저장
+    private final DbRedisRefreshTokenStore refreshTokenStore;
+    //private final DbOnlyRefreshTokenStore refreshTokenStore; // 현재는 db에만 저장
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final MemberDetailService memberDetailService;
@@ -45,12 +46,14 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
+        MemberDetail userDetails = (MemberDetail) authentication.getPrincipal();
+        Member member = userDetails.getMember();
+
+        refreshTokenStore.revokeByMember(member);
 
         String accessToken = jwtProvider.createAccessToken(authentication);
         String refreshToken = jwtProvider.createRefreshToken(authentication);
 
-        MemberDetail userDetails = (MemberDetail) authentication.getPrincipal();
-        Member member = userDetails.getMember();
         String hash = HashUtil.sha256(refreshToken);
         LocalDateTime expiresAt = LocalDateTime.now().plus(Duration.ofMillis(refreshTokenValidityInMilliseconds));
 

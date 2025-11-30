@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.auth.store;
 
+import com.example.elicesecondproject.mall.domain.Member.entity.Member;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import com.example.elicesecondproject.mall.domain.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,16 @@ public class DbOnlyRefreshTokenStore implements RefreshTokenStore {
     public void revokeToken(String refreshTokenHash) {
         refreshTokenRepository.findByRefreshTokenHashAndIsRevokedFalse(refreshTokenHash)
                 .ifPresent(RefreshToken::revoke);
+    }
+
+    @Override
+    @Transactional
+    public void revokeByMember(Member member) {
+        // 여러 개 있을 수도 있다고 가정하면 List 조회
+        var tokens = refreshTokenRepository.findAllByMemberAndIsRevokedFalse(member);
+
+        for (RefreshToken rt : tokens) {
+            rt.revoke();
+        }
     }
 }
