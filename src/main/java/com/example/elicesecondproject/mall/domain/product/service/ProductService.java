@@ -1,17 +1,53 @@
 package com.example.elicesecondproject.mall.domain.product.service;
 
+import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
+import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
-import com.example.elicesecondproject.mall.domain.product.entity.Product;
-import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
+import com.example.elicesecondproject.mall.domain.product.repository.ProductRepositoryCustom;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
-    private final ProductRepository productRepository;
- //PROD-F-01
+
+    private final ProductRepositoryCustom productRepositoryCustom;
+    private final CategoryRepository categoryRepository;
+
+    public Page<ProductSummaryDto> getProductsByCategory(
+            Long categoryId,
+            Boolean includeSubCategories,
+            ProductSortType sortType,
+            Pageable pageable) {
+
+        validateCategoryExists(categoryId);
+
+        includeSubCategories = includeSubCategories != null ? includeSubCategories : false;
+        sortType = sortType != null ? sortType : ProductSortType.LATEST;
+
+        return productRepositoryCustom.findProductsByCategory(
+                categoryId,
+                includeSubCategories,
+                sortType,
+                pageable
+        );
+    }
+
+    private void validateCategoryExists(Long categoryId) {
+        if (categoryId != null && !categoryRepository.existsByIdAndDeletedAtIsNull(categoryId)) {
+            throw new BusinessException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
+    }
+}
+
+
+//PROD-F-01
 //    public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
 //            Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
 //            return products.map(ProductSummaryDto::from);
@@ -29,4 +65,4 @@ public class ProductService {
       }
      */
 
-}
+

@@ -21,85 +21,136 @@ import java.util.List;
 import static com.example.elicesecondproject.mall.domain.category.entity.QCategory.category;
 import static com.example.elicesecondproject.mall.domain.product.entity.QProduct.product;
 import static com.example.elicesecondproject.mall.domain.product.entity.QProductImage.productImage;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class ProductRepositoryCustomImpl implements ProductRepositoryCustom{
+public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
+
+    private static final int DISCOUNT_DIVISOR = 100;
+    private static final String SALE_PRICE_ALIAS = "salePrice";
+
     private final JPAQueryFactory queryFactory;
-
-
 
     @Override
     public Page<ProductSummaryDto> findProductsByCategory(
             Long categoryId,
+            Boolean includeSubCategories,
             ProductSortType sortType,
             Pageable pageable) {
 
-        log.debug("### categoryId: {}, sortType: {}", categoryId, sortType);
-        log.debug("### pageable: {}", pageable);
+        log.debug("카테고리별 상품 조회 - categoryId: {}, includeSubCategories: {}, sortType: {}",
+                categoryId, includeSubCategories, sortType);
 
-        List<ProductSummaryDto> content = queryFactory
+        BooleanExpression whereClause = buildWhereClause(categoryId, includeSubCategories);
+
+        List<ProductSummaryDto> content = fetchProducts(whereClause, sortType, pageable);
+        Long total = countProducts(whereClause);
+
+        log.debug("조회 완료 - total: {}, fetched: {}", total, content.size());
+
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
+
+    private List<ProductSummaryDto> fetchProducts(
+            BooleanExpression whereClause,
+            ProductSortType sortType,
+            Pageable pageable) {
+
+        return queryFactory
                 .select(createProductSummaryProjection())
                 .from(product)
-                .leftJoin(product.category, category)
-                .where(
-                        productNotDeleted(),
-                        categoryEq(categoryId)
-                )
+                .where(whereClause)
                 .orderBy(getOrderSpecifier(sortType))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+    }
 
-        Long total = queryFactory
+    private Long countProducts(BooleanExpression whereClause) {
+        return queryFactory
                 .select(product.count())
                 .from(product)
-                .where(
-                        productNotDeleted(),
-                        categoryEq(categoryId)
-                )
+                .where(whereClause)
                 .fetchOne();
+    }
 
-        return new PageImpl<>(content, pageable, total != null ? total : 0);
+    private BooleanExpression buildWhereClause(Long categoryId, Boolean includeSubCategories) {
+        return productNotDeleted()
+                .and(categoryCondition(categoryId, includeSubCategories));
     }
 
     private Expression<ProductSummaryDto> createProductSummaryProjection() {
-        return Projections.constructor(ProductSummaryDto.class,
+        return Projections.constructor(
+                ProductSummaryDto.class,
                 product.id,
                 product.name,
                 product.price,
-                // 할인가 계산
-                product.price.subtract(
-                        product.price.multiply(product.discountRate).divide(100)
-                ).intValue().as("salePrice"),
+                calculateSalePrice(),
                 product.discountRate,
                 product.status,
-                // 메인 이미지 SubQuery
-                JPAExpressions
-                        .select(productImage.imageUrl)
-                        .from(productImage)
-                        .where(
-                                productImage.product.eq(product),
-                                productImage.imageType.eq(ImageType.MAIN),
-                                productImage.deletedAt.isNull()
-                        )
-                        .orderBy(productImage.displayOrder.asc())
-                        .limit(1),
+                selectMainImage(),
                 product.averageRating,
                 product.reviewCount,
                 product.WishListCount
         );
     }
 
+    private Expression<Integer> calculateSalePrice() {
+        return product.price
+                .subtract(product.price.multiply(product.discountRate).divide(DISCOUNT_DIVISOR))
+                .intValue()
+                .as(SALE_PRICE_ALIAS);
+    }
+
+    private Expression<String> selectMainImage() {
+        return JPAExpressions
+                .select(productImage.imageUrl)
+                .from(productImage)
+                .where(
+                        productImage.product.eq(product),
+                        productImage.imageType.eq(ImageType.MAIN),
+                        productImage.deletedAt.isNull()
+                )
+                .orderBy(productImage.displayOrder.asc())
+                .limit(1);
+    }
+
     private BooleanExpression productNotDeleted() {
         return product.deletedAt.isNull();
     }
-    private BooleanExpression categoryEq(Long categoryId) {
-        return categoryId != null ? product.category.id.eq(categoryId) : null;
+
+    private BooleanExpression categoryCondition(Long categoryId, Boolean includeSubCategories) {
+        if (categoryId == null) {
+            return null;
+        }
+
+        if (Boolean.TRUE.equals(includeSubCategories)) {
+            return categoryIdEq(categoryId)
+                    .or(parentCategoryIdEq(categoryId));
+        }
+
+        return categoryIdEq(categoryId);
     }
+
+    private BooleanExpression categoryIdEq(Long categoryId) {
+        return product.category.id.eq(categoryId);
+    }
+
+    private BooleanExpression parentCategoryIdEq(Long parentCategoryId) {
+        return JPAExpressions
+                .selectOne()
+                .from(category)
+                .where(
+                        category.id.eq(product.category.id),
+                        category.parent.id.eq(parentCategoryId)
+                )
+                .exists();
+    }
+
     private OrderSpecifier<?> getOrderSpecifier(ProductSortType sortType) {
         if (sortType == null) {
-            return product.createdAt.desc();
+            sortType = ProductSortType.LATEST;
         }
 
         return switch (sortType) {
@@ -111,5 +162,4 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom{
             case RATING -> product.averageRating.desc();
         };
     }
-
 }
