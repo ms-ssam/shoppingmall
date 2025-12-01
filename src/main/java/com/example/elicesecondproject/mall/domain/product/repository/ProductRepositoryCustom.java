@@ -11,5 +11,5 @@ public interface ProductRepositoryCustom {
     Page<ProductSummaryDto> findProductsByCategory(Long categoryId,
                                                    Boolean includeSubCategories,
                                                    ProductSortType sortType,
-                                                   Pageable pageable);*/
+                                                   Pageable pageable);
 }
