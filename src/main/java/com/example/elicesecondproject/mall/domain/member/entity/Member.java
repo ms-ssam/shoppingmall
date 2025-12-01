@@ -65,14 +65,25 @@ public class Member extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Address> addresses;
 
-    /*@OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
-    private Cart cart;*/
+    /*
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    private Cart cart;
+    */
 
     // ----------
+
     @Builder
-    public Member(String email, String password, Role role) {
+    public Member(String email,
+                  String password,
+                  String name,
+                  String nickname,
+                  String phone,
+                  Role role) {
         this.email = email;
         this.password = password;
+        this.name = name;
+        this.nickname = nickname;
+        this.phone = phone;
         this.role = (role != null) ? role : Role.USER;
     }
 
