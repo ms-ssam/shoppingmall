@@ -1,6 +1,8 @@
 package com.example.elicesecondproject.mall.domain.auth.controller;
 
 
+import com.example.elicesecondproject.mall.domain.auth.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.Member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.TokenResponse;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AccessTokenResponse;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
@@ -21,6 +23,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final MemberService memberService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody AddMemberRequest request) {
+        memberService.save(request);
+        return ResponseEntity.ok("회원가입 성공");
+    }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(

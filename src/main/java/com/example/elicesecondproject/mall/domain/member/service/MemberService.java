@@ -1,9 +1,9 @@
-package com.example.elicesecondproject.mall.domain.member.service;
+package com.example.elicesecondproject.mall.domain.Member.service;
 
-import com.example.elicesecondproject.mall.domain.member.entity.Role;
-import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
-import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.domain.Member.entity.Role;
+import com.example.elicesecondproject.mall.domain.Member.entity.Member;
+import com.example.elicesecondproject.mall.domain.auth.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.Member.repositorty.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -48,6 +48,7 @@ dependencies {
     testImplementation 'com.h2database:h2'
     runtimeOnly 'com.h2database:h2'
 
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // 7. JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
