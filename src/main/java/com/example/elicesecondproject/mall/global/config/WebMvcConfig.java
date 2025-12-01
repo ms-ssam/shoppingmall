@@ -8,7 +8,6 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import com.example.elicesecondproject.mall.global.config.FileConfig;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -39,15 +38,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 상품 이미지 정적 리소스 매핑
-        // URL: /uploads/** → 실제 경로: file:/app/uploads/
-        Path basePath = Path.of(productFileConfig.getBasePath());
-        String fileSystemPath = basePath.toAbsolutePath().toString();
-        String resourceLocation = "file:" + fileSystemPath + "/";
+        String basePath = productFileConfig.getBasePath();
+
+        // Windows/Linux 모두 호환되도록 경로 정규화
+        Path normalizedPath = Path.of(basePath).toAbsolutePath().normalize();
+        String resourceLocation = "file:///" + normalizedPath.toString().replace("\\", "/");
 
         log.info("=======================================");
         log.info("[WebMvcConfig] Static resource mapping");
         log.info("[WebMvcConfig] URL Pattern: /uploads/**");
-        log.info("[WebMvcConfig] File System Path: {}", resourceLocation);
+        log.info("[WebMvcConfig] Base Path: {}", basePath);
+        log.info("[WebMvcConfig] Normalized Path: {}", normalizedPath);
+        log.info("[WebMvcConfig] Resource Location: {}", resourceLocation);
         log.info("=======================================");
 
         registry.addResourceHandler("/uploads/**")

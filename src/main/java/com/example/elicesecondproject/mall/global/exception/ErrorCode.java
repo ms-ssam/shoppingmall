@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "A003", "아이디 또는 비밀번호가 올바르지 않습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "RT001", "유효하지 않은 리프레시 토큰입니다."),
 
     // 403 Forbidden
