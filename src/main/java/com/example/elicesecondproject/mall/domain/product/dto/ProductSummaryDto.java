@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.dto;
 
 import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

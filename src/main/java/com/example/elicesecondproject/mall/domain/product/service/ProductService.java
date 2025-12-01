@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 public class ProductService {
     private final ProductRepository productRepository;
  //PROD-F-01
-    public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
-            Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
-            return products.map(ProductSummaryDto::from);
-    }
+//    public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
+//            Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
+//            return products.map(ProductSummaryDto::from);
+//    }
     /*
     DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
         response : name, price, discountRate, description, categoryId
