@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.order.entity;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

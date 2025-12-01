@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.Member.entity;
+package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;

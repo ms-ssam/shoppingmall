@@ -6,6 +6,8 @@ import com.example.elicesecondproject.mall.domain.auth.dto.response.AccessTokenR
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
+import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -21,6 +23,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final MemberService memberService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody AddMemberRequest request) {
+        memberService.save(request);
+        return ResponseEntity.ok("회원가입 성공");
+    }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(

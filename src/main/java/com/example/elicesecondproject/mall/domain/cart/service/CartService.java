@@ -1,6 +1,5 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
-import com.example.elicesecondproject.mall.product.entity.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

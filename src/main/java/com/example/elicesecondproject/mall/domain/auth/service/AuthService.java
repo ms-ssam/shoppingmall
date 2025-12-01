@@ -1,12 +1,11 @@
 package com.example.elicesecondproject.mall.domain.auth.service;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
-import com.example.elicesecondproject.mall.domain.Member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.Member.service.MemberDetailService;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
-import com.example.elicesecondproject.mall.domain.auth.store.DbOnlyRefreshTokenStore;
 import com.example.elicesecondproject.mall.domain.auth.store.DbRedisRefreshTokenStore;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
