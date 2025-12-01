@@ -37,3 +37,6 @@ out/
 .vscode/
 ### 🔒 Security & Local Config
 src/main/resources/application-local.yml
+
+.DS_Store
+**/.DS_Store
