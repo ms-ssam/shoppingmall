@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ProductRepositoryCustomImpl implements ProductRepositoryCustom{
-    private final JPAQueryFactory queryFactory;
+    /*private final JPAQueryFactory queryFactory;
 
     @Override
     public Page<ProductSummaryDto> searchProducts(String keyword,
@@ -26,6 +26,6 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom{
                                                    ProductSortType sortType,
                                                    Pageable pageable){
 
-    }
+    }*/
 
 }

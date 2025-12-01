@@ -2,20 +2,26 @@ package com.example.elicesecondproject.mall.domain.product.service;
 
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+
     private final ProductRepository productRepository;
- //PROD-F-01
+    private final ProductMapper productMapper;
+
+    //PROD-F-01
     public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
-            Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
-            return products.map(ProductSummaryDto::from);
+            return productRepository.findByDeletedAtIsNull(pageable)
+                    .map(productMapper::toSummaryDto);
     }
+
     /*
     DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
         response : name, price, discountRate, description, categoryId
