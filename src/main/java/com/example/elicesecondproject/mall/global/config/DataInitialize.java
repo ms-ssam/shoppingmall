@@ -27,7 +27,6 @@ public class DataInitialize implements CommandLineRunner {
                     .nickname("AdminUser")
                     .phone("010-0000-0000")
                     .role(Role.ADMIN)
-                    //.grade(MemberGrade.VIP)
                     .build();
 
             memberRepository.save(admin);
@@ -43,7 +42,6 @@ public class DataInitialize implements CommandLineRunner {
                     .nickname("GeneralUser")
                     .phone("010-1111-1111")
                     .role(Role.USER)
-                    //.grade(MemberGrade.BRONZE)
                     .build();
 
             memberRepository.save(user);
