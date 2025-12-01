@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.auth.controller;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
-import com.example.elicesecondproject.mall.domain.Member.entity.Role;
-import com.example.elicesecondproject.mall.domain.Member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.Role;
+import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;

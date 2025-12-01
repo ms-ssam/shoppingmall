@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.auth.store;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import com.example.elicesecondproject.mall.domain.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
