@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.domain.Member.controller;
+package com.example.elicesecondproject.mall.domain.member.controller;
 
-import com.example.elicesecondproject.mall.domain.Member.service.MemberService;
+import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
