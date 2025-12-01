@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLANC - Minimal Shopping Mall</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: "var(--border)",
+                        input: "var(--input)",
+                        ring: "var(--ring)",
+                        background: "var(--background)",
+                        foreground: "var(--foreground)",
+                        primary: {
+                            DEFAULT: "var(--primary)",
+                            foreground: "var(--primary-foreground)",
+                        },
+                        secondary: {
+                            DEFAULT: "var(--secondary)",
+                            foreground: "var(--secondary-foreground)",
+                        },
+                        destructive: {
+                            DEFAULT: "var(--destructive)",
+                            foreground: "var(--destructive-foreground)",
+                        },
+                        muted: {
+                            DEFAULT: "var(--muted)",
+                            foreground: "var(--muted-foreground)",
+                        },
+                        accent: {
+                            DEFAULT: "var(--accent)",
+                            foreground: "var(--accent-foreground)",
+                        },
+                        popover: {
+                            DEFAULT: "var(--popover)",
+                            foreground: "var(--popover-foreground)",
+                        },
+                        card: {
+                            DEFAULT: "var(--card)",
+                            foreground: "var(--card-foreground)",
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* 기본 CSS 변수 설정 */
+        :root {
+            --font-size: 16px;
+            --background: #ffffff;
+            --foreground: #030213;
+            --card: #ffffff;
+            --card-foreground: #030213;
+            --popover: #ffffff;
+            --popover-foreground: #030213;
+            --primary: #030213;
+            --primary-foreground: #ffffff;
+            --secondary: #f4f4f5;
+            --secondary-foreground: #030213;
+            --muted: #ececf0;
+            --muted-foreground: #717182;
+            --accent: #e9ebef;
+            --accent-foreground: #030213;
+            --destructive: #d4183d;
+            --destructive-foreground: #ffffff;
+            --border: rgba(0, 0, 0, 0.1);
+            --input: #e4e4e7;
+            --ring: #030213;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: #030213;
+            --foreground: #ffffff;
+            /* 다크모드 변수 생략 (필요시 추가) */
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 애니메이션 */
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+
+        /* SweetAlert2 커스텀 (Blanc 스타일) */
+        .swal2-popup { border-radius: 0 !important; font-family: 'Noto Sans KR', sans-serif !important; border: 1px solid #333; }
+        .swal2-confirm { background: #000 !important; border-radius: 0 !important; }
+        .swal2-cancel { background: #FFF !important; color: #333 !important; border: 1px solid #000 !important; border-radius: 0 !important; }
+    </style>
+</head>
+<body>
+
+<header class="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 md:px-5 lg:px-8">
+        <div class="flex items-center justify-between h-16 lg:h-20">
+
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 -ml-2 hover:bg-accent rounded-md transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+
+            <div class="flex items-center">
+                <a th:href="@{/}" class="flex items-center gap-2">
+                    <svg width="50" height="50" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-foreground w-10 h-10 lg:w-12 lg:h-12">
+                        <path d="M 45,15 Q 50,10 55,15" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <line x1="35" y1="18" x2="65" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="50" y1="20" x2="25" y2="75" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="50" y1="20" x2="75" y2="75" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="40" y1="50" x2="60" y2="50" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="font-bold text-xl tracking-tight hidden sm:block">BLANC</span>
+                </a>
+            </div>
+
+            <nav class="hidden lg:flex items-center gap-8 ml-12">
+                <a th:href="@{/shop}" class="text-sm font-medium hover:text-muted-foreground transition-colors">SHOP</a>
+                <a th:href="@{/notice}" class="text-sm font-medium hover:text-muted-foreground transition-colors">NOTICE</a>
+            </nav>
+
+            <div class="hidden lg:flex items-center flex-1 max-w-sm mx-8">
+                <div class="relative w-full">
+                    <input type="text" placeholder="Search products..." class="w-full h-10 px-3 pl-10 text-sm border border-input bg-background ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openSearch()" class="lg:hidden p-2 hover:bg-accent rounded-full transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+
+                <a th:href="@{/login}" class="hidden lg:flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent rounded-md transition-colors">
+                    <span>Login</span>
+                </a>
+
+                <a th:href="@{/cart}" class="p-2 hover:bg-accent rounded-full transition-colors relative">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-bold">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobileMenu" class="hidden fixed inset-0 z-50">
+        <div class="fixed inset-0 bg-background/80 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+        <div class="fixed inset-y-0 left-0 w-3/4 max-w-xs bg-background p-6 shadow-lg animate-slide-in border-r border-border">
+            <div class="flex items-center justify-between mb-8">
+                <span class="font-bold text-xl">MENU</span>
+                <button onclick="toggleMobileMenu()" class="p-2 -mr-2 hover:bg-accent rounded-md">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <a th:href="@{/shop}" class="block text-lg font-medium hover:text-muted-foreground">SHOP</a>
+                <a th:href="@{/notice}" class="block text-lg font-medium hover:text-muted-foreground">NOTICE</a>
+                <a th:href="@{/mypage}" class="block text-lg font-medium hover:text-muted-foreground">MY PAGE</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="searchOverlay" class="hidden fixed inset-0 bg-background z-50 lg:hidden p-4">
+        <div class="flex items-center gap-4">
+            <div class="relative flex-1">
+                <input type="text" placeholder="Search..." class="w-full h-10 px-3 pl-10 border border-input bg-background">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button onclick="closeSearch()" class="p-2 font-medium">Close</button>
+        </div>
+    </div>
+</header>
+<main class="flex-grow">
+    <div th:replace="${content}"></div>
+</main>
+<footer class="bg-secondary text-secondary-foreground border-t border-border mt-auto">
+    <div class="max-w-7xl mx-auto px-4 md:px-5 lg:px-8 py-10 lg:py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="md:col-span-2 space-y-4">
+                <span class="font-bold text-lg">BLANC</span>
+                <p class="text-sm text-muted-foreground max-w-xs">
+                    Minimalism Fashion Store for Developers.<br>
+                    Java Spring Boot Project Portfolio.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-semibold mb-3">SHOP</h3>
+                <ul class="space-y-2 text-sm text-muted-foreground">
+                    <li><a href="#" class="hover:text-foreground">New Arrivals</a></li>
+                    <li><a href="#" class="hover:text-foreground">Best Sellers</a></li>
+                    <li><a href="#" class="hover:text-foreground">Sale</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold mb-3">COMPANY</h3>
+                <ul class="space-y-2 text-sm text-muted-foreground">
+                    <li><a href="#" class="hover:text-foreground">About Us</a></li>
+                    <li><a href="#" class="hover:text-foreground">Contact</a></li>
+                    <li><a href="#" class="hover:text-foreground">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
+            &copy; 2025 BLANC. All rights reserved.
+        </div>
+    </div>
+</footer>
+<script>
+    function toggleMobileMenu() {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+    function openSearch() {
+        document.getElementById('searchOverlay').classList.remove('hidden');
+    }
+    function closeSearch() {
+        document.getElementById('searchOverlay').classList.add('hidden');
+    }
+</script>
+</body>
+</html>

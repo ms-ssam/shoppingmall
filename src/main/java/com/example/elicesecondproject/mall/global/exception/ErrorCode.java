@@ -10,6 +10,9 @@ public enum ErrorCode {
     // 400 Bad Request
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "입력값이 올바르지 않습니다."),
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, "C002", "입력 타입이 올바르지 않습니다."),
+    CATEGORY_HAS_CHILDREN(HttpStatus.BAD_REQUEST, "CAT003", "하위 카테고리가 존재하여 삭제할 수 없습니다."),
+    INVALID_IMAGE_FORMAT(HttpStatus.BAD_REQUEST, "IMG001", "지원하지 않는 이미지 형식입니다. (JPG, PNG, WEBP만 가능)"),
+    IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "IMG002", "이미지 크기가 너무 큽니다. (최대 5MB)"),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
@@ -23,10 +26,18 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "해당 사용자를 찾을 수 없습니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "해당 게시물을 찾을 수 없습니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "RT002", "해당 리플레시 토큰을 찾을 수 없습니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CAT002", "해당 카테고리를 찾을 수 없습니다."),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROD001", "해당 상품을 찾을 수 없습니다."),
+    OPTION_COLOR_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT001", "해당 색상 옵션을 찾을 수 없습니다."),
+    OPTION_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT002", "해당 사이즈 옵션을 찾을 수 없습니다."),
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMG003", "해당 이미지를 찾을 수 없습니다."),
 
     // 409 Conflict
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "C003", "이미 존재하는 데이터입니다."),
+    DUPLICATE_CATEGORY_SLUG(HttpStatus.CONFLICT, "CAT001", "이미 존재하는 카테고리 슬러그입니다."),
+    DUPLICATE_SKU(HttpStatus.CONFLICT, "OPT003", "중복된 SKU입니다."),
     NOT_ENOUGH_STOCK(HttpStatus.CONFLICT, "I001", "재고가 부족합니다."),
+    INVALID_STOCK_QUANTITY(HttpStatus.CONFLICT, "I002", "재고 수량이 유효하지 않습니다."),
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다.");

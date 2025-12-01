@@ -28,15 +28,16 @@ public class ProductOptionGroup extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // [성능 최적화] 하위 상세 옵션 조회 시 BatchSize 적용
     @BatchSize(size = 100)
-    // [수정] mappedBy 대상 일치화 (OptionDetail 클래스의 필드명 'productOptionGroup')
-    @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL)
     private List<OptionDetail> details = new ArrayList<>();
-
+/*
+구조적합성: ProductOptionGroup을 '색상' 단위로, OptionDetail을 '사이즈' 단위로 사용해서 계층형 선택 및 조합형 재고 관리
+*/
+    //색상' 단위 (예: Red, Blue)
     @NotBlank(message = "옵션명은 필수입니다.")
     @Column(nullable = false)
-    private String name; // 예: "Red", "Blue", "Standard"
+    private String name; //
 
     @NotNull(message = "정렬 순서는 필수입니다.")
     @Column(nullable = false)
@@ -46,9 +47,6 @@ public class ProductOptionGroup extends BaseEntity {
 
     @Builder
     public ProductOptionGroup(String name, Integer displayOrder) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("옵션명은 필수입니다.");
-        }
         this.name = name;
         this.displayOrder = displayOrder != null ? displayOrder : 0;
     }
@@ -66,7 +64,6 @@ public class ProductOptionGroup extends BaseEntity {
         }
     }
 
-    // [비즈니스 로직] 옵션 삭제 (Cascade Soft Delete)
     public void delete() {
         this.deletedAt = LocalDateTime.now();
         for (OptionDetail detail : details) {

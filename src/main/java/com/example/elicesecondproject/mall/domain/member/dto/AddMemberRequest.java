@@ -26,8 +26,15 @@ public class AddMemberRequest {
     private String password;
 
     @NotBlank(message = "이름을 입력해주세요.")
+    @Pattern(regexp = "^[a-zA-Z가-힣]+$",
+            message = "이름은 한글 또는 영문만 입력할 수 있습니다.")
     private String name;
 
+    @NotBlank(message = "닉네임을 입력해주세요.")
+    private String nickname;
+
     @NotBlank(message = "전화번호를 입력해주세요.")
+    @Pattern(regexp = "^[0-9]{10,11}$",
+            message = "전화번호는 숫자만 입력하며 10~11자리여야 합니다.")
     private String phone;
 }
