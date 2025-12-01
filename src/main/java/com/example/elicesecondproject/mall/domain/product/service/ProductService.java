@@ -3,6 +3,7 @@ package com.example.elicesecondproject.mall.domain.product.service;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
+import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
@@ -15,10 +16,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+
  //PROD-F-01
     public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
             Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
-            return products.map(ProductSummaryDto::from);
+            return products.map(productMapper::toSummaryDto);
     }
 
     /*
@@ -33,7 +36,7 @@ public class ProductService {
               throw new BusinessException(ErrorCode.PRODUCT_STOPPED);  // 판매중지 상품 400 error "현재 판매하지 않는 상품입니다" 메시지
           }
 
-          return ProductSummaryDto.from(foundProduct);
+          return productMapper.toSummaryDto(foundProduct);
       }
 
 }

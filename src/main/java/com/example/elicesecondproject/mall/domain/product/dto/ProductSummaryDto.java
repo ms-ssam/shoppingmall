@@ -23,20 +23,4 @@ public class ProductSummaryDto {
     private int reviewCount;
     private int WishListCount;
 
-
-    public static ProductSummaryDto from(Product product) {
-        return ProductSummaryDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .price(product.getPrice())
-                .salePrice(product.getSalePrice())
-                .discountRate(product.getDiscountRate())
-                .status(product.getStatus())
-                .mainImageUrl(product.getMainImageUrl())
-                .averageRating(product.getAverageRating())
-                .reviewCount(product.getReviewCount())
-                .WishListCount(product.getWishListCount())
-                .build();
-    }
-
 }
