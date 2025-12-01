@@ -1,7 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.entity;
 
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class ProductImage extends SoftDeletableBaseEntity {
+public class ProductImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +42,7 @@ public class ProductImage extends SoftDeletableBaseEntity {
     @Column(nullable = false)
     private Integer displayOrder;
 
-    //private LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     @Builder
     public ProductImage(String imageUrl, ImageType imageType, Integer displayOrder,
@@ -76,7 +76,7 @@ public class ProductImage extends SoftDeletableBaseEntity {
         }
     }
 
-/*    public void delete() {
+    public void delete() {
         this.deletedAt = LocalDateTime.now();
-    }*/
+    }
 }

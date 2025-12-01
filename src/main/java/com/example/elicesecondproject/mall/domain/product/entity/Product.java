@@ -2,8 +2,8 @@ package com.example.elicesecondproject.mall.domain.product.entity;
 
 
 import com.example.elicesecondproject.mall.domain.category.entity.Category;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeletable로 수정했습니다.
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,7 +70,8 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
 
-    // private LocalDateTime deletedAt; // softDeletableBaseEntity 상속받음.
+    private LocalDateTime deletedAt;
+
     public Product(String name, int price, int discountRate, String description,
                    Category category, ProductStatus status) {
         this.name = name;
@@ -144,10 +145,10 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     // 삭제 비즈니스 로직, 자식들도 같이 논리 삭제 처리
     public void delete() {
-        //this.deletedAt = LocalDateTime.now();
+        this.deletedAt = LocalDateTime.now();
         this.status = ProductStatus.STOP;
-        this.optionGroups.forEach(ProductOptionGroup::delete);  //ProductOptionGroup에서 OptionDetail까지 처리
-        this.images.forEach(ProductImage::softDelete);
+        this.optionGroups.forEach(ProductOptionGroup::delete);
+        this.images.forEach(ProductImage::delete);
     }
 
     public int getSalePrice() {
