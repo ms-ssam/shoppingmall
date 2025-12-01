@@ -10,6 +10,7 @@ import com.example.elicesecondproject.mall.domain.product.service.ProductService
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,20 @@ public class ProductController {
         );
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<Page<ProductSummaryDto>>> getAllProducts(
+            @PageableDefault(
+                    size = 20,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+        Page<ProductSummaryDto> products = productService.getAllProducts(pageable);
+        return ResponseEntity.ok(ApiResponse.success(products));
+    }
 
-
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductSummaryDto>> getProduct(@PathVariable Long productId) {
+        ProductSummaryDto res = productService.getProduct(productId);
+        return ResponseEntity.ok(ApiResponse.success(res));
+    }
 }
