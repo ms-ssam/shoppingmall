@@ -2,7 +2,7 @@ package com.example.elicesecondproject.mall.domain.member.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.auth.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,10 +23,15 @@ public class MemberService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        return memberRepository.save(Member.builder()
+        Member member = Member.builder()
                 .email(dto.getEmail())
                 .password(bCryptPasswordEncoder.encode(dto.getPassword()))
+                .name(dto.getName())
+                .nickname(dto.getNickname())
+                .phone(dto.getPhone())
                 .role(Role.USER)
-                .build()).getId();
+                .build();
+
+        return memberRepository.save(member).getId();
     }
 }

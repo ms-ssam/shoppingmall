@@ -1,7 +1,7 @@
 package com.example.elicesecondproject.mall.domain.auth.controller;
 
 
-import com.example.elicesecondproject.mall.domain.auth.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.TokenResponse;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AccessTokenResponse;
