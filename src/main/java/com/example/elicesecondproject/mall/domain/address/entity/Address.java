@@ -35,7 +35,7 @@ public class Address extends BaseEntity {
     private String zipcode;
 
     // 주소 식별 이름 (집, 회사, 학교 등)
-    @Column(name = "address_label", nullable = false, length = 10)
+    @Column(name = "address_label", length = 10)
     private String addressLabel;
 
     // 기본 주소 (도로명/지번)
@@ -52,7 +52,7 @@ public class Address extends BaseEntity {
 
 
     // --- 도메인 메서드 ---
-    
+
     public void markDefault() {
         this.isDefault = true;
     }
@@ -60,6 +60,5 @@ public class Address extends BaseEntity {
     public void unmarkDefault() {
         this.isDefault = false;
     }
-
 
 }

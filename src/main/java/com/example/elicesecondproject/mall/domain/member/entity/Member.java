@@ -36,7 +36,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;
 
-    @Column(name = "phone", length = 50)
+    @Column(name = "phone", nullable = false, length = 50)
     private String phone;
 
     @Enumerated(EnumType.STRING)
@@ -68,6 +68,7 @@ public class Member extends BaseEntity implements UserDetails {
     /*@OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
     private Cart cart;*/
 
+    // ----------
     @Builder
     public Member(String email, String password, Role role) {
         this.email = email;
