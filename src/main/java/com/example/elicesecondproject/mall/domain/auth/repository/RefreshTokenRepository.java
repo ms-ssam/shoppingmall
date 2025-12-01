@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.auth.repository;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 

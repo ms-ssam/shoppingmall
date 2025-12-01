@@ -7,6 +7,7 @@ import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import com.example.elicesecondproject.mall.domain.auth.store.DbRedisRefreshTokenStore;
+import com.example.elicesecondproject.mall.domain.auth.store.DbOnlyRefreshTokenStore;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
@@ -19,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
