@@ -30,8 +30,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class AuthService {
 
-    private final DbRedisRefreshTokenStore refreshTokenStore;
-    //private final DbOnlyRefreshTokenStore refreshTokenStore; // 현재는 db에만 저장
+    //private final DbRedisRefreshTokenStore refreshTokenStore;
+    private final DbOnlyRefreshTokenStore refreshTokenStore; // 현재는 db에만 저장
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final MemberDetailService memberDetailService;
