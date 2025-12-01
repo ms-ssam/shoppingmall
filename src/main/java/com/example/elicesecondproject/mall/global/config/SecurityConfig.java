@@ -55,8 +55,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 서버가 세션을 가지고 있지 않게 STATELESS 설정
                 )
 
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
+                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/h2-console/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
