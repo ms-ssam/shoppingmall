@@ -66,6 +66,8 @@ public class AuthService {
 
         refreshTokenStore.save(tokenEntity);
 
+        member.updateLastLoginAt(LocalDateTime.now());
+
         return new AuthTokens(accessToken, refreshToken);
     }
 
