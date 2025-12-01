@@ -15,17 +15,14 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<ProductSummaryDto> searchProducts(String keyword,
-                                           ProductSortType sortType,
-                                           Pageable pageable){
-        //OrderSpecifier<?> orderSpecifier = product.productId.desc();
+    public Page<ProductSummaryDto> searchProducts(String keyword, ProductSortType sortType, Pageable pageable) {
+        return null;
     }
 
     @Override
-    Page<ProductSummaryDto> findProductsByCategoty(Long categoryId,
-                                                   ProductSortType sortType,
-                                                   Pageable pageable){
-
+    public Page<ProductSummaryDto> findProductsByCategoty(Long categoryId, ProductSortType sortType, Pageable pageable) {
+        return null;
     }
+
 
 }

@@ -2,9 +2,13 @@ package com.example.elicesecondproject.mall.domain.product.service;
 
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,17 +20,20 @@ public class ProductService {
             Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
             return products.map(ProductSummaryDto::from);
     }
+
     /*
     DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
         response : name, price, discountRate, description, categoryId
-                    삭제된 상품: 404 에러 : 상품 상태 => 판매 / 판중 / 품절 (판매중지 == 삭제???)
-                    판매중지 상품: "현재 판매하지 않는 상품입니다" 메시지
+     */
       public ProductSummaryDto getProduct(Long productId) {
-        Product foundProduct = productRepository.findById(productId)
+          Product foundProduct = productRepository.findById(productId)
             .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));  // 삭제된 제품 404 Error
 
-        fou
+          if(foundProduct.getStatus() == ProductStatus.STOP) {
+              throw new BusinessException(ErrorCode.PRODUCT_STOPPED);  // 판매중지 상품 400 error "현재 판매하지 않는 상품입니다" 메시지
+          }
+
+          return ProductSummaryDto.from(foundProduct);
       }
-     */
 
 }
