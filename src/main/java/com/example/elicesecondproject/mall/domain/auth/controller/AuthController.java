@@ -8,11 +8,13 @@ import com.example.elicesecondproject.mall.domain.auth.dto.response.AccessTokenR
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
+import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,11 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody AddMemberRequest request) {
+    public ResponseEntity<ApiResponse<Void>> signup(@RequestBody AddMemberRequest request) {
         memberService.save(request);
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("회원가입 성공", null));
     }
 
     @PostMapping("/login")

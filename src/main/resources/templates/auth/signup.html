@@ -94,6 +94,16 @@
         <label for="passwordConfirm">Password Check</label>
         <input id="passwordConfirm" class="input-box" type="password" required>
 
+        <label for="name">Name</label>
+        <input id="name" class="input-box" type="text" required>
+
+        <label for="nickname">Nickname</label>
+        <input id="nickname" class="input-box" type="text" required>
+
+        <label for="phone">Phone</label>
+        <!-- 숫자만 받게 하고 싶으면 pattern도 추가 가능 -->
+        <input id="phone" class="input-box" type="tel" required placeholder="01012345678">
+
         <button type="submit" class="btn-primary">회원가입</button>
     </form>
 
@@ -117,6 +127,9 @@
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('passwordConfirm').value;
+        const name = document.getElementById('name').value;
+        const nickname = document.getElementById('nickname').value;
+        const phone = document.getElementById('phone').value;
 
         signupError.style.display = 'none';
         signupSuccess.style.display = 'none';
@@ -131,10 +144,17 @@
             const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({
+                    email,
+                    password,
+                    name,
+                    nickname,
+                    phone
+                })
             });
 
             if (!res.ok) {
+                // 백엔드에서 validation 메시지를 내려줄 거면 여기서 꺼내서 표시해도 됨
                 signupError.textContent = '회원가입에 실패했습니다.';
                 signupError.style.display = 'block';
                 return;
