@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.domain.address.entity.Address;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Member extends BaseEntity implements UserDetails {
+public class Member extends SoftDeletableBaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,7 +72,6 @@ public class Member extends BaseEntity implements UserDetails {
     */
 
     // ----------
-
     @Builder
     public Member(String email,
                   String password,
