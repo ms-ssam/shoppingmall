@@ -10,15 +10,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/api")
+@RestController
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/products")
+    @GetMapping
     public ResponseEntity<ApiResponse<Page<ProductSummaryDto>>> getAllProducts(
             @PageableDefault(
                     size = 20,
@@ -27,5 +30,11 @@ public class ProductController {
             ) Pageable pageable) {
         Page<ProductSummaryDto> products = productService.getAllProducts(pageable);
         return ResponseEntity.ok(ApiResponse.success(products));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductSummaryDto>> getProduct(@PathVariable Long productId) {
+        ProductSummaryDto res = productService.getProduct(productId);
+        return ResponseEntity.ok(ApiResponse.success(res));
     }
 }
