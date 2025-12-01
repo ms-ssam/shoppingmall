@@ -61,6 +61,13 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                )
+
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // UsernamePasswordAuthenticationFilter 필터 앞에 JwtAuthenticationFilter를 추가
 
         return http.build();
