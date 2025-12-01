@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor// 접근 제한자 추가
+@NoArgsConstructor
 public class ProductImage extends BaseEntity {
 
     @Id

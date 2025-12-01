@@ -39,7 +39,7 @@ public class Product extends BaseEntity {
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductImage> images = new ArrayList<>();
+    private List<ProductImage> images;
 
     @NotBlank(message = "상품명은 필수입니다.")
     @Column(nullable = false, length = 200)
@@ -63,17 +63,15 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // 반정규화 필드 (성능용)
     private double averageRating = 0.0;
     private int reviewCount = 0;
-    private int likeCount = 0;
+    private int WishListCount = 0;
 
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
 
     private LocalDateTime deletedAt;
 
-    @Builder
     public Product(String name, int price, int discountRate, String description,
                    Category category, ProductStatus status) {
         this.name = name;
@@ -82,6 +80,10 @@ public class Product extends BaseEntity {
         this.description = description;
         this.category = category;
         this.status = status != null ? status : ProductStatus.SELLING;
+
+        // ✅ 생성자에서 명시적 초기화 추가!
+        this.optionGroups = new ArrayList<>();
+        this.images = new ArrayList<>();
     }
 
     // --- 비즈니스 메서드 ---
@@ -128,8 +130,8 @@ public class Product extends BaseEntity {
     }
 
     // 좋아요 수 업데이트
-    public void updateLikeCount(int likeCount) {
-        this.likeCount = likeCount;
+    public void updateWishListCount(int WishListCount) {
+        this.WishListCount = WishListCount;
     }
 
     // 대표 이미지 URL 추출
