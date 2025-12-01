@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.option.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import jakarta.persistence.*;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class OptionDetail extends BaseEntity {
+public class OptionDetail extends SoftDeletableBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,7 +53,7 @@ public class OptionDetail extends BaseEntity {
     @Version
     private Long version; // 낙관적 락
 
-    private LocalDateTime deletedAt;
+    // private LocalDateTime deletedAt;
 
     @Builder
     public OptionDetail(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
@@ -106,7 +107,7 @@ public class OptionDetail extends BaseEntity {
         }
         this.stockQuantity += quantity;
     }
-    public void delete() {
+/*    public void delete() {
         this.deletedAt = LocalDateTime.now();
-    }
+    }*/
 }
