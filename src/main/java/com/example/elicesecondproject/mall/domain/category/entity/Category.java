@@ -2,10 +2,14 @@ package com.example.elicesecondproject.mall.domain.category.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,50 +28,90 @@ public class Category extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
-    private List<Category> children = new ArrayList<>();
+    // [중요] @Builder 사용 시 필드 초기화(= new ArrayList<>())는 무시될 수 있음 -> 생성자에서 직접 초기화해야 함
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Category> children; // 여기서 초기화하지 말고 생성자에서 함
 
+    @NotBlank(message = "카테고리명은 필수입니다.")
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String path; // ex: /1/5/19/
+    @NotBlank(message = "슬러그는 필수입니다.")
+    @Column(nullable = false, unique = true, length = 100)
+    private String slug;
 
+    // 초기값은 setParent 혹은 completePath에서 설정되므로 생성 시점엔 빈 값 허용
+    @Column(nullable = false)
+    private String path;
+
+    @NotNull(message = "깊이 정보는 필수입니다.")
+    @Min(0)
     @Column(nullable = false)
     private Integer depth;
 
+    @NotNull(message = "정렬 순서는 필수입니다.")
     @Column(nullable = false)
-    private Integer displayOrder; // 같은 부모 내에서의 정렬 순서
+    private Integer displayOrder;
 
+    @NotNull
     @Column(nullable = false)
-    private Boolean isVisible; // 전시 여부 (단순 ON/OFF)
+    private Boolean isVisible;
 
     private LocalDateTime deletedAt;
 
+    // [수정 포인트 1] 빌더에서 '로직 필드(parent, path, depth)' 제거 & 리스트 초기화
     @Builder
-    public Category(Category parent, String name, String path, Integer depth, Integer displayOrder, Boolean isVisible) {
-        this.parent = parent;
+    public Category(String name, String slug, Integer displayOrder, Boolean isVisible) {
         this.name = name;
-        this.path = path;
-        this.depth = depth;
+        this.slug = slug;
         this.displayOrder = displayOrder;
-        this.isVisible = isVisible != null ? isVisible : true; // 기본값 True
+        this.isVisible = isVisible != null ? isVisible : true;
+
+        // [수정 포인트 2] 안전장치: 필수 필드 기본값 설정
+        this.depth = 0;
+        this.path = "";
+
+        // [수정 포인트 3] ★ 가장 중요 ★: 리스트 명시적 초기화
+        this.children = new ArrayList<>();
     }
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        for (Category child : children) {
+            child.delete();
+        }
     }
 
-    public void updateDetails(String name, Boolean isVisible, Integer sortOrder) {
-        this.name = name;
-        this.isVisible = isVisible;
-        this.displayOrder = sortOrder;
+    // 서비스 대신 엔티티가 스스로 수정 (객체지향적 설계)
+    public void updateDetails(String name, String slug, Boolean isVisible, Integer displayOrder) {
+        if (name != null && !name.isBlank()) { this.name = name; }
+        if (slug != null && !slug.isBlank()) { this.slug = slug; }
+        if (isVisible != null) { this.isVisible = isVisible; }
+        if (displayOrder != null) { this.displayOrder = displayOrder; }
     }
 
-    //Todo 서비스에서 카테고리 이동(부모 변경) - moveCategory() 고려해보기
-    /*public void changeStructure(Category newParent, String newPath, Integer newDepth) {
-        this.parent = newParent;
-        this.path = newPath;
-        this.depth = newDepth;
-    }*/
+    // [핵심] 구조 설정 로직 (생성 시 필수 호출)
+    public void setParent(Category parent) {
+        this.parent = parent;
+
+        if (parent == null) {
+            this.depth = 0;
+            this.path = "/";
+        } else {
+            this.depth = parent.getDepth() + 1;
+            this.path = parent.getPath();
+
+            // 부모 리스트에 내가 없으면 추가 (NPE 방지를 위해 children 초기화 필수)
+            if (!parent.getChildren().contains(this)) {
+                parent.getChildren().add(this);
+            }
+        }
+    }
+
+    // 저장 후 ID가 생긴 뒤 경로 완성용 메서드
+    public void completePath() {
+        String currentPath = (this.path == null || this.path.isBlank()) ? "/" : this.path;
+        this.path = currentPath + this.id + "/";
+    }
 }
