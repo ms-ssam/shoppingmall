@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.domain.address.entity.Address;
+import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
@@ -65,6 +66,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Address> addresses;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<Review> reviews;
 
     /*
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)

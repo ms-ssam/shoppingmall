@@ -3,6 +3,7 @@ package com.example.elicesecondproject.mall.domain.product.entity;
 
 import com.example.elicesecondproject.mall.domain.category.entity.Category;
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
+import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -30,6 +31,9 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
 
     // [옵션 구조] 상품 -> 옵션 그룹 -> 상세 옵션]
     @BatchSize(size = 100)
