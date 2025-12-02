@@ -1,9 +1,12 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
+import com.example.elicesecondproject.mall.domain.member.dto.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,4 +37,14 @@ public class MemberService {
 
         return memberRepository.save(member).getId();
     }
+
+    // 내 정보 조회
+    public MemberProfileResponse getMyProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return MemberProfileResponse.from(member);
+    }
+
+
 }

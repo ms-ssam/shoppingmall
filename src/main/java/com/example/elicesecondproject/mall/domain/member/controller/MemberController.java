@@ -1,6 +1,8 @@
 package com.example.elicesecondproject.mall.domain.member.controller;
 
 import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.MemberProfileResponse;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,5 +41,18 @@ public class MemberController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입 성공", null));
+    }
+
+    // my정보조회
+    @GetMapping("api/me")
+    public ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(
+            @AuthenticationPrincipal MemberDetail memberDetail
+    ) {
+        Long memberId = memberDetail.getMember().getId();
+        MemberProfileResponse response = memberService.getMyProfile(memberId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("회원 정보 조회 성공", response)
+        );
     }
 }
