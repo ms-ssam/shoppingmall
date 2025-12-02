@@ -2,23 +2,16 @@ package com.example.elicesecondproject.mall.domain.review.mapper;
 
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-public class ReviewMapper {
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
+public interface ReviewMapper {
 
-    public static ReviewResponse toResponse(Review review) {
-        if (review == null) {
-            return null;
-        }
-
-        return ReviewResponse.builder()
-                .id(review.getId())
-                .rating(review.getRating())
-                .content(review.getContent())
-                .imageUrl(review.getImageUrl())
-                .createdAt(review.getCreatedAt())
-                .updatedAt(review.getUpdatedAt())
-                .deletedAt(review.getDeletedAt())
-                .memberNickname(review.getMember().getNickname())
-                .build();
-    }
+    @Mapping(target = "memberNickname", source = "member.nickname")
+    ReviewResponse toResponse(Review review);
 }
