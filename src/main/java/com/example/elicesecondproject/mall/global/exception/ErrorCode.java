@@ -15,8 +15,12 @@ public enum ErrorCode {
 
     INVALID_IMAGE_FORMAT(HttpStatus.BAD_REQUEST, "IMG001", "지원하지 않는 이미지 형식입니다. (JPG, PNG, WEBP만 가능)"),
     IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "IMG002", "이미지 크기가 너무 큽니다. (최대 5MB)"),
+    INVALID_IMAGE_URL(HttpStatus.BAD_REQUEST, "IMG004", "이미지 URL이 유효하지 않습니다."),
 
     PRODUCT_STOPPED(HttpStatus.BAD_REQUEST, "PR002", "현재 판매하지 않는 상품입니다."),
+
+    SEARCH_KEYWORD_REQUIRED(HttpStatus.BAD_REQUEST, "SRH001", "검색어를 입력해주세요."),
+    SEARCH_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "SRH002", "검색어는 최소 2자 이상 입력해야 합니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),

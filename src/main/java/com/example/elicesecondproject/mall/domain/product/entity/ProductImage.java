@@ -2,6 +2,8 @@ package com.example.elicesecondproject.mall.domain.product.entity;
 
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,9 +27,10 @@ public class ProductImage extends SoftDeletableBaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_option_group_id") // 색상별 이미지
-    private ProductOptionGroup productOptionGroup;
+    // 옵션 색상 이미지 삭제
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "product_option_group_id") // 색상별 이미지
+//    private ProductOptionGroup productOptionGroup;
 
     @NotBlank(message = "이미지 URL은 필수입니다.") // 유효성 검증 추가
     @Column(nullable = false, length = 500) // URL 길이 제한
@@ -48,15 +51,15 @@ public class ProductImage extends SoftDeletableBaseEntity {
     public ProductImage(String imageUrl, ImageType imageType, Integer displayOrder,
                         ProductOptionGroup productOptionGroup) {
         if (imageUrl == null || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("이미지 URL은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_IMAGE_URL);
         }
         if (imageType == null) {
-            throw new IllegalArgumentException("이미지 타입은 필수입니다.");
+            throw new BusinessException(ErrorCode.INVALID_IMAGE_FORMAT);
         }
         this.imageUrl = imageUrl;
         this.imageType = imageType;
         this.displayOrder = displayOrder != null ? displayOrder : 0;
-        this.productOptionGroup = productOptionGroup;
+//        this.productOptionGroup = productOptionGroup;
     }
 
     public void initProduct(Product product) {
@@ -75,8 +78,28 @@ public class ProductImage extends SoftDeletableBaseEntity {
             this.displayOrder = displayOrder;
         }
     }
+    public String getThumbnailUrl() {
+        return imageUrl;
+    }
+    public String getResizedUrl() {
+        // DESCRIPTION은 DB에 이미 resized 경로 저장됨
+        if (imageType == ImageType.DESCRIPTION) {
+            return imageUrl;
+        }
+
+        // thumbnail → resized 변환
+        if (imageUrl != null && imageUrl.contains("/thumbnail/")) {
+            return imageUrl.replace("/thumbnail/", "/resized/");
+        }
+
+        return imageUrl;
+    }
+    public boolean isSliderImage() {
+        return imageType == ImageType.MAIN || imageType == ImageType.SLIDER;
+    }
+
+}
 
 /*    public void delete() {
         this.deletedAt = LocalDateTime.now();
     }*/
-}
