@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductRepositoryCustom {
 
+    Page<ProductSummaryDto> searchProducts(String keyword, ProductSortType sortType, Pageable pageable);
+
 // * PROD-F-02: 카테고리별 상품 조회
     Page<ProductSummaryDto> findProductsByCategory(Long categoryId,
                                                    Boolean includeSubCategories,

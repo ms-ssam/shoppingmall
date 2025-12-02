@@ -11,8 +11,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
     // 삭제 안된거 조회
     Page<Product> findByDeletedAtIsNull(Pageable pageable);
 
-
-
     // 유저는 selling만 조회
     Page<Product> findByStatus(ProductStatus status, Pageable pageable);
 

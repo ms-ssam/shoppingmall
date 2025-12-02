@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -50,6 +51,42 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         log.debug("조회 완료 - total: {}, fetched: {}", total, content.size());
 
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
+
+    @Override
+    public Page<ProductSummaryDto> searchProducts(String keyword, ProductSortType sortType, Pageable pageable) {
+
+        log.debug("keyword:{}", keyword);
+        BooleanExpression whereClause = productNotDeleted()
+                .and(keywordCondition(keyword));
+
+        // 실제 데이터 조회
+        List<ProductSummaryDto> content = fetchProducts(whereClause, sortType, pageable);
+
+        // 전체 개수 조회
+        Long total = countProducts(whereClause);
+
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
+    private BooleanExpression keywordCondition(String keyword) {
+
+        String[] terms = keyword.split("\\s+");
+
+        BooleanExpression condition = null;
+
+        // 부분 일치 검색 (LIKE %keyword%)
+        for(String term : terms) {
+            log.debug("term:{}", term);
+            BooleanExpression termExpr =
+                    product.name.containsIgnoreCase(term)
+                            .or(product.description.containsIgnoreCase(term))
+                            .or(product.category.name.containsIgnoreCase(term));
+
+            condition = (condition == null) ? termExpr : condition.and(termExpr);
+        }
+        log.debug("condition:{}", condition);
+        return condition;
     }
 
     private List<ProductSummaryDto> fetchProducts(
@@ -161,5 +198,34 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             case WISHLIST_COUNT -> product.wishListCount.desc();
             case RATING -> product.averageRating.desc();
         };
+
+        /*
+        // 2차 정렬로 id DESC 한 번 더 넣어주면 정렬 안정적
+        return switch (sortType) {
+            case LATEST -> new OrderSpecifier[]{
+                    product.createdAt.desc(),
+                    product.id.desc()
+            };
+            case PRICE_HIGH -> new OrderSpecifier[]{
+                    product.price.desc(),
+                    product.id.desc()
+            };
+            case PRICE_LOW -> new OrderSpecifier[]{
+                    product.price.asc(),
+                    product.id.desc()
+            };
+            case REVIEW_COUNT ->  new OrderSpecifier[]{
+                    product.reviewCount.desc(),
+                    product.id.desc()
+            };
+            case WISHLIST_COUNT -> new OrderSpecifier[]{
+                    product.WishListCount.desc(),
+                    product.id.desc()
+            };
+            case RATING ->  new OrderSpecifier[]{
+                    product.averageRating.desc(),
+                    product.id.desc()
+            };
+        };*/
     }
 }

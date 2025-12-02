@@ -63,7 +63,18 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(res));
     }
 
+    // 키워드 검색
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<ProductSummaryDto>>> searchProducts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "LATEST") ProductSortType sortType,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) int size){
+        Pageable pageable = PageRequest.of(page, size);
 
+        Page<ProductSummaryDto> products = productService.searchProducts(keyword, sortType, pageable);
+        return ResponseEntity.ok(ApiResponse.success(products));
+    }
 
 
      //상품의 모든 이미지 조회 (관리자용)

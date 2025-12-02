@@ -34,6 +34,4 @@ public interface ProductMapper {
 
     ProductImage toImageEntity(ProductImageDto dto);
 
-
-
 }
