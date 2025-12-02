@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.service;
 
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
+import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
@@ -66,19 +67,18 @@ public class ProductService {
     }
 
     /*
-    DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
-        response : name, price, discountRate, description, categoryId
+    DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다 -> 상세 조회로 변경 및 반환타입 수정
      */
-      public ProductSummaryDto getProduct(Long productId) {
-          Product foundProduct = productRepository.findById(productId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));  // 삭제된 제품 404 Error
+    public ProductDetailResponse getProduct(Long productId) { // 1. 반환 타입 변경
+        Product foundProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-          if(foundProduct.getStatus() == ProductStatus.STOP) {
-              throw new BusinessException(ErrorCode.PRODUCT_STOPPED);  // 판매중지 상품 400 error "현재 판매하지 않는 상품입니다" 메시지
-          }
+        if(foundProduct.getStatus() == ProductStatus.STOP) {
+            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);
+        }
 
-          return productMapper.toSummaryDto(foundProduct);
-      }
+        return productMapper.toDetailResponse(foundProduct); // 2. toSummaryDto -> toDetailResponse
+    }
 
     //PROD-F-06 - 슬라이더 이미지 조회
     public List<ProductImageDto> getSliderImages(Long productId) {
