@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
 
     Optional<Review> findByIdAndDeletedAtIsNull(Long id);

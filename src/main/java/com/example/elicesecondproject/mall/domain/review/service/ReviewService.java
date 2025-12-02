@@ -79,6 +79,16 @@ public class ReviewService {
             throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
         }
 
+        Product product = review.getProduct();
+
+        if(!review.getRating().equals(request.getRating())){
+            int oldCount = product.getReviewCount();
+            int newCount = oldCount + 1;
+            double oldAvg = product.getAverageRating();
+            double newAvg = ((oldAvg * oldCount) + request.getRating()) / newCount;
+            product.updateRating(newAvg, newCount);
+        }
+
         review.update(request.getRating(), request.getContent(), request.getImageUrl());
 
         return reviewMapper.toResponse(review);

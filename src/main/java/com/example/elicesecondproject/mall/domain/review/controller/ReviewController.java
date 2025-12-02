@@ -33,7 +33,7 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(reviews));
     }
 
-    @PostMapping("/products/{productId}/reviews")
+    @PostMapping("/products/{productId}/reviews") // 경로를 생각 해볼 필요. 리뷰 생성은 마이페이지의 주문 목록에서 배송 완료된 쥬뮨애서 가능함
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@PathVariable Long productId,
                                                                     @Valid @RequestBody CreateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
