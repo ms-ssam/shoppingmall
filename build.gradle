@@ -29,6 +29,7 @@ dependencies {
     // 2. JPA & Database
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // 3. Redis 추가 (로컬 개발용)
