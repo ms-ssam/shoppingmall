@@ -21,4 +21,6 @@ public class PasswordChangeRequest {
     )
     private String newPassword;
 
+    private String newPasswordConfirm;
+
 }

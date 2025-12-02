@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
+import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
@@ -85,6 +86,17 @@ public class MemberService {
         return digits;
     }
 
+    // 비밀번호 변경 -> 현재 비밀번호 확인, 새 비밀번호 조건 체크, 새 비밀번호 다시 입력 동일한지 확인
+    @Transactional
+    public void changePassword(Long memberId, PasswordChangeRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // 현재 비밀번호 불일치
+        if(!bCryptPasswordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
+    }
 
     // 회원 탈퇴
 }

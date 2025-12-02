@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.member.controller;
 
 import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
@@ -66,5 +67,20 @@ public class MemberController {
                 ApiResponse.success("회원 정보 수정 성공", null)
         );
     }
+
+    // 비밀번호 수정
+    @PutMapping("api/me/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal MemberDetail memberDetail,
+            @RequestBody @Valid PasswordChangeRequest request
+    ) {
+        Long memberId = memberDetail.getMember().getId();
+        memberService.changePassword(memberId, request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success("비밀번호 검증 성공 (변경 로직은 이후 추가 예정)", null)
+        );
+    }
+
 
 }
