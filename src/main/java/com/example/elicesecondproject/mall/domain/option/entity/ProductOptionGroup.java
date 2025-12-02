@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.option.entity;
 
+import com.example.elicesecondproject.mall.domain.product.entity.ProductImage;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
@@ -28,6 +29,10 @@ public class ProductOptionGroup extends SoftDeletableBaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @BatchSize(size = 100)
+    @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL)
@@ -65,10 +70,21 @@ public class ProductOptionGroup extends SoftDeletableBaseEntity {
         }
     }
 
+    public void addImage(ProductImage image) {
+        this.images.add(image);
+        if (image.getProductOptionGroup() != this) {
+            image.initProductOptionGroup(this);
+        }
+    }
+
     public void delete() {
         //this.deletedAt = LocalDateTime.now();
         for (OptionDetail detail : details) {
             detail.softDelete();
+        }
+
+        for (ProductImage image : images) {
+            image.softDelete();
         }
     }
 }

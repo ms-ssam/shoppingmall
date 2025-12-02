@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeletable로 수정했습니다.
 
@@ -39,9 +41,9 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();;
 
-    @NotBlank(message = "상품명은 필수입니다.")
+    //@NotBlank(message = "상품명은 필수입니다.")
     @Column(nullable = false, length = 200)
     private String name;
 
@@ -55,7 +57,7 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     @Column(nullable = false)
     private int discountRate; // 할인율 (%)
 
-    @NotNull(message = "판매 상태는 필수입니다.")
+    //@NotNull(message = "판매 상태는 필수입니다.")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status;

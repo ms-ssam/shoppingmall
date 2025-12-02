@@ -63,6 +63,9 @@ public class ProductImage extends SoftDeletableBaseEntity {
         this.product = product;
     }
 
+    public void initProductOptionGroup(ProductOptionGroup productOptionGroup) {
+        this.productOptionGroup = productOptionGroup;
+    }
 
     public void updateImageInfo(String imageUrl, ImageType imageType, Integer displayOrder) {
         if (imageUrl != null && !imageUrl.isBlank()) {

@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,7 +20,7 @@ public class GlobalExceptionHandler {
      * @param ex MethodArgumentNotValidException
      * @return 400 Bad Request와 함께 유효성 검증 실패 메시지를 담은 응답
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    /*@ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
@@ -29,14 +30,23 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
                 .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE));
-    }
+    }*/
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        // 필드별 에러를 리스트/맵으로 내려주고 싶으면 이렇게
+        List<String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                .collect(Collectors.toList());   // toList() 대신 collect()
 
+        return ResponseEntity.status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, (Object) fieldErrors));
+    }
     /**
      * @Valid 어노테이션을 사용한 PathVariable 또는 RequestParam의 유효성 검증 실패 시 발생하는 예외를 처리.
      * @param ex ConstraintViolationException
      * @return 400 Bad Request와 함께 유효성 검증 실패 메시지를 담은 응답
      */
-    @ExceptionHandler(ConstraintViolationException.class)
+    /*@ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex) {
         String errorMessage = ex.getConstraintViolations().stream()
                 .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
@@ -46,6 +56,25 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
                 .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE));
+    }*/
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ApiResponse<Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        List<String> fieldErrors = ex.getConstraintViolations().stream()
+                .map(cv -> cv.getPropertyPath() + ": " + cv.getMessage())
+                .collect(Collectors.toList());
+
+        log.warn("### [Param/Path Validation] errors = {}", fieldErrors);
+
+        ApiResponse<Object> body = new ApiResponse<>(
+                false,
+                ErrorCode.INVALID_INPUT_VALUE.getCode(),
+                ErrorCode.INVALID_INPUT_VALUE.getMessage(),
+                fieldErrors
+        );
+
+        return ResponseEntity.status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(body);
     }
 
     /**

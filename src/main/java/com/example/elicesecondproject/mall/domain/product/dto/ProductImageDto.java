@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.dto;
 
 import com.example.elicesecondproject.mall.domain.product.entity.ImageType;
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,8 @@ public class ProductImageDto {
     @NotNull(message = "정렬 순서는 필수입니다.")
     private Integer displayOrder;
 
-    private Long productOptionGroupId;
+    /*private Long productOptionGroupId;*/
+
+    private Product product;
 }
 

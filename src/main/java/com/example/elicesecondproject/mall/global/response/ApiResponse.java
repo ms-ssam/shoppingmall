@@ -10,7 +10,7 @@ public class ApiResponse<T> {
     private final String message;  // 응답 결과 메시지
     private final T data;  // 실제 응답 데이터
 
-    private ApiResponse(boolean isSuccess, String code, String message, T data) {
+    public ApiResponse(boolean isSuccess, String code, String message, T data) {
         this.success = isSuccess;
         this.code = code;
         this.message = message;
@@ -27,5 +27,10 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
         return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null);
+    }
+
+    public static <T> ApiResponse<T> fail(ErrorCode errorCode, T data) {
+        ApiResponse<T> res = new ApiResponse<>(false, errorCode.getCode(),errorCode.getMessage(), data);
+        return res;
     }
 }
