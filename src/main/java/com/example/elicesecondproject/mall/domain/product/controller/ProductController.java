@@ -1,7 +1,6 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -15,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -61,4 +62,18 @@ public class ProductController {
         ProductSummaryDto res = productService.getProduct(productId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
+
+
+
+
+     //상품의 모든 이미지 조회 (관리자용)
+
+    @GetMapping("/{productId}/images")
+    public ResponseEntity<ApiResponse<List<ProductImageDto>>> getAllImages(
+            @PathVariable @Min(1) Long productId) {
+
+        List<ProductImageDto> images = productService.getAllImages(productId);
+        return ResponseEntity.ok(ApiResponse.success(images));
+    }
+
 }

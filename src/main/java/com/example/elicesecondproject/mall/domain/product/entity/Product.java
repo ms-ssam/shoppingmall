@@ -65,7 +65,7 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     private double averageRating = 0.0;
     private int reviewCount = 0;
-    private int WishListCount = 0;
+    private int wishListCount = 0;
 
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
@@ -129,8 +129,8 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     }
 
     // 좋아요 수 업데이트
-    public void updateWishListCount(int WishListCount) {
-        this.WishListCount = WishListCount;
+    public void updateWishListCount(int wishListCount) {
+        this.wishListCount = wishListCount;
     }
 
     // 대표 이미지 URL 추출

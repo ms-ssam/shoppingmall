@@ -92,7 +92,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 selectMainImage(),
                 product.averageRating,
                 product.reviewCount,
-                product.WishListCount
+                product.wishListCount
         );
     }
 
@@ -158,7 +158,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             case PRICE_HIGH -> product.price.desc();
             case PRICE_LOW -> product.price.asc();
             case REVIEW_COUNT -> product.reviewCount.desc();
-            case WISHLIST_COUNT -> product.WishListCount.desc();
+            case WISHLIST_COUNT -> product.wishListCount.desc();
             case RATING -> product.averageRating.desc();
         };
     }

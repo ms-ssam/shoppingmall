@@ -1,6 +1,5 @@
 package com.example.elicesecondproject.mall.global.service;
 
-
 import com.example.elicesecondproject.mall.global.config.FileConfig;
 import com.example.elicesecondproject.mall.global.config.ImageConfig;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class ProductImageFileService {
      */
     public enum UploadTarget {
         MAIN,           // 상품 대표 이미지
-        COLOR,          // 색상별 대표 이미지
         SLIDER,         // 추가 이미지 (갤러리)
         DESCRIPTION     // 상세 설명 이미지
     }
@@ -36,14 +34,12 @@ public class ProductImageFileService {
      * 여러 파일 업로드
      *
      * @param productId 상품 ID
-     * @param colorOptionGroupId 색상 옵션 그룹 ID (COLOR 타입만 사용, 나머지는 null)
      * @param files 업로드할 파일 리스트
      * @param target 업로드 대상 타입
      * @return DB에 저장할 imageUrl 리스트
      */
     public List<String> saveImages(
             Long productId,
-            Long colorOptionGroupId,
             List<MultipartFile> files,
             UploadTarget target
     ) throws IOException {
@@ -54,7 +50,7 @@ public class ProductImageFileService {
 
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : files) {
-            String imageUrl = saveImage(productId, colorOptionGroupId, file, target);
+            String imageUrl = saveImage(productId, file, target);
             if (imageUrl != null) {
                 imageUrls.add(imageUrl);
             }
@@ -66,14 +62,12 @@ public class ProductImageFileService {
      * 단일 파일 업로드
      *
      * @param productId 상품 ID
-     * @param colorOptionGroupId 색상 옵션 그룹 ID (COLOR 타입만 사용)
      * @param file 업로드할 파일
      * @param target 업로드 대상 타입
-     * @return DB에 저장할 imageUrl (예: /uploads/products/123/main/resized/abc.jpg)
+     * @return DB에 저장할 imageUrl (예: /uploads/products/123/main/thumbnail/abc.jpg)
      */
     public String saveImage(
             Long productId,
-            Long colorOptionGroupId,
             MultipartFile file,
             UploadTarget target
     ) throws IOException {
@@ -86,7 +80,7 @@ public class ProductImageFileService {
         validateExtension(file);
 
         // 2. 대상 디렉토리 결정
-        Path baseDir = resolveBaseDir(productId, colorOptionGroupId, target);
+        Path baseDir = resolveBaseDir(productId, target);
         Path originalDir = fileConfig.getOriginalDir(baseDir);
         Path resizedDir = fileConfig.getResizedDir(baseDir);
         Path thumbnailDir = fileConfig.getThumbnailDir(baseDir);
@@ -105,15 +99,15 @@ public class ProductImageFileService {
         Files.copy(file.getInputStream(), originalPath, StandardCopyOption.REPLACE_EXISTING);
         log.info("[ProductImageFileService] Original saved: {}", originalPath);
 
-        // 6. 리사이즈 (1920px 최대, 비율 유지)
+        // 6. 리사이즈 (1200px 최대, 비율 유지)
         Thumbnails.of(originalPath.toFile())
                 .size(imageConfig.getResize().getMaxWidth(), imageConfig.getResize().getMaxWidth())
                 .outputQuality(imageConfig.getResize().getQuality())
                 .toFile(resizedPath.toFile());
         log.info("[ProductImageFileService] Resized saved: {}", resizedPath);
 
-        // 7. 썸네일 생성 (MAIN, COLOR, SLIDER만)
-        if (target == UploadTarget.MAIN || target == UploadTarget.COLOR || target == UploadTarget.SLIDER) {
+        // 7. 썸네일 생성 (MAIN, SLIDER만)
+        if (target == UploadTarget.MAIN || target == UploadTarget.SLIDER) {
             int size = getThumbnailSize(target);
             Path thumbnailPath = thumbnailDir.resolve(filename);
 
@@ -125,7 +119,7 @@ public class ProductImageFileService {
         }
 
         // 8. DB에 저장할 웹 경로 생성
-        String imageUrl = buildWebPath(productId, colorOptionGroupId, target, filename);
+        String imageUrl = buildWebPath(productId, target, filename);
         log.info("[ProductImageFileService] Image URL: {}", imageUrl);
 
         return imageUrl;
@@ -134,7 +128,7 @@ public class ProductImageFileService {
     /**
      * 이미지 파일 삭제
      *
-     * @param imageUrl DB에 저장된 imageUrl (예: /uploads/products/123/main/resized/abc.jpg)
+     * @param imageUrl DB에 저장된 imageUrl (예: /uploads/products/123/main/thumbnail/abc.jpg)
      */
     public void deleteImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) {
@@ -142,35 +136,36 @@ public class ProductImageFileService {
         }
 
         try {
-            // /uploads/ 이후 경로 추출
             String prefix = "/uploads/";
             if (!imageUrl.startsWith(prefix)) {
                 log.warn("[ProductImageFileService] 관리 대상이 아닌 경로: {}", imageUrl);
                 return;
             }
 
-            // 웹 경로 → 파일 시스템 경로 변환
-            String relative = imageUrl.substring(prefix.length()); // products/123/main/resized/abc.jpg
+            // DB URL이 thumbnail 또는 resized 경로
+            String relative = imageUrl.substring(prefix.length());
             Path basePath = Paths.get(fileConfig.getBasePath());
-            Path resizedPath = basePath.resolve(relative.replace("/", FileSystems.getDefault().getSeparator()));
+            Path dbImagePath = basePath.resolve(relative.replace("/", FileSystems.getDefault().getSeparator()));
 
-            // resized 파일 삭제
-            if (Files.exists(resizedPath)) {
-                Files.delete(resizedPath);
-                log.info("[ProductImageFileService] Resized 삭제: {}", resizedPath);
-            }
+            // 파일명과 상위 디렉토리 추출
+            String filename = dbImagePath.getFileName().toString();
+            Path parentDir = dbImagePath.getParent().getParent(); // .../main or .../slider
 
-            // original, thumbnail 경로 계산 및 삭제
-            Path parentDir = resizedPath.getParent(); // .../resized
-            String filename = resizedPath.getFileName().toString();
-
-            Path originalPath = parentDir.getParent().resolve("original").resolve(filename);
-            Path thumbnailPath = parentDir.getParent().resolve("thumbnail").resolve(filename);
+            // 3개 파일 모두 삭제
+            Path originalPath = parentDir.resolve("original").resolve(filename);
+            Path resizedPath = parentDir.resolve("resized").resolve(filename);
+            Path thumbnailPath = parentDir.resolve("thumbnail").resolve(filename);
 
             if (Files.exists(originalPath)) {
                 Files.delete(originalPath);
                 log.info("[ProductImageFileService] Original 삭제: {}", originalPath);
             }
+
+            if (Files.exists(resizedPath)) {
+                Files.delete(resizedPath);
+                log.info("[ProductImageFileService] Resized 삭제: {}", resizedPath);
+            }
+
             if (Files.exists(thumbnailPath)) {
                 Files.delete(thumbnailPath);
                 log.info("[ProductImageFileService] Thumbnail 삭제: {}", thumbnailPath);
@@ -220,10 +215,9 @@ public class ProductImageFileService {
     /**
      * 업로드 타입에 따른 베이스 디렉토리 반환
      */
-    private Path resolveBaseDir(Long productId, Long colorOptionGroupId, UploadTarget target) {
+    private Path resolveBaseDir(Long productId, UploadTarget target) {
         return switch (target) {
             case MAIN -> fileConfig.getMainDir(productId);
-            case COLOR -> fileConfig.getColorDir(productId, colorOptionGroupId);
             case SLIDER -> fileConfig.getSliderDir(productId);
             case DESCRIPTION -> fileConfig.getDescriptionDir(productId);
         };
@@ -253,7 +247,7 @@ public class ProductImageFileService {
      * 썸네일 크기 반환
      */
     private int getThumbnailSize(UploadTarget target) {
-        // SLIDER만 100x100, 나머지(MAIN, COLOR)는 300x300
+        // SLIDER: 100x100, MAIN: 300x300
         if (target == UploadTarget.SLIDER) {
             return imageConfig.getThumbnail().getSliderSize();
         }
@@ -262,17 +256,24 @@ public class ProductImageFileService {
 
     /**
      * DB에 저장할 웹 경로 생성
-     * 예: /uploads/products/123/main/resized/abc.jpg
+     *
+     * @param productId 상품 ID
+     * @param target 업로드 타입
+     * @param filename 파일명
+     * @return 웹 경로 (예: /uploads/products/123/main/thumbnail/abc.jpg)
      */
-    private String buildWebPath(Long productId, Long colorOptionGroupId, UploadTarget target, String filename) {
-        String webBase = fileConfig.getWebBasePath(productId); // /uploads/products/123/
+    private String buildWebPath(Long productId, UploadTarget target, String filename) {
+        String webBase = fileConfig.getWebBasePath(productId);
+
         String typePath = switch (target) {
             case MAIN -> "main";
-            case COLOR -> "color-" + colorOptionGroupId;
             case SLIDER -> "slider";
             case DESCRIPTION -> "description";
         };
 
-        return webBase + typePath + "/resized/" + filename;
+        // thumbnail 경로 저장 (DESCRIPTION만 resized)
+        String directory = (target == UploadTarget.DESCRIPTION) ? "resized" : "thumbnail";
+
+        return webBase + typePath + "/" + directory + "/" + filename;
     }
 }
