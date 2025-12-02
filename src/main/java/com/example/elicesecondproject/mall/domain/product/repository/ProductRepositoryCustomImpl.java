@@ -85,8 +85,6 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
             condition = (condition == null) ? termExpr : condition.and(termExpr);
         }
-
-        // 부분 일치 검색 (LIKE %keyword%)
         log.debug("condition:{}", condition);
         return condition;
     }

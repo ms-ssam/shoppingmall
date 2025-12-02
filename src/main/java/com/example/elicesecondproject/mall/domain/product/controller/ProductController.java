@@ -74,10 +74,4 @@ public class ProductController {
         Page<ProductSummaryDto> products = productService.searchProducts(keyword, sortType, pageable);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
-
-    @GetMapping("/{productId}")
-    public ResponseEntity<ApiResponse<ProductSummaryDto>> getProduct(@PathVariable Long productId) {
-        ProductSummaryDto res = productService.getProduct(productId);
-        return ResponseEntity.ok(ApiResponse.success(res));
-    }
 }
