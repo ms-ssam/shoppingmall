@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface ReviewRepository extends JpaRepository<Review, Long> {
+public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
 
     Optional<Review> findByIdAndDeletedAtIsNull(Long id);
@@ -19,4 +19,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByProductIdAndDeletedAtIsNull(Long productId, Pageable pageable);
 
     Page<Review> findByMemberIdAndDeletedAtIsNull(Long memberId, Pageable pageable);
+
+    Long countByProductIdAndDeletedAtIsNull(Long productId);
 }

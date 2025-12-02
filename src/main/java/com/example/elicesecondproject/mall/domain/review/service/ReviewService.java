@@ -57,12 +57,10 @@ public class ReviewService {
         reviewRepository.save(review);
 
         // product 리뷰 수 증가, 평균 평점 갱신
-        int oldCount = product.getReviewCount();
-        int newCount = oldCount + 1;
-        double oldAvg = product.getAverageRating();
-        double newAvg = ((oldAvg * oldCount) + request.getRating()) / newCount; //TODO: 계산 하는 방법을 바꿔야 할듯 // 계산 한 값을 그대로 데이터베이스에 넣고  보여줄 때 소수점 제거
+        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
 
-        product.updateRating(newAvg, newCount);
+        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
 
         return reviewMapper.toResponse(review);
     }
@@ -79,7 +77,17 @@ public class ReviewService {
             throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
         }
 
+        Product product = review.getProduct();
+
+        Integer oldRating = review.getRating();
+        Integer newRating = request.getRating();
+
         review.update(request.getRating(), request.getContent(), request.getImageUrl());
+
+        if (!oldRating.equals(newRating)) {
+            Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+            product.updateRating(newAvg);
+        }
 
         return reviewMapper.toResponse(review);
     }
@@ -97,6 +105,13 @@ public class ReviewService {
         }
 
         review.softDelete();
+
+        Product product = review.getProduct();
+
+        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
+
+        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
     }
 
     public Page<ReviewResponse> getReviewsByMember(Long memberId, Pageable pageable){
