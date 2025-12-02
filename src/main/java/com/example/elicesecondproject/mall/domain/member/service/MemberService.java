@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
 import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
@@ -140,4 +141,16 @@ public class MemberService {
     }
 
     // 회원 탈퇴
+    @Transactional
+    public void withdraw(Long memberId, WithdrawMemberRequest request) {
+        Member member =  memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // 비밀번호 확인
+        if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword())) {
+            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+        }
+
+        member.withdraw();
+    }
 }

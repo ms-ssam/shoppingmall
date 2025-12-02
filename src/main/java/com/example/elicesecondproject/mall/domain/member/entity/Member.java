@@ -112,8 +112,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
         this.status = MemberStatus.ACTIVE;
     }
 
-    public void withdraw(LocalDateTime when) {
+    public void withdraw() {
         this.status = MemberStatus.WITHDRAWN;
+        softDelete();
     }
 
 
