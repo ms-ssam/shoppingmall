@@ -41,6 +41,14 @@ public class ReviewService {
 
         reviewRepository.save(review);
 
+        // product 리뷰 수 증가, 평균 평점 갱신
+        int oldCount = product.getReviewCount();
+        int newCount = oldCount + 1;
+        double oldAvg = product.getAverageRating();
+        double newAvg = ((oldAvg * oldCount) + request.getRating()) / newCount; //TODO: 계산 하는 방법을 바꿔야 할듯 // 계산 한 값을 그대로 데이터베이스에 넣고  보여줄 때 소수점 제거
+
+        product.updateRating(newAvg, newCount);
+
         return ReviewMapper.toResponse(review);
     }
 }
