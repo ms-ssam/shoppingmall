@@ -22,6 +22,4 @@ public class ReviewResponse {
     private LocalDateTime deletedAt;
 
     private String memberNickname;
-
-
 }
