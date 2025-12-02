@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.product.dto.*;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,9 +78,7 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(products));
     }
 
-
      //상품의 모든 이미지 조회 (관리자용)
-
     @GetMapping("/{productId}/images")
     public ResponseEntity<ApiResponse<List<ProductImageDto>>> getAllImages(
             @PathVariable @Min(1) Long productId) {
@@ -87,4 +87,17 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(images));
     }
 
+    @GetMapping("/{productId}/wishlist")
+    public ResponseEntity<ApiResponse<Boolean>> getIsInWishList(
+            @AuthenticationPrincipal MemberDetail memberDetail,
+            @PathVariable Long productId) {
+        boolean isWished = false;
+
+        if(memberDetail != null) {
+            Long memberId = memberDetail.getMember().getId();
+            isWished = productService.isInWishList(memberId, productId);
+        }
+
+        return ResponseEntity.ok(ApiResponse.success("찜 상태 조회 성공", isWished));
+    }
 }

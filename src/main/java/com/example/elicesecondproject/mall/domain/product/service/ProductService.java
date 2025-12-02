@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.service;
 
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
@@ -13,11 +14,13 @@ import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductImageRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepositoryCustom;
+import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -29,13 +32,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductService {
-
     private final CategoryRepository categoryRepository;
 
     // 추가 선언
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductImageRepository productImageRepository;
+    private final WishListRepository wishListRepository;
 
     //PROD-F-02
     public Page<ProductSummaryDto> getProductsByCategory(
@@ -61,21 +64,19 @@ public class ProductService {
 
 
 
- //PROD-F-01
+    //PROD-F-01
     public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
-            Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
-            return products.map(productMapper::toSummaryDto);
+        Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
+        return products.map(productMapper::toSummaryDto);
     }
 
-    /*
-    DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다 -> 상세 조회로 변경 및 반환타입 수정
-     */
-    public ProductDetailResponse getProduct(Long productId) { // 1. 반환 타입 변경
+    // DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
+    public ProductDetailResponse getProduct(Long productId) {
         Product foundProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));  // 삭제된 제품 404 Error
 
-        if(foundProduct.getStatus() == ProductStatus.STOP) {
-            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);
+        if (foundProduct.getStatus() == ProductStatus.STOP) {
+            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);  // 판매중지 상품 400 error "현재 판매하지 않는 상품입니다" 메시지
         }
 
         return productMapper.toDetailResponse(foundProduct); // 2. toSummaryDto -> toDetailResponse
@@ -194,4 +195,18 @@ public class ProductService {
         return trimmed;
     }
 
+    // DTL-F-12 : 찜 상태 조회 -> 사용자의 찜 상태를 조회한다.
+    /*
+        사용자에게 상품들 보여주는 화면에서 이 기능 메서드가 true 반환하는지 false 반환하는지에 따라 뷰에서 하트 비울지 채울지 결정하는 용도
+        TODO : [UI 반영]좋아요 상태: 하트 아이콘 채우기 (노란색)
+               [로그인]비로그인 시 기본 회색
+               뷰 작업할 때 반영하기
+     */
+    public boolean isInWishList(Long memberId, Long productId) {
+        if(productRepository.findById(productId).isEmpty()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);  // 존재하지 않는 상품이라면 404 error
+        }
+
+        return wishListRepository.existsByMemberIdAndProductId(memberId, productId);
+    }
 }
