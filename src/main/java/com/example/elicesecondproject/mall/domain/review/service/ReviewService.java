@@ -98,4 +98,14 @@ public class ReviewService {
 
         review.softDelete();
     }
+
+    public Page<ReviewResponse> getReviewsByMember(Long memberId, Pageable pageable){
+        // TODO: 회원 상태가 ACTIVE인 회원만 로그인 가능하도록 정책이 확정되면
+        //  로그인 시점에서 이미 필터링되므로 이 검증 로직은 제거해도 됨.
+        memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Review> reviews = reviewRepository.findByMemberIdAndDeletedAtIsNull(memberId, pageable);
+        return reviews.map(reviewMapper::toResponse);
+    }
 }

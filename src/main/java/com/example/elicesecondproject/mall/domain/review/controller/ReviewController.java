@@ -18,14 +18,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/products/{productId}/reviews")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getReviews(@PathVariable Long productId,
+    @GetMapping("/products/{productId}/reviews")
+    public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getProductReviews(@PathVariable Long productId,
                                                                        @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
                                                                   Pageable pageable
     ){
@@ -33,7 +33,7 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(reviews));
     }
 
-    @PostMapping
+    @PostMapping("/products/{productId}/reviews")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@PathVariable Long productId,
                                                                     @Valid @RequestBody CreateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
@@ -42,7 +42,7 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
-    @PutMapping("/{reviewId}")
+    @PutMapping("/products/{productId}/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(@PathVariable Long reviewId,
                                                                     @Valid @RequestBody UpdateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
@@ -51,11 +51,22 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/products/{productId}/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
                                              @AuthenticationPrincipal MemberDetail principal) {
 
         reviewService.softDeleteReview(reviewId, principal.getMember().getId());
         return ResponseEntity.noContent().build();
+    }
+
+    // 마이 페이지
+
+    @GetMapping("/mypage/reviews")
+    public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getMyReviews(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
+                                                                        Pageable pageable,
+                                                                        @AuthenticationPrincipal MemberDetail principal
+    ){
+        Page<ReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), pageable);
+        return ResponseEntity.ok(ApiResponse.success(reviews));
     }
 }
