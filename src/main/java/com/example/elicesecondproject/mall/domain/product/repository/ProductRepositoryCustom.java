@@ -10,7 +10,9 @@ public interface ProductRepositoryCustom {
                                            ProductSortType sortType,
                                            Pageable pageable);
 
-    Page<ProductSummaryDto> findProductsByCategoty(Long categoryId,
+// * PROD-F-02: 카테고리별 상품 조회
+    Page<ProductSummaryDto> findProductsByCategory(Long categoryId,
+                                                   Boolean includeSubCategories,
                                                    ProductSortType sortType,
                                                    Pageable pageable);
 }
