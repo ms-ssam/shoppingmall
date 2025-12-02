@@ -1,6 +1,5 @@
-package com.example.elicesecondproject.mall.domain.member.dto;
+package com.example.elicesecondproject.mall.domain.member.dto.response;
 
-import com.example.elicesecondproject.mall.domain.member.entity.AuthProvider;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import lombok.*;
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberResponse { // 마이페이지, 관리자 조회용
+public class MemberAdminResponse { // 관리자 조회용
     private Long id;
     private String email;
     private String name;

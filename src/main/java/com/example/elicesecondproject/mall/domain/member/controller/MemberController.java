@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.member.controller;
 
-import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
-import com.example.elicesecondproject.mall.domain.member.dto.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.dto.UpdateMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
+import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;

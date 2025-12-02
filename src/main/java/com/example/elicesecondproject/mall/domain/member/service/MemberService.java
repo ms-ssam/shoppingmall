@@ -1,10 +1,10 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
-import com.example.elicesecondproject.mall.domain.member.dto.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.dto.UpdateMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
+import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;

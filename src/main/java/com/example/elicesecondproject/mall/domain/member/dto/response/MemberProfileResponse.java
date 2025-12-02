@@ -1,13 +1,9 @@
-package com.example.elicesecondproject.mall.domain.member.dto;
+package com.example.elicesecondproject.mall.domain.member.dto.response;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
-import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
