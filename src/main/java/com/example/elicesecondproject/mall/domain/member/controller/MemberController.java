@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.member.controller;
 
 import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.MemberProfileResponse;
+import com.example.elicesecondproject.mall.domain.member.dto.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
@@ -14,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "회원 API", description = "로그인 및 회원가입 API")
 @RequiredArgsConstructor
@@ -43,7 +41,7 @@ public class MemberController {
                 .body(ApiResponse.success("회원가입 성공", null));
     }
 
-    // my정보조회
+    // 내 정보 조회(PROFVIEW-F-01)
     @GetMapping("api/me")
     public ResponseEntity<ApiResponse<MemberProfileResponse>> getMyProfile(
             @AuthenticationPrincipal MemberDetail memberDetail
@@ -55,4 +53,18 @@ public class MemberController {
                 ApiResponse.success("회원 정보 조회 성공", response)
         );
     }
+
+    // 내 정보 수정(닉네밍, 전화번호)( PROFVIEW-F-02,3)
+    @PutMapping("api/me")
+    public ResponseEntity<ApiResponse<Void>> updateMyProfile(
+            @AuthenticationPrincipal MemberDetail memberDetail,
+            @Valid @RequestBody UpdateMemberRequest request
+    ){
+        Long memberId = memberDetail.getMember().getId();
+        memberService.updateMyProfile(memberId, request);
+        return ResponseEntity.ok(
+                ApiResponse.success("회원 정보 수정 성공", null)
+        );
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.domain.address.entity.Address;
+import com.example.elicesecondproject.mall.domain.member.dto.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
@@ -88,6 +89,11 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     }
 
     // --- 도메인 메서드 ---
+
+    public void updateProfile(String nickname,String phone) {
+        this.nickname = nickname;
+        this.phone = phone;
+    }
 
     public void markEmailVerified() {
         this.emailVerified = true;
