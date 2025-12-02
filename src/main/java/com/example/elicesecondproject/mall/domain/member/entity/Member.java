@@ -87,6 +87,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     }
 
     // --- 도메인 메서드 ---
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 
     public void updateProfile(String nickname,String phone) {
         this.nickname = nickname;

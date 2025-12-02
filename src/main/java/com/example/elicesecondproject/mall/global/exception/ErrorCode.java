@@ -24,7 +24,11 @@ public enum ErrorCode {
 
     MEMBER_INVALID_NICKNAME_LENGTH(HttpStatus.BAD_REQUEST, "M002", "닉네임은 2~20자여야 합니다."),
     MEMBER_INVALID_PHONE_FORMAT(HttpStatus.BAD_REQUEST, "M003", "전화번호 형식이 올바르지 않습니다."),
+
     MEMBER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "M004", "현재 비밀번호가 일치하지 않습니다."),
+    MEMBER_INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "M005", "비밀번호는 8자 이상이며 영문, 숫자, 특수문자(@$!%*#?&)를 최소 1개씩 포함해야 합니다."),
+    MEMBER_PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "M006", "이전 비밀번호와 동일한 비밀번호는 사용할 수 없습니다."),
+    MEMBER_PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "M007", "새로운 비밀번호와 일치하지 않습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),

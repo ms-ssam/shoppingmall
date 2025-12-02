@@ -14,13 +14,9 @@ public class PasswordChangeRequest {
     private String currentPassword;
 
     @NotBlank(message = "새 비밀번호는 필수입니다.")
-    @Size(min = 8, message = "새 비밀번호는 8자 이상이어야 합니다.")
-    @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$",
-            message = "영문, 숫자, 특수문자(@$!%*#?&)를 최소 1개씩 포함해야 합니다."
-    )
     private String newPassword;
 
+    @NotBlank
     private String newPasswordConfirm;
 
 }

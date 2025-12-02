@@ -78,7 +78,7 @@ public class MemberController {
         memberService.changePassword(memberId, request);
 
         return ResponseEntity.ok(
-                ApiResponse.success("비밀번호 검증 성공 (변경 로직은 이후 추가 예정)", null)
+                ApiResponse.success("비밀번호 변경 성공", null)
         );
     }
 

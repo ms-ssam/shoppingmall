@@ -48,7 +48,7 @@ public class MemberService {
         return MemberProfileResponse.from(member);
     }
 
-    // 내 정보 수정 - 닉네임(PROFEDIT-F-02), 전화번호 수정(PROFEDIT-F-03)
+    // 내 정보 수정 - 닉네임, 전화번호
     @Transactional
     public void updateMyProfile(Long memberId, UpdateMemberRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -60,6 +60,7 @@ public class MemberService {
         member.updateProfile(nickname, phone);
     }
 
+    // 닉네임 유효성 검증 및 앞뒤 공백 제거
     private String validateAndNormalizeNickname(String nickname) {
         String trimmed = nickname.trim();
         if(trimmed.length() < 2 || trimmed.length() > 20) {
@@ -68,6 +69,7 @@ public class MemberService {
         return trimmed;
     }
 
+    // 비밀번호 유효성 검증
     private String validateAndNormalizePhone(String phone) {
 
         // 숫자만 남기기
@@ -86,16 +88,55 @@ public class MemberService {
         return digits;
     }
 
-    // 비밀번호 변경 -> 현재 비밀번호 확인, 새 비밀번호 조건 체크, 새 비밀번호 다시 입력 동일한지 확인
+    // 비밀번호 변경
     @Transactional
     public void changePassword(Long memberId, PasswordChangeRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 현재 비밀번호 불일치
+        // 1. 현재 비밀번호 확인
         if(!bCryptPasswordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
             throw new BusinessException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
         }
+
+        // 2. 새로운 비밀번호 정책 검증
+        validationNewPassword(request.getNewPassword(), member.getPassword());
+
+        // 3. 새 비밀번호, 비밀번호 확인 일치 확인
+        if(!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_CONFIRM_NOT_MATCH);
+        }
+
+        member.updatePassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+    }
+
+    // 비밀번호 정책 검증
+    private void validationNewPassword(String password, String encodedCurrentPassword) {
+
+        // 1. 길이 8자 이상
+        if (password.length() < 8){
+            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
+        }
+
+        // 2. 영어, 숫자, 특수문자 최소 1개씩 포함
+        if (!password.matches(".*[A-Za-z].*")) {
+            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
+        }
+
+        if (!password.matches(".*[@$!%*#?&].*")) {
+            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
+        }
+
+        // 3. 기존 비밀번호랑 동일하면 안됨
+        if(bCryptPasswordEncoder.matches(password, encodedCurrentPassword)) {
+            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_SAME_AS_OLD);
+        }
+
+        // 3. 현재 비밀번호랑 일치하면 안됨
     }
 
     // 회원 탈퇴
