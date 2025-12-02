@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class ProductService {
     // 추가 선언
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    
+
     //PROD-F-01
     public Page<ProductSummaryDto> getProductsByCategory(
             Long categoryId,
@@ -76,5 +77,33 @@ public class ProductService {
 
           return productMapper.toSummaryDto(foundProduct);
       }
+
+    /**
+     * PROD-F-03 키워드 검색
+     * - 검색 대상: Product.name, Product.description, Category.name
+     * - 부분 일치 검색
+     */
+    public Page<ProductSummaryDto> searchProducts(
+            String keyword, ProductSortType sortType, Pageable pageable
+    ) {
+        String trimmed = validateAndNormalizeKeyword(keyword);
+        sortType = sortType != null ? sortType : ProductSortType.LATEST;
+        return productRepositoryCustom.searchProducts(trimmed, sortType, pageable);
+    }
+
+    private String validateAndNormalizeKeyword(String keyword) {
+        // 아무 것도 안 넣었거나 공백뿐이면
+        if (!StringUtils.hasText(keyword)) {
+            throw new BusinessException(ErrorCode.SEARCH_KEYWORD_REQUIRED);
+        }
+
+        String trimmed = keyword.trim();
+
+        if (trimmed.length() < 2) {
+            throw new BusinessException(ErrorCode.SEARCH_KEYWORD_TOO_SHORT);
+        }
+
+        return trimmed;
+    }
 
 }

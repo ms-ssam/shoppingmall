@@ -61,4 +61,23 @@ public class ProductController {
         ProductSummaryDto res = productService.getProduct(productId);
         return ResponseEntity.ok(ApiResponse.success(res));
     }
+
+    // 키워드 검색
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<ProductSummaryDto>>> searchProducts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "LATEST") ProductSortType sortType,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ProductSummaryDto> products = productService.searchProducts(keyword, sortType, pageable);
+        return ResponseEntity.ok(ApiResponse.success(products));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductSummaryDto>> getProduct(@PathVariable Long productId) {
+        ProductSummaryDto res = productService.getProduct(productId);
+        return ResponseEntity.ok(ApiResponse.success(res));
+    }
 }
