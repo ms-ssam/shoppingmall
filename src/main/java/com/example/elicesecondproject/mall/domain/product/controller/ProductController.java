@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import jakarta.validation.constraints.Min;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,5 +62,20 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductSummaryDto>> getProduct(@PathVariable Long productId) {
         ProductSummaryDto res = productService.getProduct(productId);
         return ResponseEntity.ok(ApiResponse.success(res));
+    }
+
+
+    @GetMapping("/{productId}/wishlist")
+    public ResponseEntity<ApiResponse<Boolean>> getIsInWishList(
+            @AuthenticationPrincipal MemberDetail memberDetail,
+            @PathVariable Long productId) {
+        boolean isWished = false;
+
+        if(memberDetail != null) {
+            Long memberId = memberDetail.getMember().getId();
+            isWished = productService.isInWishList(memberId, productId);
+        }
+
+        return ResponseEntity.ok(ApiResponse.success("찜 상태 조회 성공", isWished));
     }
 }

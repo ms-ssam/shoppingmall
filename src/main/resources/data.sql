@@ -48,37 +48,37 @@ INSERT INTO product (
 -- 상의 카테고리 (반팔=6, 긴팔=7, 후드티=9)
 (1, 6, '베이직 반팔티', 19000, 0, 'SELLING',
  '남녀공용 데일리 반팔티', 4.5, 10, 5,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 (2, 7, '베이직 긴팔티', 24000, 10, 'SELLING',
  '가장 편한 긴팔 티셔츠', 4.2, 8, 3,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 (6, 9, '오버핏 후드티', 45000, 15, 'SELLING',
  '편안한 오버핏 후드', 4.6, 25, 15,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 (7, 10, '옥스포드 셔츠', 39000, 0, 'SELLING',
  '데일리 셔츠', 4.3, 12, 8,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 
 -- 하의 카테고리 (청바지=12, 면바지=13)
 (3, 12, '슬림핏 청바지', 39000, 0, 'SELLING',
  '데일리 청바지', 4.8, 20, 12,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 (8, 13, '와이드 면바지', 35000, 10, 'SELLING',
  '편안한 면바지', 4.4, 15, 6,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 
 -- 아우터 카테고리 (자켓=16, 패딩=18)
 (4, 16, '오버핏 데님 자켓', 69000, 5, 'SELLING',
  '남녀공용 데님 자켓', 4.7, 18, 7,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 (9, 18, '숏패딩', 89000, 20, 'SELLING',
  '가벼운 숏패딩', 4.9, 30, 20,
- NULL, NULL, NOW(), NOW()),
+ 0, NULL, NOW(), NOW()),
 
 -- 기타 카테고리 (모자=21)
 (5, 21, '로고 볼캡', 29000, 0, 'SELLING',
  '심플 볼캡', 4.4, 5, 2,
- NULL, NULL, NOW(), NOW());
+ 0, NULL, NOW(), NOW());
 
 -- ProductOptionGroup
 INSERT INTO product_option_group (
