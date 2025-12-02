@@ -14,9 +14,12 @@ import com.example.elicesecondproject.mall.domain.review.mapper.ReviewMapper;
 import com.example.elicesecondproject.mall.domain.review.repository.ReviewRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,15 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private  final ReviewMapper reviewMapper;
+
+    public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable){
+        productRepository.findByIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        Page<Review> reviews = reviewRepository.findByProductIdAndDeletedAtIsNull(productId, pageable);
+        return reviews.map(reviewMapper::toResponse);
+    }
 
     @Transactional
     public ReviewResponse createReview(Long productId, CreateReviewRequest request, Long memberId) {
@@ -52,7 +64,7 @@ public class ReviewService {
 
         product.updateRating(newAvg, newCount);
 
-        return ReviewMapper.toResponse(review);
+        return reviewMapper.toResponse(review);
     }
 
     @Transactional
@@ -69,7 +81,7 @@ public class ReviewService {
 
         review.update(request.getRating(), request.getContent(), request.getImageUrl());
 
-        return ReviewMapper.toResponse(review);
+        return reviewMapper.toResponse(review);
     }
 
     @Transactional
