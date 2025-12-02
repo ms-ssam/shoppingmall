@@ -147,28 +147,7 @@ public class ProductService {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
     }
-    public Page<ProductSummaryDto> searchProducts(
-            String keyword, ProductSortType sortType, Pageable pageable
-    ) {
-        String trimmed = validateAndNormalizeKeyword(keyword);
-        sortType = sortType != null ? sortType : ProductSortType.LATEST;
-        return productRepository.searchProducts(trimmed, sortType, pageable);
-    }
 
-    private String validateAndNormalizeKeyword(String keyword) {
-        // 아무 것도 안 넣었거나 공백뿐이면
-        if (!StringUtils.hasText(keyword)) {
-            throw new BusinessException(ErrorCode.SEARCH_KEYWORD_REQUIRED);
-        }
-
-        String trimmed = keyword.trim();
-
-        if (trimmed.length() < 2) {
-            throw new BusinessException(ErrorCode.SEARCH_KEYWORD_TOO_SHORT);
-        }
-
-        return trimmed;
-    }
 
     private void validateCategoryExists(Long categoryId) {
         if (categoryId != null && !categoryRepository.existsByIdAndDeletedAtIsNull(categoryId)) {
@@ -197,7 +176,7 @@ public class ProductService {
     ) {
         String trimmed = validateAndNormalizeKeyword(keyword);
         sortType = sortType != null ? sortType : ProductSortType.LATEST;
-        return productRepositoryCustom.searchProducts(trimmed, sortType, pageable);
+        return productRepository.searchProducts(trimmed, sortType, pageable);
     }
 
     private String validateAndNormalizeKeyword(String keyword) {
