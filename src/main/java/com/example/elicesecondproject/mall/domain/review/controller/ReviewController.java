@@ -37,4 +37,12 @@ public class ReviewController {
         ReviewResponse response = reviewService.updateReview(reviewId, request, principal.getMember().getId());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
+                                             @AuthenticationPrincipal MemberDetail principal) {
+
+        reviewService.softDeleteReview(reviewId, principal.getMember().getId());
+        return ResponseEntity.noContent().build();
+    }
 }

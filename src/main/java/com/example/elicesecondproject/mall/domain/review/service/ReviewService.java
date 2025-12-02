@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.review.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
+import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
@@ -59,12 +60,30 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        if (!review.getMember().getId().equals(memberId)) {
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
             throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
         }
 
         review.update(request.getRating(), request.getContent(), request.getImageUrl());
 
         return ReviewMapper.toResponse(review);
+    }
+
+    @Transactional
+    public void softDeleteReview(Long reviewId, Long memberId) {
+        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
+            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
+        }
+
+        review.softDelete();
     }
 }
