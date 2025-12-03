@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/prj2team2?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/team1shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
     username: team1
     password: passw0rd
     driver-class-name: com.mysql.cj.jdbc.Driver
