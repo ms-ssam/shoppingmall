@@ -32,3 +32,5 @@ springdoc:
     tags-sorter: alpha
     doc-expansion: none
     try-it-out-enabled: true
+
+    # .
