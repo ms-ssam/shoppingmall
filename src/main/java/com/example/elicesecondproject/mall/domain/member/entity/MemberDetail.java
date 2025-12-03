@@ -17,7 +17,7 @@ public class MemberDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name())); // TODO: 이거는 로그인에서 수정
+        return List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()));
     }
 
     @Override
