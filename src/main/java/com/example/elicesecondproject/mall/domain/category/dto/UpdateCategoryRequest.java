@@ -20,4 +20,8 @@ public class UpdateCategoryRequest {
 
     @Size(max = 500, message = "설명은 최대 500자까지 입력 가능합니다.")
     private String description;
+
+    //부모 필드 변경을 위해 필드 추가
+    private Long parentId;
+
 }
