@@ -17,4 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // 유저는 selling만 조회
     Page<Product> findByStatus(ProductStatus status, Pageable pageable);
 
+    boolean existsByIdAndDeletedAtIsNull(Long id);
+
 }

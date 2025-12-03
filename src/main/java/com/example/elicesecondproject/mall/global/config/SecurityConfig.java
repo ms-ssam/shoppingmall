@@ -48,7 +48,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)      // CSRF는 세션 + 쿠키 기반 웹 페이지 폼 전송에서 사용.
                 // JWT + REST API + SessionCreationPolicy.STATELESS 구조를 사용하므로 비활성화
-                //.formLogin(AbstractHttpConfigurer::disable) // 스프링 기본 로그인 폼 비활성화
+                .formLogin(AbstractHttpConfigurer::disable) // 스프링 기본 로그인 폼 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 요청 헤더에 Authorization: Basic 방식 비활성화. Bearer {JWT} 방식만 사용할 것임
 
                 .sessionManagement(session -> session
@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/h2-console/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
