@@ -26,14 +26,14 @@ public class ReviewController {
 
     @GetMapping("/products/{productId}/reviews")
     public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getProductReviews(@PathVariable Long productId,
-                                                                       @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
-                                                                  Pageable pageable
+                                                                               @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
+                                                                               Pageable pageable
     ){
         Page<ReviewResponse> reviews = reviewService.getReviewsByProduct(productId, pageable);
         return ResponseEntity.ok(ApiResponse.success(reviews));
     }
 
-    @PostMapping("/products/{productId}/reviews") // 경로 /mypage/orders/{orderItemId}/review 이걸로 수정
+    @PostMapping("/products/{productId}/reviews") //FIXME: 경로 /mypage/orders/{orderItemId}/review 이걸로 수정
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@PathVariable Long productId,
                                                                     @Valid @RequestBody CreateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
@@ -61,7 +61,7 @@ public class ReviewController {
 
     // 마이 페이지
 
-    @GetMapping("/mypage/reviews")
+    @GetMapping("/mypage/reviews") //TODO : PAGE 설정 만들기
     public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getMyReviews(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
                                                                         Pageable pageable,
                                                                         @AuthenticationPrincipal MemberDetail principal

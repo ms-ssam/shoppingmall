@@ -23,16 +23,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
-    private  final ReviewMapper reviewMapper;
+    private final ReviewMapper reviewMapper;
 
     public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable){
-        productRepository.findByIdAndDeletedAtIsNull(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        if (!productRepository.existsByIdAndDeletedAtIsNull(productId)) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
 
         Page<Review> reviews = reviewRepository.findByProductIdAndDeletedAtIsNull(productId, pageable);
         return reviews.map(reviewMapper::toResponse);
@@ -43,8 +45,7 @@ public class ReviewService {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
         Review review = Review.builder()
                 .product(product)
@@ -57,10 +58,7 @@ public class ReviewService {
         reviewRepository.save(review);
 
         // product 리뷰 수 증가, 평균 평점 갱신
-        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
-        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
-
-        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
+        updateProductRatingAndCount(product);
 
         return reviewMapper.toResponse(review);
     }
@@ -70,12 +68,9 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
-        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
+        validateReviewAccess(review, memberId, member.getRole());
 
         Product product = review.getProduct();
 
@@ -97,21 +92,15 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
-        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
+        validateReviewAccess(review, memberId, member.getRole());
 
         review.softDelete();
 
         Product product = review.getProduct();
 
-        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
-        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
-
-        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
+        updateProductRatingAndCount(product);
     }
 
     public Page<ReviewResponse> getReviewsByMember(Long memberId, Pageable pageable){
@@ -122,5 +111,26 @@ public class ReviewService {
 
         Page<Review> reviews = reviewRepository.findByMemberIdAndDeletedAtIsNull(memberId, pageable);
         return reviews.map(reviewMapper::toResponse);
+    }
+
+    private void validateReviewAccess(Review review, Long memberId, Role role) {
+        boolean isOwner = review.getMember().getId().equals(memberId);
+        boolean isAdmin = role == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
+        }
+    }
+
+    private void updateProductRatingAndCount(Product product) {
+        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
+
+        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
+    }
+
+    private Member getActiveMember(Long memberId) {
+        return memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
