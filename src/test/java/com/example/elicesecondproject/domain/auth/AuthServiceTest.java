@@ -1,9 +1,9 @@
 package com.example.elicesecondproject.domain.auth;
 
-import com.example.elicesecondproject.mall.domain.Member.entity.Member;
-import com.example.elicesecondproject.mall.domain.Member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.Member.entity.Role;
-import com.example.elicesecondproject.mall.domain.Member.service.MemberDetailService;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.member.entity.Role;
+import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
