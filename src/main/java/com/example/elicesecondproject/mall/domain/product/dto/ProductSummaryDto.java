@@ -21,6 +21,8 @@ public class ProductSummaryDto {
     private String mainImageUrl;
     private Double averageRating;
     private int reviewCount;
-    private int WishListCount;
+    private int wishListCount;
 
+    // 재고 필드 추가
+    private Integer totalStock;
 }

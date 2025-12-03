@@ -87,7 +87,8 @@
 <div class="container">
     <h1>LOGIN</h1>
 
-    <form id="loginForm">
+    <!-- ✅ 여기 수정: form을 /login POST로 보냄 -->
+    <form th:action="@{/login}" method="post">
         <label for="email">ID</label>
         <input id="email" class="input-box" type="text"
                name="email" placeholder="ID" required>
@@ -107,43 +108,11 @@
         <button type="submit" class="btn-primary">로그인</button>
     </form>
 
-    <p class="error-message" id="loginError" style="display:none;"></p>
+    <!-- 에러 메시지 표시용 (선택사항: 컨트롤러에서 model에 error 넣어줄 때 사용) -->
+    <p class="error-message" id="loginError"
+       th:if="${param.error}" th:text="${param.error}"></p>
 </div>
 
-
-<script>
-    const loginForm = document.getElementById('loginForm');
-    const loginError = document.getElementById('loginError');
-
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email, password })
-            });
-
-            if (!res.ok) {
-                loginError.textContent = "로그인 실패: ID 또는 비밀번호를 확인하세요.";
-                loginError.style.display = 'block';
-                return;
-            }
-
-            const data = await res.json();
-            localStorage.setItem('accessToken', data.accessToken);
-
-            window.location.href = '/';
-        } catch (err) {
-            loginError.textContent = '로그인 중 오류가 발생했습니다.';
-            loginError.style.display = 'block';
-        }
-    });
-</script>
-
+<!-- ✅ JS fetch 로그인은 이제 필요 없음, 전부 서버에서 처리하니까 스크립트 삭제 -->
 </body>
 </html>

@@ -29,14 +29,4 @@ public class MemberController {
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok("hello");
     }
-
-    @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(
-            @Valid @RequestBody AddMemberRequest request
-            ){
-        memberService.save(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("회원가입 성공", null));
-    }
 }

@@ -84,31 +84,39 @@
 <div class="container">
     <h1>Sign up</h1>
 
-    <form id="signupForm">
+    <!-- ✅ 여기 수정: /signup 으로 POST 전송 -->
+    <form th:action="@{/signup}" method="post" id="signupForm">
         <label for="email">Email</label>
-        <input id="email" class="input-box" type="email" required>
+        <input id="email" class="input-box" type="email" name="email" required>
 
         <label for="password">Password</label>
-        <input id="password" class="input-box" type="password" required>
+        <input id="password" class="input-box" type="password" name="password" required>
 
         <label for="passwordConfirm">Password Check</label>
+        <!-- 서버에는 굳이 안 보내도 되면 name 안 줘도 됨 -->
         <input id="passwordConfirm" class="input-box" type="password" required>
 
         <label for="name">Name</label>
-        <input id="name" class="input-box" type="text" required>
+        <input id="name" class="input-box" type="text" name="name" required>
 
         <label for="nickname">Nickname</label>
-        <input id="nickname" class="input-box" type="text" required>
+        <input id="nickname" class="input-box" type="text" name="nickname" required>
 
         <label for="phone">Phone</label>
-        <!-- 숫자만 받게 하고 싶으면 pattern도 추가 가능 -->
-        <input id="phone" class="input-box" type="tel" required placeholder="01012345678">
+        <input id="phone" class="input-box" type="tel" name="phone"
+               required placeholder="01012345678">
 
         <button type="submit" class="btn-primary">회원가입</button>
     </form>
 
+    <!-- 비밀번호 불일치 등 클라이언트 측 에러 -->
     <p id="signupError" style="display:none;"></p>
-    <p id="signupSuccess" style="display:none;"></p>
+
+    <!-- 서버에서 넘겨준 successMessage (회원가입 완료 메시지 표시) -->
+    <p th:if="${successMessage}"
+       th:text="${successMessage}"
+       style="margin-top:10px; color:#52c41a; font-size:14px;">
+    </p>
 
     <div class="to-login">
         이미 계정이 있으신가요?
@@ -119,56 +127,17 @@
 <script>
     const signupForm = document.getElementById('signupForm');
     const signupError = document.getElementById('signupError');
-    const signupSuccess = document.getElementById('signupSuccess');
 
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value;
+    signupForm.addEventListener('submit', (e) => {
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('passwordConfirm').value;
-        const name = document.getElementById('name').value;
-        const nickname = document.getElementById('nickname').value;
-        const phone = document.getElementById('phone').value;
 
         signupError.style.display = 'none';
-        signupSuccess.style.display = 'none';
+        signupError.textContent = '';
 
         if (password !== passwordConfirm) {
+            e.preventDefault(); // 서버로 전송 막기
             signupError.textContent = '비밀번호가 일치하지 않습니다.';
-            signupError.style.display = 'block';
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    email,
-                    password,
-                    name,
-                    nickname,
-                    phone
-                })
-            });
-
-            if (!res.ok) {
-                // 백엔드에서 validation 메시지를 내려줄 거면 여기서 꺼내서 표시해도 됨
-                signupError.textContent = '회원가입에 실패했습니다.';
-                signupError.style.display = 'block';
-                return;
-            }
-
-            signupSuccess.textContent = '회원가입 완료! 로그인 페이지로 이동합니다.';
-            signupSuccess.style.display = 'block';
-
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1200);
-
-        } catch (err) {
-            signupError.textContent = '오류가 발생했습니다.';
             signupError.style.display = 'block';
         }
     });

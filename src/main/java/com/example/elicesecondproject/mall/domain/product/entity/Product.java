@@ -37,12 +37,12 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     // [옵션 구조] 상품 -> 옵션 그룹 -> 상세 옵션]
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOptionGroup> optionGroups = new ArrayList<>();
 
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductImage> images;
 
     @NotBlank(message = "상품명은 필수입니다.")
@@ -69,7 +69,10 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     private double averageRating = 0.0;
     private int reviewCount = 0;
-    private int WishListCount = 0;
+    private int wishListCount = 0;
+
+    @Column(nullable = false)
+    private Integer totalStock = 0;
 
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
@@ -84,7 +87,6 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         this.category = category;
         this.status = status != null ? status : ProductStatus.SELLING;
 
-        // ✅ 생성자에서 명시적 초기화 추가!
         this.optionGroups = new ArrayList<>();
         this.images = new ArrayList<>();
     }
@@ -133,8 +135,20 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     }
 
     // 좋아요 수 업데이트
-    public void updateWishListCount(int WishListCount) {
-        this.WishListCount = WishListCount;
+    public void updateWishListCount(int wishListCount) {
+        this.wishListCount = wishListCount;
+    }
+
+    // 좋아요 개수 증가
+    public void increaseWishListCount() {
+        this.wishListCount++;
+    }
+
+    // 좋아요 수 차감
+    public void decreaseWishListCount() {
+        if(this.wishListCount > 0) {
+            this.wishListCount--;
+        }
     }
 
     // 대표 이미지 URL 추출
@@ -149,8 +163,8 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     // 삭제 비즈니스 로직, 자식들도 같이 논리 삭제 처리
     public void delete() {
         //this.deletedAt = LocalDateTime.now();
+        this.softDelete();
         this.status = ProductStatus.STOP;
-        this.optionGroups.forEach(ProductOptionGroup::delete);  //ProductOptionGroup에서 OptionDetail까지 처리
         this.images.forEach(ProductImage::softDelete);
     }
 
@@ -159,10 +173,27 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         return this.price - (int) (((long) this.price * this.discountRate) / 100);
     }
 
-    //todo:  equals, hashCode 오버라이드 (식별성 보장) 내용 고려하기  -> x
-    //todo: 동시성 문제 -> 일단 낙관적 락으로 구현 후 레디스 캐싱으로 해결해보기
-    //todo: 실시간 수정이랑 Batch 같이 사용하는 방식 공부 ->  오늘부터 전 품목 10% 할인 같은 경우 JdbcTemplate을 이용한 Bulk Update나 JPA Bulk Update (@Modifying) 쿼리를 사용하는 것이 좋습니다.
-    //
-    //요약
+    public void updateCategory(Category category){
+        this.category = category;
+    }
 
+    //재고 합계 재계산 + 자동 품절 처리
+    public void recalculateTotalStock() {
+        this.totalStock = optionGroups.stream()
+                .filter(group -> group.getDeletedAt() == null)
+                .flatMap(group -> group.getDetails().stream())
+                .filter(detail -> detail.getDeletedAt() == null)
+                .mapToInt(detail -> detail.getStockQuantity())
+                .sum();
+
+        // 자동 품절 처리
+        if (this.totalStock == 0 && this.status == ProductStatus.SELLING) {
+            this.status = ProductStatus.SOLD_OUT;
+        }
+        // 재고 복구 시 판매중으로 자동 전환
+        else if (this.totalStock > 0 && this.status == ProductStatus.SOLD_OUT) {
+            this.status = ProductStatus.SELLING;
+        }
+
+    }
 }
