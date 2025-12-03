@@ -17,16 +17,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "회원 API", description = "로그인 및 회원가입 API")
+@Tag(name = "회원 API"/*, description = "마이페이지"*/)
 @RequiredArgsConstructor
-@RestController("/api")
+@RestController("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+/*
 
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
@@ -42,6 +44,7 @@ public class MemberController {
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입 성공", null));
     }
+*/
 
     // 내 정보 조회
     @GetMapping("/me")
@@ -60,8 +63,12 @@ public class MemberController {
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<Void>> updateMyProfile(
             @AuthenticationPrincipal MemberDetail memberDetail,
-            @Valid @RequestBody UpdateMemberRequest request
+            @Valid @RequestBody UpdateMemberRequest request,
+            BindingResult result
     ){
+        if(result.hasErrors()){
+            System.err.println(result.getAllErrors());
+        }
         Long memberId = memberDetail.getMember().getId();
         memberService.updateMyProfile(memberId, request);
         return ResponseEntity.ok(

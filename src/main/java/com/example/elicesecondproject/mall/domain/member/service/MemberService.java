@@ -70,7 +70,7 @@ public class MemberService {
         return trimmed;
     }
 
-    // 비밀번호 유효성 검증
+    // 전화번호 유효성 검증
     private String validateAndNormalizePhone(String phone) {
 
         // 숫자만 남기기
@@ -137,7 +137,6 @@ public class MemberService {
             throw new BusinessException(ErrorCode.MEMBER_PASSWORD_SAME_AS_OLD);
         }
 
-        // 3. 현재 비밀번호랑 일치하면 안됨
     }
 
     // 회원 탈퇴

@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.member.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ public class UpdateMemberRequest {
     private String nickname;
 
     @NotBlank(message = "전화번호를 입력해주세요.")
-/*    @Pattern(regexp = "^[0-9]{10,11}$",
-            message = "전화번호는 숫자만 입력하며 10~11자리여야 합니다.")*/
+    @Pattern(regexp = "^[0-9]{11}$",
+            message = "전화번호는 숫자만 입력하며 11자리여야 합니다.")
     private String phone;
 }
