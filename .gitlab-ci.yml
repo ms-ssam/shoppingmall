@@ -1,12 +1,10 @@
-######################################
-# 학습용으로 실제로는 다른 방식으로 할 것!
-######################################
 variables:
   TARGET_BRANCH: "dev"
 stages:
   - build
   - test
   - deploy
+
 build_job:
   stage: build
   tags:
@@ -22,6 +20,7 @@ build_job:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+
 test_job:
   stage: test
   tags:
@@ -30,9 +29,17 @@ test_job:
     - echo "코드 테스트를 수행합니다..."
     - chmod +x ./gradlew
     - ./gradlew test
+  artifacts:
+    when: always
+    paths:
+      - build/reports/tests/test/
+      - build/reports/problems/
+      - build/test-results/test/
+    expire_in: 1 week
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+
 deploy_job:
   stage: deploy
   needs:
@@ -48,6 +55,3 @@ deploy_job:
     - echo "배포가 완료되었습니다!"
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
-######################################
-# 학습용으로 실제로는 다른 방식으로 할 것!
-######################################
