@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.domain.auth;
+package com.example.elicesecondproject.mall.domain.auth;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
