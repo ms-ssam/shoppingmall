@@ -23,4 +23,6 @@ public class ProductSummaryDto {
     private int reviewCount;
     private int wishListCount;
 
+    // 재고 필드 추가
+    private Integer totalStock;
 }

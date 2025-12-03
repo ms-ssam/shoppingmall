@@ -129,7 +129,8 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 selectMainImage(),
                 product.averageRating,
                 product.reviewCount,
-                product.wishListCount
+                product.wishListCount,
+                product.totalStock
         );
     }
 

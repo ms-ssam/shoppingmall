@@ -67,6 +67,9 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     private int reviewCount = 0;
     private int wishListCount = 0;
 
+    @Column(nullable = false)
+    private Integer totalStock = 0;
+
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
 
@@ -170,10 +173,23 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         this.category = category;
     }
 
-    //todo:  equals, hashCode 오버라이드 (식별성 보장) 내용 고려하기  -> x
-    //todo: 동시성 문제 -> 일단 낙관적 락으로 구현 후 레디스 캐싱으로 해결해보기
-    //todo: 실시간 수정이랑 Batch 같이 사용하는 방식 공부 ->  오늘부터 전 품목 10% 할인 같은 경우 JdbcTemplate을 이용한 Bulk Update나 JPA Bulk Update (@Modifying) 쿼리를 사용하는 것이 좋습니다.
-    //
-    //요약
+    //재고 합계 재계산 + 자동 품절 처리
+    public void recalculateTotalStock() {
+        this.totalStock = optionGroups.stream()
+                .filter(group -> group.getDeletedAt() == null)
+                .flatMap(group -> group.getDetails().stream())
+                .filter(detail -> detail.getDeletedAt() == null)
+                .mapToInt(detail -> detail.getStockQuantity())
+                .sum();
 
+        // 자동 품절 처리
+        if (this.totalStock == 0 && this.status == ProductStatus.SELLING) {
+            this.status = ProductStatus.SOLD_OUT;
+        }
+        // 재고 복구 시 판매중으로 자동 전환
+        else if (this.totalStock > 0 && this.status == ProductStatus.SOLD_OUT) {
+            this.status = ProductStatus.SELLING;
+        }
+
+    }
 }

@@ -92,7 +92,7 @@ public class ProductService {
         return productMapper.toDetailResponse(foundProduct); // 2. toSummaryDto -> toDetailResponse
     }
 
-    //PROD-F-06 - 슬라이더 이미지 조회
+    /*//PROD-F-06 - 슬라이더 이미지 조회 -> 상품 조회로 대체 가능
     public List<ProductImageDto> getSliderImages(Long productId) {
         validateProductExists(productId);
 
@@ -130,11 +130,9 @@ public class ProductService {
                 .map(productMapper::toImageDto)
                 .collect(Collectors.toList());
     }
+*/
 
 
-    /**
-     * 상품의 모든 이미지 조회
-     */
     public List<ProductImageDto> getAllImages(Long productId) {
         validateProductExists(productId);
 
@@ -167,12 +165,14 @@ public class ProductService {
                 request.getStatus()
         );
 
-        // 3. 옵션 그룹 등록 (기존 로직 재사용!)
-
+        // 색상 옵션 저장
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
 
-        productImageService.updateImages(product, request.getImages());
+        // 재고 합계 계산
+        product.recalculateTotalStock();
 
+        // 이미지 등록
+        productImageService.updateImages(product, request.getImages());
         productRepository.save(product);
 
         return productMapper.toDetailResponse(product);
@@ -211,6 +211,8 @@ public class ProductService {
 
         // 3. 옵션 그룹 비교 수정
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
+
+        product.recalculateTotalStock();
 
         // 4. 이미지 비교 수정
         productImageService.updateImages(product, request.getImages());

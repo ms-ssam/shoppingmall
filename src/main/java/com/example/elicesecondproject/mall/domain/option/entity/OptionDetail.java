@@ -44,7 +44,7 @@ public class OptionDetail extends SoftDeletableBaseEntity {
     @NotNull(message = "재고 수량은 필수입니다.")
     @Min(value = 0, message = "재고 수량은 0개 이상이어야 합니다.")
     @Column(nullable = false)
-    private Integer stockQuantity;
+    private Integer stockQuantity; //TODO: 재고 이력 관리 하기
 
     @NotNull(message = "정렬 순서는 필수입니다.")
     @Column(nullable = false)
@@ -79,6 +79,11 @@ public class OptionDetail extends SoftDeletableBaseEntity {
             throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
         }
         this.stockQuantity = restStock;
+
+        //상품의 전체 재고 자동 재계산
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
     }
 
     public void addStock(int quantity) {
@@ -86,10 +91,12 @@ public class OptionDetail extends SoftDeletableBaseEntity {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
         this.stockQuantity += quantity;
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
     }
 
     public void update(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
-
         this.name = name;
         this.sku = sku;
         this.addPrice = addPrice;
