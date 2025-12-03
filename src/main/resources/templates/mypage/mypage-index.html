@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - Account</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #111;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .mypage-container {
+            display: flex;
+            padding: 40px 80px;
+        }
+
+        /* 사이드바 */
+        .mypage-sidebar {
+            width: 220px;
+            padding-right: 40px;
+        }
+
+        .sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            margin-bottom: 32px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        /* 메인 컨텐츠 */
+        .mypage-content {
+            flex: 1;
+            border-left: 1px solid #eee;
+            padding-left: 40px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .content-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .content-header-sub {
+            font-size: 12px;
+            color: #777;
+            margin-top: 6px;
+        }
+
+        .orders-header-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .orders-header-link {
+            font-size: 12px;
+            text-decoration: underline;
+            margin-left: 8px;
+        }
+
+        .orders-header-text {
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* 요약 박스 */
+        .summary-box {
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            padding: 32px 0;
+            display: flex;
+            gap: 80px;
+        }
+
+        .summary-block {
+            min-width: 220px;
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .summary-help {
+            font-size: 11px;
+            color: #777;
+            line-height: 1.5;
+        }
+
+        .summary-link {
+            font-size: 12px;
+            text-decoration: underline;
+            margin-top: 6px;
+            display: inline-block;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+<div class="mypage-container">
+    <!-- 사이드바 -->
+    <aside class="mypage-sidebar">
+        <div class="sidebar-title">MYPAGE</div>
+
+        <!-- 회원 정보 -->
+        <section class="sidebar-section">
+            <div class="sidebar-section-title">회원 정보</div>
+            <ul class="sidebar-menu">
+                <li><a th:href="@{/mypage}">내 계정</a></li>
+                <li><a th:href="@{/mypage/profile}">회원정보 수정</a></li>
+                <li><a th:href="@{/mypage/addresses}">배송지 관리</a></li>
+            </ul>
+        </section>
+
+        <!-- 회원 혜택 -->
+        <section class="sidebar-section">
+            <div class="sidebar-section-title">회원 혜택</div>
+            <ul class="sidebar-menu">
+                <li><a th:href="@{/mypage/benefits}">멤버십 혜택</a></li>
+                <li><a th:href="@{/mypage/mileage}">적립금</a></li>
+                <li><a th:href="@{/mypage/coupons}">쿠폰</a></li>
+            </ul>
+        </section>
+
+        <!-- 쇼핑 정보 -->
+        <section class="sidebar-section">
+            <div class="sidebar-section-title">쇼핑 정보</div>
+            <ul class="sidebar-menu">
+                <li><a th:href="@{/mypage/orders}">주문 내역</a></li>
+                <li><a th:href="@{/mypage/returns}">교환 / 반품 내역</a></li>
+                <li><a th:href="@{/mypage/reviews}">리뷰 내역</a></li>
+            </ul>
+        </section>
+
+        <!-- 로그아웃은 요청대로 제외 -->
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="mypage-content">
+        <!-- 상단 헤더 -->
+        <div class="content-header">
+            <div>
+                <h2>Account</h2>
+                <div class="content-header-sub"
+                     th:text="|안녕하세요, ${member.nickname}님|">안녕하세요, 홍길동님</div>
+            </div>
+            <div>
+                <div class="orders-header-title">
+                    Orders
+                    <a class="orders-header-link" th:href="@{/mypage/orders}">모든 주문 내역</a>
+                </div>
+                <div class="orders-header-text">
+                    최근 3개월 주문 내역이 없습니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- 요약 정보 -->
+        <section class="summary-box">
+            <!-- Membership -->
+            <div class="summary-block">
+                <div class="summary-title">Membership</div>
+                <div class="summary-value"
+                     th:text="${member.grade} ?: 'MEMBER'">MEMBER</div>
+                <div class="summary-help">
+                    KRW 0 이상 구매 시 5% 추가할인을 받으실 수 있습니다. (최대 KRW 100,000)
+                </div>
+            </div>
+
+            <!-- Mileage -->
+            <div class="summary-block">
+                <div class="summary-title">Mileage</div>
+                <div class="summary-value">
+                    <span th:text="${member.mileage} ?: 0">4,000</span>원
+                </div>
+                <a class="summary-link" th:href="@{/mypage/mileage}">마일리지 보기</a>
+            </div>
+
+            <!-- Coupon -->
+            <div class="summary-block">
+                <div class="summary-title">Coupon</div>
+                <div class="summary-value">
+                    <span th:text="${member.couponCount} ?: 0">1</span>개
+                </div>
+                <a class="summary-link" th:href="@{/mypage/coupons}">쿠폰 보기</a>
+            </div>
+        </section>
+
+        <!-- 아래쪽에 이후 다른 콘텐츠(추천 상품, 최근 본 상품 등) 넣을 수 있는 영역 -->
+        <!-- <section>...</section> -->
+    </main>
+</div>
+</body>
+</html>
