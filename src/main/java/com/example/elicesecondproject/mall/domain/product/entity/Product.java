@@ -133,6 +133,18 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         this.wishListCount = wishListCount;
     }
 
+    // 좋아요 개수 증가
+    public void increaseWishListCount() {
+        this.wishListCount++;
+    }
+
+    // 좋아요 수 차감
+    public void decreaseWishListCount() {
+        if(this.wishListCount > 0) {
+            this.wishListCount--;
+        }
+    }
+
     // 대표 이미지 URL 추출
     public String getMainImageUrl() {
         return this.images.stream()

@@ -10,6 +10,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(
+        name = "wish_lists",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_wish_list_member_product",
+                        columnNames = {"member_id", "product_id"}
+                )
+        }
+)
 @Entity
 @Getter
 @NoArgsConstructor
@@ -21,12 +30,12 @@ public class WishList extends BaseCreatedEntity {
     //     member 객체와 연결
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Builder
