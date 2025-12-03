@@ -50,6 +50,7 @@ public class SecurityConfig {
                 // JWT + REST API + SessionCreationPolicy.STATELESS 구조를 사용하므로 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 스프링 기본 로그인 폼 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) // 요청 헤더에 Authorization: Basic 방식 비활성화. Bearer {JWT} 방식만 사용할 것임
+                .logout(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 서버가 세션을 가지고 있지 않게 STATELESS 설정
@@ -57,16 +58,16 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login?error=true")
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/login");
+                        })
                 )
 
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // UsernamePasswordAuthenticationFilter 필터 앞에 JwtAuthenticationFilter를 추가

@@ -31,6 +31,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "접근 권한이 없습니다."),
+    REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "RV002", "이 리뷰에 접근할 권한이 없습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "해당 사용자를 찾을 수 없습니다."),
@@ -41,6 +42,7 @@ public enum ErrorCode {
     OPTION_COLOR_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT001", "해당 색상 옵션을 찾을 수 없습니다."),
     OPTION_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT002", "해당 사이즈 옵션을 찾을 수 없습니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMG003", "해당 이미지를 찾을 수 없습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV001", "해당 리뷰를 찾을 수 없습니다."),
 
     // 409 Conflict
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "C003", "이미 존재하는 데이터입니다."),

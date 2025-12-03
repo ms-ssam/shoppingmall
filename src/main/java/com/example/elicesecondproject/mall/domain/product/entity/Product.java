@@ -2,8 +2,9 @@ package com.example.elicesecondproject.mall.domain.product.entity;
 
 
 import com.example.elicesecondproject.mall.domain.category.entity.Category;
-import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
+import com.example.elicesecondproject.mall.domain.review.entity.Review;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,7 +22,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Product extends BaseEntity {
+public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeletable로 수정했습니다.
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +31,9 @@ public class Product extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
 
     // [옵션 구조] 상품 -> 옵션 그룹 -> 상세 옵션]
     @BatchSize(size = 100)
@@ -73,8 +77,7 @@ public class Product extends BaseEntity {
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
 
-    private LocalDateTime deletedAt;
-
+    // private LocalDateTime deletedAt; // softDeletableBaseEntity 상속받음.
     public Product(String name, int price, int discountRate, String description,
                    Category category, ProductStatus status) {
         this.name = name;
@@ -126,9 +129,13 @@ public class Product extends BaseEntity {
     }
 
     // 평점 업데이트
-    public void updateRating(double averageRating, int reviewCount) {
+    public void updateRatingAndReviewCount(double averageRating, int reviewCount) {
         this.averageRating = Math.round(averageRating * 10.0) / 10.0;
         this.reviewCount = reviewCount;
+    }
+
+    public void updateRating(double averageRating) {
+        this.averageRating = Math.round(averageRating * 10.0) / 10.0;
     }
 
     // 좋아요 수 업데이트
