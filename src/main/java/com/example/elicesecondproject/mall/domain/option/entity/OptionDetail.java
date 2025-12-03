@@ -32,7 +32,7 @@ public class OptionDetail extends SoftDeletableBaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "SKU는 필수입니다.") //sku 자동 생성 같은 경우는 서비스에서 정의
+    @NotBlank(message = "SKU는 필수입니다.") //sku 는 프론트에서 받아오기(중복 유효성 검사 O)
     @Column(nullable = false, unique = true, length = 100)
     private String sku;
 
@@ -64,34 +64,14 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         this.displayOrder = displayOrder != null ? displayOrder : 0;
     }
 
-    public void updateDetails(String name, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
-        if (name != null && !name.isBlank()) {
-            this.name = name;
-        }
-        if (addPrice != null) {
-            this.addPrice = addPrice;
-        }
-        if (stockQuantity != null) {
-            this.stockQuantity = stockQuantity;
-        }
-        if (displayOrder != null) {
-            this.displayOrder = displayOrder;
-        }
-    }
 
 
-    // [수정] 부모 설정 편의 메서드 변경
+    // 부모 설정 편의 메서드 변경
     public void initProductOptionGroup(ProductOptionGroup productOptionGroup) {
         this.productOptionGroup = productOptionGroup;
     }
 
-    public static String generateSku(String productCode, String colorName, String sizeName) {
-        return String.format("%s-%s-%s",
-                productCode.toUpperCase(),
-                colorName.toUpperCase(),
-                sizeName.toUpperCase()
-        );
-    }
+
 
     public void removeStock(int quantity) {
         int restStock = this.stockQuantity - quantity;

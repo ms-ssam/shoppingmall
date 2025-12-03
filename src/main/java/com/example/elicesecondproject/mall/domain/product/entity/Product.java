@@ -80,7 +80,6 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         this.category = category;
         this.status = status != null ? status : ProductStatus.SELLING;
 
-        // ✅ 생성자에서 명시적 초기화 추가!
         this.optionGroups = new ArrayList<>();
         this.images = new ArrayList<>();
     }

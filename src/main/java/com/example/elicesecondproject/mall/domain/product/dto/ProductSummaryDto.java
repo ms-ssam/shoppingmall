@@ -21,6 +21,6 @@ public class ProductSummaryDto {
     private String mainImageUrl;
     private Double averageRating;
     private int reviewCount;
-    private int WishListCount;
+    private int wishListCount;
 
 }
