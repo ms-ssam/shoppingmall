@@ -100,4 +100,24 @@ public class ProductController {
 
         return ResponseEntity.ok(ApiResponse.success("찜 상태 조회 성공", isWished));
     }
+
+    @PostMapping("/{productId}/wishList")
+    public ResponseEntity<ApiResponse<WishListToggleResponseDto>> addWishList(
+            @AuthenticationPrincipal MemberDetail memberDetail,
+            @PathVariable Long productId) {
+        Long memberId = memberDetail.getMember().getId();
+        WishListToggleResponseDto result = productService.addWish(memberId, productId);
+
+        return ResponseEntity.ok(ApiResponse.success("찜 추가 완료", result));
+    }
+
+    @DeleteMapping("/{productId}/wish")
+    public ResponseEntity<ApiResponse<WishListToggleResponseDto>> removeWish(
+            @PathVariable Long productId,
+            @AuthenticationPrincipal MemberDetail memberDetails
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        WishListToggleResponseDto result = productService.removeWish(memberId, productId);
+        return ResponseEntity.ok(ApiResponse.success("찜 제거 완료", result));
+    }
 }
