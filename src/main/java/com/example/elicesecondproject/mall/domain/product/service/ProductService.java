@@ -1,15 +1,11 @@
 package com.example.elicesecondproject.mall.domain.product.service;
 
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
-import com.example.elicesecondproject.mall.domain.product.entity.ImageType;
-import com.example.elicesecondproject.mall.domain.product.entity.Product;
-import com.example.elicesecondproject.mall.domain.product.entity.ProductImage;
-import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
+import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
+import com.example.elicesecondproject.mall.domain.product.entity.*;
 import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductImageRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
@@ -39,6 +35,7 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductImageRepository productImageRepository;
     private final WishListRepository wishListRepository;
+    private final MemberRepository memberRepository;
 
     //PROD-F-02
     public Page<ProductSummaryDto> getProductsByCategory(
@@ -160,6 +157,12 @@ public class ProductService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
     }
+
+    private Member findMemberById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+
     // 상태 검증
     private void validateProductActive(Product product) {
         if (product.getStatus() == ProductStatus.STOP) {
@@ -203,10 +206,51 @@ public class ProductService {
                뷰 작업할 때 반영하기
      */
     public boolean isInWishList(Long memberId, Long productId) {
-        if(productRepository.findById(productId).isEmpty()) {
+        if(!productRepository.existsById(productId)) {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);  // 존재하지 않는 상품이라면 404 error
         }
 
         return wishListRepository.existsByMemberIdAndProductId(memberId, productId);
+    }
+
+    // DTL-F-13 : 찜 추가/제거 토글 -> 찜 버튼 클릭 시 추가/제거한다.
+    // TODO: 뷰 작업 시 하트 확대 효과 애니메이션
+    @Transactional
+    public WishListToggleResponseDto addWish(Long memberId, Long productId) {
+        Member member = findMemberById(memberId);
+        Product product = findProductById(productId);
+
+        // 이미 찜 되어있는 경우
+        if(wishListRepository.existsByMemberIdAndProductId(memberId, productId)) {
+            return new WishListToggleResponseDto(true, product.getWishListCount());  // 멱등성 보장
+        }
+
+        // 찜 X 경우
+        WishList wishList = WishList.builder()  // FIXME: 나중에 정적 스태틱 메서드로 수정하면 좋을 것 같습니다. (생성 의미 명확 + 코드 길이 감소)
+                .member(member)
+                .product(product)
+                .build();
+        wishListRepository.save(wishList);
+        product.increaseWishListCount();  // product 내부 낙관적 락 + count 처리
+
+        return new WishListToggleResponseDto(true, product.getWishListCount());
+    }
+
+    @Transactional
+    public WishListToggleResponseDto removeWish(Long memberId, Long productId) {
+        Member member = findMemberById(memberId);
+        Product product = findProductById(productId);
+
+        WishList wish = wishListRepository.findByMemberIdAndProductId(memberId, productId)
+                .orElse(null);
+
+        if(wish == null) {
+            return new WishListToggleResponseDto(false, product.getWishListCount());
+        }
+
+        wishListRepository.delete(wish);
+        product.decreaseWishListCount();
+
+        return new WishListToggleResponseDto(false, product.getWishListCount());
     }
 }
