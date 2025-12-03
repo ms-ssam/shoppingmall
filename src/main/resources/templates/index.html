@@ -1,23 +1,140 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>쇼핑몰 메인</title>
+    <title>ELICE MALL</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #111;
+        }
+
+        .main-container {
+            padding: 40px 80px;
+        }
+
+        .hero {
+            height: 260px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .hero-sub {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hero-btn {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 26px;
+            border: 1px solid #111;
+            border-radius: 999px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #111;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .product-card {
+            border: 1px solid #eee;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            background-color: #ddd;
+            margin-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            font-size: 13px;
+            color: #444;
+        }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
 </head>
 <body>
-<p th:if="${successMessage}"
-   th:text="${successMessage}"
-   style="color:#52c41a; font-size:16px; margin-bottom:20px;">
-</p>
 
-<h1>쇼핑몰 프로젝트 메인 화면입니다!</h1>
-<p>서버가 정상적으로 실행되었습니다.</p>
+<!-- 상단바 플래그먼트 -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
 
-<form th:action="@{/logout}" method="post">
-    <button type="submit"
-            style="padding:10px 16px; background:black; color:white; border:none; border-radius:6px; cursor:pointer;">
-        로그아웃
-    </button>
-</form>
+<!-- 메인 컨텐츠 -->
+<main class="main-container">
+    <!-- 히어로 영역 -->
+    <section class="hero">
+        <div>
+            <div class="hero-title">당신의 코디를 완성하는 쇼핑몰</div>
+            <div class="hero-sub">
+                오늘 입고 싶은 스타일을 검색해 보고,<br>
+                나만의 옷장을 채워보세요.
+            </div>
+            <a th:href="@{/shop}" class="hero-btn">SHOP 바로가기</a>
+        </div>
+        <div>
+            <!-- 추후 배너 이미지 들어갈 자리 -->
+            <div style="width:260px;height:180px;background:#ddd;"></div>
+        </div>
+    </section>
+
+    <!-- 신규 상품 영역 (예시) -->
+    <section>
+        <div class="section-title">New Arrivals</div>
+        <div class="product-grid">
+            <!-- 추후 th:each 로 상품 반복 -->
+            <div class="product-card" th:each="product : ${products}">
+                <div class="product-image">
+                    <!-- 이미지 자리 -->
+                </div>
+                <div class="product-name"
+                     th:text="${product.name}">상품명</div>
+                <div class="product-price"
+                     th:text="|₩ ${product.price}|">₩ 10,000</div>
+            </div>
+
+            <!-- products 없을 때 더미 4개 정도 보여주고 싶으면 아래를 그대로 두고,
+                 실제 데이터 나오면 제거해도 됨 -->
+            <!--
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-name">샘플 상품 1</div>
+                <div class="product-price">₩ 10,000</div>
+            </div>
+            -->
+        </div>
+    </section>
+</main>
 </body>
 </html>
