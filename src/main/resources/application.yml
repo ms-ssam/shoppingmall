@@ -20,3 +20,5 @@ springdoc:
     path: /swagger-ui
     operations-sorter: method
     tags-sorter: alpha
+    doc-expansion: none
+    try-it-out-enabled: true
