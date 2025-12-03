@@ -1,11 +1,13 @@
 package com.example.elicesecondproject.mall.domain.product.service;
 
+import com.example.elicesecondproject.mall.domain.category.entity.Category;
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
+import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
+import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
+import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
+import com.example.elicesecondproject.mall.domain.option.service.ProductOptionService;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.entity.ImageType;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductImage;
@@ -13,10 +15,10 @@ import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
 import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductImageRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
-import com.example.elicesecondproject.mall.domain.product.repository.ProductRepositoryCustom;
 import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.service.ProductImageFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +42,11 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final ProductImageRepository productImageRepository;
     private final WishListRepository wishListRepository;
+    private final CategoryService categoryService;
+
+    // 하위 도메인 서비스로 분리 후 주입(옵션, 이미지)
+    private final ProductOptionService productOptionService;
+    private final ProductImageService productImageService;
 
     //PROD-F-02
     public Page<ProductSummaryDto> getProductsByCategory(
@@ -139,8 +147,88 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // validate methods
 
+
+    //PROD-REG-F-10 상품 등록
+    @Transactional
+    public ProductDetailResponse createProduct(CreateProductRequest request) {
+        // 1. 카테고리 조회 (Service 이용 권장)
+        Category category = categoryService.getCategoryById(request.getCategoryId());
+
+        // 2. 상품 엔티티 생성 (기본 정보 세팅)
+        Product product = new Product(
+                request.getName(),
+                request.getPrice(),
+                request.getDiscountRate(),
+                request.getDescription(),
+                category,
+                request.getStatus()
+        );
+
+        // 3. 옵션 그룹 등록 (기존 로직 재사용!)
+
+        productOptionService.updateOptionGroups(product, request.getOptionGroups());
+
+        productImageService.updateImages(product, request.getImages());
+
+        productRepository.save(product);
+
+        return productMapper.toDetailResponse(product);
+    }
+
+
+
+
+
+
+
+    // PROD-REG-F-11(관리자) 상품 상세 수정
+    @Transactional
+    public ProductDetailResponse updateProduct(Long productId, UpdateProductRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 1. 기본 정보 수정
+        product.updateDetails(
+                request.getName(),
+                request.getPrice(),
+                request.getDiscountRate(),
+                request.getDescription(),
+                request.getStatus()
+        );
+
+        // 2. 카테고리 수정
+        if (request.getCategoryId() != null) {
+            Category currentCategory = product.getCategory();
+            if (currentCategory == null || !currentCategory.getId().equals(request.getCategoryId())) {
+                Category newCategory = categoryService.getCategoryById(request.getCategoryId());
+                product.updateCategory(newCategory);
+            }
+        }
+
+
+        // 3. 옵션 그룹 비교 수정
+        productOptionService.updateOptionGroups(product, request.getOptionGroups());
+
+        // 4. 이미지 비교 수정
+        productImageService.updateImages(product, request.getImages());
+
+        return productMapper.toDetailResponse(product);
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // 엔티티의 비즈니스 로직 호출 (status = STOP)
+        product.delete();
+    }
+
+
+//-------------------------
+// validate methods
+// -------------------------
 
 
     private void validateProductExists(Long productId) {
@@ -148,7 +236,6 @@ public class ProductService {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
     }
-
 
     private void validateCategoryExists(Long categoryId) {
         if (categoryId != null && !categoryRepository.existsByIdAndDeletedAtIsNull(categoryId)) {
@@ -160,6 +247,7 @@ public class ProductService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
     }
+
     // 상태 검증
     private void validateProductActive(Product product) {
         if (product.getStatus() == ProductStatus.STOP) {
@@ -167,10 +255,10 @@ public class ProductService {
         }
     }
 
-    /**
-     * PROD-F-03 키워드 검색
-     * - 검색 대상: Product.name, Product.description, Category.name
-     * - 부분 일치 검색
+    /*
+      PROD-F-03 키워드 검색
+      - 검색 대상: Product.name, Product.description, Category.name
+      - 부분 일치 검색
      */
     public Page<ProductSummaryDto> searchProducts(
             String keyword, ProductSortType sortType, Pageable pageable
@@ -209,4 +297,6 @@ public class ProductService {
 
         return wishListRepository.existsByMemberIdAndProductId(memberId, productId);
     }
+
+
 }

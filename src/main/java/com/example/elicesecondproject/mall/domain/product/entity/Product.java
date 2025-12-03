@@ -33,12 +33,12 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     // [옵션 구조] 상품 -> 옵션 그룹 -> 상세 옵션]
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOptionGroup> optionGroups = new ArrayList<>();
 
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductImage> images;
 
     @NotBlank(message = "상품명은 필수입니다.")
@@ -145,14 +145,18 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     // 삭제 비즈니스 로직, 자식들도 같이 논리 삭제 처리
     public void delete() {
         //this.deletedAt = LocalDateTime.now();
+        this.softDelete();
         this.status = ProductStatus.STOP;
-        this.optionGroups.forEach(ProductOptionGroup::delete);  //ProductOptionGroup에서 OptionDetail까지 처리
         this.images.forEach(ProductImage::softDelete);
     }
 
     public int getSalePrice() {
         if (this.discountRate <= 0) return this.price;
         return this.price - (int) (((long) this.price * this.discountRate) / 100);
+    }
+
+    public void updateCategory(Category category){
+        this.category = category;
     }
 
     //todo:  equals, hashCode 오버라이드 (식별성 보장) 내용 고려하기  -> x

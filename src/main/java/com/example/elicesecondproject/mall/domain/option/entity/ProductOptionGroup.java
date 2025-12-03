@@ -30,7 +30,7 @@ public class ProductOptionGroup extends SoftDeletableBaseEntity {
     private Product product;
 
     @BatchSize(size = 100)
-    @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "productOptionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OptionDetail> details = new ArrayList<>();
 /*
 구조적합성: ProductOptionGroup을 '색상' 단위로, OptionDetail을 '사이즈' 단위로 사용해서 계층형 선택 및 조합형 재고 관리
@@ -65,10 +65,21 @@ public class ProductOptionGroup extends SoftDeletableBaseEntity {
         }
     }
 
+    /* 소프트 delete 필요 없음 -> 대신 order 단에서 스냅샷 필요
     public void delete() {
         //this.deletedAt = LocalDateTime.now();
+        this.softDelete();
         for (OptionDetail detail : details) {
             detail.softDelete();
+        }
+
+    }*/
+    public void update(String name, Integer displayOrder) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+        if (displayOrder != null) {
+            this.displayOrder = displayOrder;
         }
     }
 }

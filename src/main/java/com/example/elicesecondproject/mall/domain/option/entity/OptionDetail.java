@@ -107,6 +107,15 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         }
         this.stockQuantity += quantity;
     }
+
+    public void update(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
+
+        this.name = name;
+        this.sku = sku;
+        this.addPrice = addPrice;
+        this.stockQuantity = stockQuantity;
+        this.displayOrder = displayOrder;
+    }
 /*    public void delete() {
         this.deletedAt = LocalDateTime.now();
     }*/

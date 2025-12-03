@@ -1,7 +1,11 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.product.dto.*;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -100,4 +104,6 @@ public class ProductController {
 
         return ResponseEntity.ok(ApiResponse.success("찜 상태 조회 성공", isWished));
     }
+
+
 }
