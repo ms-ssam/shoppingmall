@@ -12,6 +12,8 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(HttpStatus.BAD_REQUEST, "C002", "입력 타입이 올바르지 않습니다."),
 
     CATEGORY_HAS_CHILDREN(HttpStatus.BAD_REQUEST, "CAT003", "하위 카테고리가 존재하여 삭제할 수 없습니다."),
+    CATEGORY_DEPTH_EXCEEDED(HttpStatus.BAD_REQUEST, "CAT004", "카테고리는 2단계까지만 생성할 수 있습니다."),
+    CATEGORY_CANNOT_BE_ITS_OWN_PARENT(HttpStatus.BAD_REQUEST, "CAT005", "카테고리는 자기 자신을 부모로 설정할 수 없습니다."),
 
     INVALID_IMAGE_FORMAT(HttpStatus.BAD_REQUEST, "IMG001", "지원하지 않는 이미지 형식입니다. (JPG, PNG, WEBP만 가능)"),
     IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "IMG002", "이미지 크기가 너무 큽니다. (최대 5MB)"),

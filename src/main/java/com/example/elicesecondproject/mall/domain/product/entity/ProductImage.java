@@ -12,11 +12,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductImage extends SoftDeletableBaseEntity {
 
     @Id
@@ -78,9 +77,7 @@ public class ProductImage extends SoftDeletableBaseEntity {
             this.displayOrder = displayOrder;
         }
     }
-    public String getThumbnailUrl() {
-        return imageUrl;
-    }
+
     public String getResizedUrl() {
         // DESCRIPTION은 DB에 이미 resized 경로 저장됨
         if (imageType == ImageType.DESCRIPTION) {

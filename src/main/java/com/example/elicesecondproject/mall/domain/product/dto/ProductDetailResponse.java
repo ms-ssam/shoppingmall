@@ -28,4 +28,7 @@ public class ProductDetailResponse {
     private Double averageRating;
     private Integer reviewCount;
     private Integer wishListCount;
+
+    //재고 추가
+    private Integer totalStock;
 }
