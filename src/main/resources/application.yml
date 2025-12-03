@@ -10,10 +10,17 @@ spring:
       filter:
         enabled: true  # PUT, DELETE 요청 hidden-method 지원
 
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/team1shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+#    username: team1
+#    password: passw0rd
   datasource:
-    url: jdbc:mysql://localhost:3306/team1shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-    username: team1
-    password: passw0rd
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
 
   jpa:
     properties:
