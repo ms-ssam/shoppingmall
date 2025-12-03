@@ -1,12 +1,15 @@
 ######################################
 # 학습용으로 실제로는 다른 방식으로 할 것!
 ######################################
+
 variables:
   TARGET_BRANCH: "dev"
+
 stages:
   - build
   - test
   - deploy
+
 build_job:
   stage: build
   tags:
@@ -20,8 +23,18 @@ build_job:
       - build/libs/*.jar
     expire_in: 1 day
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+    # 1) MR 생성/업데이트 시 실행
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+
+    # 2) dev 브랜치로 push되었을 때 실행 (→ merge 후 commit 포함)
+    - if: '$CI_COMMIT_BRANCH == $TARGET_BRANCH'
+      when: always
+
+    # 기본적으로는 실행 안함
+    - when: never
+
+
 test_job:
   stage: test
   tags:
@@ -31,8 +44,17 @@ test_job:
     - chmod +x ./gradlew
     - ./gradlew test
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+    # 1) MR 이벤트
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+
+    # 2) dev 브랜치 push (merge commit 포함)
+    - if: '$CI_COMMIT_BRANCH == $TARGET_BRANCH'
+      when: always
+
+    - when: never
+
+
 deploy_job:
   stage: deploy
   needs:
@@ -47,7 +69,12 @@ deploy_job:
     - nohup java -Dspring.profiles.active=dev -jar build/libs/*SNAPSHOT.jar > app.log 2>&1 &
     - echo "배포가 완료되었습니다!"
   rules:
-    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
+    # 배포는 dev 브랜치 push(=merge commit 포함)일 때만
+    - if: '$CI_COMMIT_BRANCH == $TARGET_BRANCH'
+      when: always
+
+    - when: never
+
 ######################################
 # 학습용으로 실제로는 다른 방식으로 할 것!
 ######################################
