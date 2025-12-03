@@ -5,6 +5,12 @@ spring:
     name: shoppingMall
   thymeleaf:
     cache: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/team1shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: team1
+    password: passw0rd
+
   jpa:
     properties:
       hibernate:
