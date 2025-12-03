@@ -44,7 +44,6 @@ public class ProductImage extends SoftDeletableBaseEntity {
     @Column(nullable = false)
     private Integer displayOrder;
 
-    private LocalDateTime deletedAt;
 
     @Builder
     public ProductImage(String imageUrl, ImageType imageType, Integer displayOrder,

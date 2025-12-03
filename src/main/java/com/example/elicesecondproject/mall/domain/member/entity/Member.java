@@ -92,6 +92,14 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     }
 
     // --- 도메인 메서드 ---
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateProfile(String nickname,String phone) {
+        this.nickname = nickname;
+        this.phone = phone;
+    }
 
     public void markEmailVerified() {
         this.emailVerified = true;
@@ -109,8 +117,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
         this.status = MemberStatus.ACTIVE;
     }
 
-    public void withdraw(LocalDateTime when) {
+    public void withdraw() {
         this.status = MemberStatus.WITHDRAWN;
+        softDelete();
     }
 
 
