@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.global.jwt;
 
+import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
 import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
+
+    private final MemberDetailService memberDetailService;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -86,14 +89,15 @@ public class JwtProvider {
         }
 
         // 권한을 GrantedAuthority 타입으로 변환해야 스프링 시큐리티에 사용 가능
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(MemberConstants.AUTH_CLAIM).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+        String email = claims.getSubject();
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        UserDetails principal = memberDetailService.loadUserByUsername(email);
 
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                "",
+                principal.getAuthorities()
+        );
     }
 
     public boolean validateToken(String token) {

@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.category.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,7 +19,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Category extends BaseEntity {
+public class Category extends SoftDeletableBaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,30 +59,18 @@ public class Category extends BaseEntity {
     @Column(nullable = false)
     private Boolean isVisible;
 
-    private LocalDateTime deletedAt;
 
-    // [수정 포인트 1] 빌더에서 '로직 필드(parent, path, depth)' 제거 & 리스트 초기화
     @Builder
     public Category(String name, String slug, Integer displayOrder, Boolean isVisible) {
         this.name = name;
         this.slug = slug;
         this.displayOrder = displayOrder;
         this.isVisible = isVisible != null ? isVisible : true;
-
-        // [수정 포인트 2] 안전장치: 필수 필드 기본값 설정
         this.depth = 0;
-        this.path = "";
-
-        // [수정 포인트 3] ★ 가장 중요 ★: 리스트 명시적 초기화
+        this.path = "/";
         this.children = new ArrayList<>();
     }
 
-    public void delete() {
-        this.deletedAt = LocalDateTime.now();
-        for (Category child : children) {
-            child.delete();
-        }
-    }
 
     // 서비스 대신 엔티티가 스스로 수정 (객체지향적 설계)
     public void updateDetails(String name, String slug, Boolean isVisible, Integer displayOrder) {
@@ -111,7 +100,9 @@ public class Category extends BaseEntity {
 
     // 저장 후 ID가 생긴 뒤 경로 완성용 메서드
     public void completePath() {
-        String currentPath = (this.path == null || this.path.isBlank()) ? "/" : this.path;
-        this.path = currentPath + this.id + "/";
+        this.path = (this.parent == null)
+                ? "/" + this.id + "/"
+                : this.parent.getPath() + this.id + "/";
     }
+
 }

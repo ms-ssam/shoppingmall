@@ -12,6 +12,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -124,11 +125,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
             if (buf.length == 0) {
                 return "";
             }
-            try {
-                return new String(buf, wrapper.getCharacterEncoding());
-            } catch (UnsupportedEncodingException e) {
-                return "[unknown-encoding]";
-            }
+            // 인코딩을 UTF-8로 강제
+            return new String(buf, StandardCharsets.UTF_8);
         }
         return "[RequestBody logging requires ContentCachingRequestWrapper]";
     }
@@ -139,11 +137,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
             if (buf.length == 0) {
                 return "";
             }
-            try {
-                return new String(buf, wrapper.getCharacterEncoding());
-            } catch (UnsupportedEncodingException e) {
-                return "[unknown-encoding]";
-            }
+            // 인코딩을 UTF-8로 강제
+            return new String(buf, StandardCharsets.UTF_8);
         }
         return "[ResponseBody logging requires ContentCachingResponseWrapper]";
     }

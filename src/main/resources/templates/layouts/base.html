@@ -226,6 +226,9 @@
             &copy; 2025 BLANC. All rights reserved.
         </div>
     </div>
+    <th:block th:if="${#env.acceptsProfiles('local')}">
+        <script src="http://localhost:35729/livereload.js?snipver=1"></script>
+    </th:block>
 </footer>
 <script>
     function toggleMobileMenu() {

@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.product.dto;
 
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,5 +21,8 @@ public class ProductSummaryDto {
     private String mainImageUrl;
     private Double averageRating;
     private int reviewCount;
-    private int WishListCount;
+    private int wishListCount;
+
+    // 재고 필드 추가
+    private Integer totalStock;
 }
