@@ -129,9 +129,13 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     }
 
     // 평점 업데이트
-    public void updateRating(double averageRating, int reviewCount) {
+    public void updateRatingAndReviewCount(double averageRating, int reviewCount) {
         this.averageRating = Math.round(averageRating * 10.0) / 10.0;
         this.reviewCount = reviewCount;
+    }
+
+    public void updateRating(double averageRating) {
+        this.averageRating = Math.round(averageRating * 10.0) / 10.0;
     }
 
     // 좋아요 수 업데이트

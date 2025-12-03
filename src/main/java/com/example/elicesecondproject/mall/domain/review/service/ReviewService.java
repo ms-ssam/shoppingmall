@@ -14,25 +14,38 @@ import com.example.elicesecondproject.mall.domain.review.mapper.ReviewMapper;
 import com.example.elicesecondproject.mall.domain.review.repository.ReviewRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final ReviewMapper reviewMapper;
+
+    public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable){
+        if (!productRepository.existsByIdAndDeletedAtIsNull(productId)) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        Page<Review> reviews = reviewRepository.findByProductIdAndDeletedAtIsNull(productId, pageable);
+        return reviews.map(reviewMapper::toResponse);
+    }
 
     @Transactional
     public ReviewResponse createReview(Long productId, CreateReviewRequest request, Long memberId) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
         Review review = Review.builder()
                 .product(product)
@@ -45,14 +58,9 @@ public class ReviewService {
         reviewRepository.save(review);
 
         // product 리뷰 수 증가, 평균 평점 갱신
-        int oldCount = product.getReviewCount();
-        int newCount = oldCount + 1;
-        double oldAvg = product.getAverageRating();
-        double newAvg = ((oldAvg * oldCount) + request.getRating()) / newCount; //TODO: 계산 하는 방법을 바꿔야 할듯 // 계산 한 값을 그대로 데이터베이스에 넣고  보여줄 때 소수점 제거
+        updateProductRatingAndCount(product);
 
-        product.updateRating(newAvg, newCount);
-
-        return ReviewMapper.toResponse(review);
+        return reviewMapper.toResponse(review);
     }
 
     @Transactional
@@ -60,16 +68,23 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
-        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
+        validateReviewAccess(review, memberId, member.getRole());
+
+        Product product = review.getProduct();
+
+        Integer oldRating = review.getRating();
+        Integer newRating = request.getRating();
 
         review.update(request.getRating(), request.getContent(), request.getImageUrl());
 
-        return ReviewMapper.toResponse(review);
+        if (!oldRating.equals(newRating)) {
+            Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+            product.updateRating(newAvg);
+        }
+
+        return reviewMapper.toResponse(review);
     }
 
     @Transactional
@@ -77,13 +92,45 @@ public class ReviewService {
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
-        if (!review.getMember().getId().equals(memberId) && member.getRole() != Role.ADMIN) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
+        validateReviewAccess(review, memberId, member.getRole());
 
         review.softDelete();
+
+        Product product = review.getProduct();
+
+        updateProductRatingAndCount(product);
+    }
+
+    public Page<ReviewResponse> getReviewsByMember(Long memberId, Pageable pageable){
+        // TODO: 회원 상태가 ACTIVE인 회원만 로그인 가능하도록 정책이 확정되면
+        //  로그인 시점에서 이미 필터링되므로 이 검증 로직은 제거해도 됨.
+        memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Review> reviews = reviewRepository.findByMemberIdAndDeletedAtIsNull(memberId, pageable);
+        return reviews.map(reviewMapper::toResponse);
+    }
+
+    private void validateReviewAccess(Review review, Long memberId, Role role) {
+        boolean isOwner = review.getMember().getId().equals(memberId);
+        boolean isAdmin = role == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
+        }
+    }
+
+    private void updateProductRatingAndCount(Product product) {
+        Double newAvg = reviewRepository.calculateAverageRating(product.getId());
+        Long newCount = reviewRepository.countByProductIdAndDeletedAtIsNull(product.getId());
+
+        product.updateRatingAndReviewCount(newAvg, newCount.intValue());
+    }
+
+    private Member getActiveMember(Long memberId) {
+        return memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
