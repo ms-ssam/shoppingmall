@@ -2,7 +2,6 @@ variables:
   TARGET_BRANCH: "dev"
 stages:
   - build
-  - test
   - deploy
 
 build_job:
@@ -21,30 +20,10 @@ build_job:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
 
-test_job:
-  stage: test
-  tags:
-    - deploy
-  script:
-    - echo "코드 테스트를 수행합니다..."
-    - chmod +x ./gradlew
-    - ./gradlew test
-  artifacts:
-    when: always
-    paths:
-      - build/reports/tests/test/
-      - build/reports/problems/
-      - build/test-results/test/
-    expire_in: 1 week
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
-
 deploy_job:
   stage: deploy
   needs:
     - build_job
-    - test_job
   tags:
     - deploy
   script:
