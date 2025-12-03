@@ -20,9 +20,16 @@ public class ReviewAdminService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final ReviewMapper reviewMapper;
+    private final ReviewService reviewService;
+
 
     public Page<ReviewAdminResponse> getAllReviews(Pageable pageable){
         Page<Review> reviews = reviewRepository.findAllByDeletedAtIsNull(pageable);
         return reviews.map(reviewMapper::toAdminResponse);
+    }
+
+    @Transactional
+    public void deleteReviewAsAdmin(Long reviewId, Long adminId) {
+        reviewService.softDeleteReview(reviewId, adminId);
     }
 }
