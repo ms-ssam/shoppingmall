@@ -119,7 +119,7 @@ public class CategoryService {
             throw new BusinessException(ErrorCode.CATEGORY_HAS_CHILDREN);
         }
 
-        category.delete(); // Soft Delete & 필요시 자식 전파
+        category.softDelete(); // Soft Delete & 필요시 자식 전파
     }
 
     // 사용자용 카테고리 트리 (루트 + 자식들)
