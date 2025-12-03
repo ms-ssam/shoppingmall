@@ -5,7 +5,19 @@
     <title>쇼핑몰 메인</title>
 </head>
 <body>
+<p th:if="${successMessage}"
+   th:text="${successMessage}"
+   style="color:#52c41a; font-size:16px; margin-bottom:20px;">
+</p>
+
 <h1>쇼핑몰 프로젝트 메인 화면입니다!</h1>
 <p>서버가 정상적으로 실행되었습니다.</p>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit"
+            style="padding:10px 16px; background:black; color:white; border:none; border-radius:6px; cursor:pointer;">
+        로그아웃
+    </button>
+</form>
 </body>
 </html>
