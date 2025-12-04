@@ -1,6 +1,8 @@
 spring:
   application:
     name: shoppingMall
+  profiles:
+    active: local
   thymeleaf:
     cache: true
   mvc:
