@@ -101,3 +101,8 @@
     color: inherit;
     cursor: pointer;
 }
+
+body {
+    margin: 0;
+    padding: 0;
+}
