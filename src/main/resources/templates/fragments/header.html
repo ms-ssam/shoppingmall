@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ko">
+<body>
+<header th:fragment="topHeader(cartCount)">
+    <div class="layout-header">
+        <!-- 왼쪽 -->
+        <div class="layout-header-left">
+            <a th:href="@{/}">LOGO</a>
+
+            <!-- ⭐ SHOP + NOTICE 묶는 박스 추가 -->
+            <div class="layout-header-menu">
+                <a th:href="@{/shop}">SHOP</a>
+                <a th:href="@{/notice}">NOTICE</a>
+            </div>
+        </div>
+
+        <!-- 가운데 검색 -->
+        <div class="layout-header-center">
+            <form th:action="@{/search}" method="get" class="layout-header-search-box">
+                <input type="text"
+                       name="q"
+                       class="layout-header-search-input"
+                       placeholder="검색어를 입력하세요">
+                <button type="submit"
+                        class="layout-header-search-icon layout-header-link-button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- 오른쪽 -->
+        <div class="layout-header-right">
+            <!-- 비로그인 -->
+            <div sec:authorize="isAnonymous()">
+                <a th:href="@{/login}">LOGIN</a>
+                <a th:href="@{/signup}">SIGNUP</a>
+                <a th:href="@{/cart}">
+                    CART(<span th:text="${cartCount} ?: 0">0</span>)
+                </a>
+            </div>
+
+            <!-- 로그인 -->
+            <div sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" class="layout-header-link-button">LOGOUT</button>
+                </form>
+                <a th:href="@{/mypage}">MY</a>
+                <a th:href="@{/cart}">
+                    CART(<span th:text="${cartCount} ?: 0">0</span>)
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
