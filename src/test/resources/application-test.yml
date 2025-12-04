@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MYSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+
+  sql:
+    init:
+      mode: never  # 테스트에서 data.sql 안 타게
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+
+#  servlet:
+#    multipart:
+#      max-file-size: 5MB
+#      max-request-size: 20MB
+
+logging:
+  level:
+    root: INFO
+    com.example.elicesecondproject: DEBUG
+
+file:
+  upload:
+    base-path: ./build/test-uploads
+    product-path: products
+    allowed-extensions: jpg,jpeg,png,webp
+#  image:
+#    resize:
+#      max-width: 1920
+#      quality: 0.85
+#    thumbnail:
+#      main-size: 300
+#      slider-size: 100
+#jwt:
+#  secret: "test-secret-for-jwt-should-not-be-prod"
+#  access-token-expiration: 1800000
+#  refresh-token-expiration: 604800000

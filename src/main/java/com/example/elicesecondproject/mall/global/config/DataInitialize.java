@@ -3,8 +3,6 @@ package com.example.elicesecondproject.mall.global.config;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
-import com.example.elicesecondproject.mall.domain.product.entity.Product;
-import com.example.elicesecondproject.mall.domain.product.entity.WishList;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +52,7 @@ public class DataInitialize implements CommandLineRunner {
             System.out.println(">>> 일반 사용자 계정 생성 완료: user@test.com / 1234");
         }
 
-        // 3. WishList 초기 데이터 생성
+        /*// 3. WishList 초기 데이터 생성
         if (wishListRepository.count() == 0) {
 
             // --- 회원 조회 ---
@@ -89,6 +87,6 @@ public class DataInitialize implements CommandLineRunner {
             wishListRepository.save(new WishList(user, p5)); // 유저 → 상품 5
 
             System.out.println(">>> WishList 더미 데이터 생성 완료");
-        }
+        }*/
     }
 }

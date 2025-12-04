@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: local
   application:
     name: shoppingMall
   thymeleaf:
@@ -9,24 +7,22 @@ spring:
     hiddenmethod:
       filter:
         enabled: true  # PUT, DELETE 요청 hidden-method 지원
-
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/team1shop?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-#    username: team1
-#    password: passw0rd
-  datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-
   jpa:
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+  #  datasource:
+  #    url: jdbc:h2:mem:testdb
+  #    username: sa
+  #    password:
+  #  h2:
+  #    console:
+  #      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 5MB # 단일 파일 최대
+      max-request-size: 20MB # 여러 파일 합계
 
 springdoc:
   api-docs:
@@ -40,4 +36,27 @@ springdoc:
     doc-expansion: none
     try-it-out-enabled: true
 
-    # .
+jwt:
+  secret: "s5TTgY4zdXRTZ58o/UdClxBqf4SKi3Hn11obMgLdP5w="
+  access-token-expiration: 1800000
+  refresh-token-expiration: 604800000
+
+file:
+  upload:
+    #    base-path: C:/uploads
+    product-path: products # /uploads/products
+    allowed-extensions: jpg,jpeg,png,webp
+  image:
+    resize:
+      max-width: 1920
+      quality: 0.85
+    thumbnail:
+      main-size: 300 # 300x300
+      slider-size: 100 # 100x100
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
