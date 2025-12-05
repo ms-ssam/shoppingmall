@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -28,5 +29,24 @@ public class MypageViewController {
         model.addAttribute("member",response);
 
         return "mypage/mypage-index";
+    }
+
+    @GetMapping("/profile")
+    public String getProfile(@AuthenticationPrincipal MemberDetail principal,
+                             Model model
+    ){
+        Long memberId = principal.getMember().getId();
+        MemberProfileResponse response = memberService.getMyProfile(memberId);
+
+        model.addAttribute("member",response);
+
+        return "mypage/mypage-profile";
+    }
+
+    @PutMapping("profile/nickname")
+    public String updateNickname(@AuthenticationPrincipal MemberDetail principal,
+                                 Model model
+    ){
+        return "mypage/mypage-update-nickname";
     }
 }
