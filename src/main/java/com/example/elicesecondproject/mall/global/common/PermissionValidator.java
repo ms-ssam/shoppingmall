@@ -1,7 +1,9 @@
 package com.example.elicesecondproject.mall.global.common;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import org.springframework.security.access.AccessDeniedException;
+import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +19,7 @@ public class PermissionValidator {
         boolean isAdmin = member.isAdmin();
 
         if (!isOwner && !isAdmin) {
-            throw new AccessDeniedException("권한이 없습니다.");
+            throw new BusinessException(ErrorCode.FORBIDDEN);
         }
     }
 }
