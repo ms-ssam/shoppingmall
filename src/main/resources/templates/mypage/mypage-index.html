@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - Account</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+    <!-- 사이드바 fragment -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <main class="mypage-content">
+        <section class="account-card">
+
+            <!-- ACCOUNT 타이틀 -->
+            <header class="account-card-header">
+                <h2 class="account-card-title">MY</h2>
+            </header>
+
+            <!-- 회원 정보 -->
+            <section class="account-section">
+                <h3 class="account-section-title">회원 정보</h3>
+
+                <div class="account-info-list">
+                    <div class="account-info-row">
+                        <span class="account-info-label">이메일</span>
+                        <span class="account-info-value" th:text="${member.email}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">이름</span>
+                        <span class="account-info-value" th:text="${member.name}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">닉네임</span>
+                        <span class="account-info-value" th:text="${member.nickname}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">전화번호</span>
+                        <span class="account-info-value" th:text="${member.phone}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders -->
+            <section class="account-section account-orders">
+                <div class="account-section-header">
+                    <h3 class="account-section-title">Orders</h3>
+                    <a class="account-section-link" th:href="@{/mypage/orders}">
+                        모든 주문 내역
+                    </a>
+                </div>
+
+                <p class="account-section-desc">
+                    최근 3개월 주문 내역이 없습니다.
+                </p>
+            </section>
+
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,164 @@
+/* mypage.css */
+
+/* 마이페이지 전체 래퍼 */
+.mypage-container {
+    display: flex;
+    padding: 40px 40px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+    background-color: #ffffff;
+    color: #111;
+}
+
+/* 마이페이지 안에서만 링크 스타일 적용 */
+.mypage-container a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.mypage-container a:hover {
+    text-decoration: underline;
+}
+
+/* 사이드바 */
+.mypage-sidebar {
+    width: 220px;
+    padding-right: 40px;
+}
+
+.mypage-sidebar .sidebar-title {
+    font-size: 26px;        /* 더 큼 */
+    font-weight: 700;       /* 더 볼드 */
+    letter-spacing: 0.05em;
+    margin-bottom: 36px;
+}
+
+.mypage-sidebar .sidebar-section {
+    margin-bottom: 28px;
+}
+
+.mypage-sidebar .sidebar-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.mypage-sidebar .sidebar-menu {
+    list-style: none;
+    padding-left: 0;
+}
+
+.mypage-sidebar .sidebar-menu li {
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+/* 메인 컨텐츠 */
+.mypage-content {
+    flex: 1;
+    border-left: 2px solid #d0d0d0;   /* 구분선 더 굵게 */
+    padding-left: 48px;
+}
+
+.mypage-content .content-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.mypage-content .content-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.mypage-content .content-header-sub {
+    font-size: 13px;
+    color: #777;
+    margin-top: 6px;
+}
+
+.mypage-content .orders-header-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.mypage-content .orders-header-link {
+    font-size: 13px;
+    text-decoration: underline;
+    margin-left: 8px;
+}
+
+.mypage-content .orders-header-text {
+    font-size: 13px;
+    color: #777;
+}
+
+/* ACCOUNT 메인 카드 */
+.account-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 32px 40px;
+    box-shadow: 0 0 0 1px #eee;  /* 테두리 느낌 */
+}
+
+/* 카드 상단 타이틀 */
+.account-card-header {
+    margin-bottom: 32px;
+}
+
+.account-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+/* 공통 섹션 */
+.account-section {
+    margin-bottom: 32px;
+}
+
+.account-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* 회원 정보 리스트 */
+.account-info-list {
+    margin: 0;
+    padding: 0;
+}
+
+.account-info-row {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.account-info-label {
+    width: 80px;
+    color: #777;
+}
+
+.account-info-value {
+    margin: 0;
+}
+
+/* Orders 섹션 */
+.account-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.account-section-link {
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+.account-section-desc {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #777;
+}
+

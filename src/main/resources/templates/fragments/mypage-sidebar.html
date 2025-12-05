@@ -1,0 +1,33 @@
+<!-- fragments/mypage-sidebar.html -->
+<aside th:fragment="mypageSidebar" class="mypage-sidebar">
+
+    <div class="sidebar-title">MYPAGE</div>
+
+    <section class="sidebar-section">
+        <div class="sidebar-section-title">회원 정보</div>
+        <ul class="sidebar-menu">
+            <li><a th:href="@{/mypage}">내 계정</a></li>
+            <li><a th:href="@{/mypage/profile}">회원정보 수정</a></li>
+            <li><a th:href="@{/mypage/addresses}">배송지 관리</a></li>
+        </ul>
+    </section>
+
+    <section class="sidebar-section">
+        <div class="sidebar-section-title">회원 혜택</div>
+        <ul class="sidebar-menu">
+            <li><a th:href="@{/mypage/benefits}">멤버십 혜택</a></li>
+            <li><a th:href="@{/mypage/mileage}">적립금</a></li>
+            <li><a th:href="@{/mypage/coupons}">쿠폰</a></li>
+        </ul>
+    </section>
+
+    <section class="sidebar-section">
+        <div class="sidebar-section-title">쇼핑 정보</div>
+        <ul class="sidebar-menu">
+            <li><a th:href="@{/mypage/orders}">주문 내역</a></li>
+            <li><a th:href="@{/mypage/returns}">교환 / 반품 내역</a></li>
+            <li><a th:href="@{/mypage/reviews}">리뷰 내역</a></li>
+        </ul>
+    </section>
+
+</aside>
