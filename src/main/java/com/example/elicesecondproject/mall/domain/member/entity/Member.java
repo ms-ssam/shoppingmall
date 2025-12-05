@@ -122,6 +122,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
         softDelete();
     }
 
+    public boolean isAdmin() {
+        return this.role == Role.ADMIN;
+    }
 
     // --- UserDetails 구현 ---
 

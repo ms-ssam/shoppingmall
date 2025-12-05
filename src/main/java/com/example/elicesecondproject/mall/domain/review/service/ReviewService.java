@@ -12,6 +12,7 @@ import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResp
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.domain.review.mapper.ReviewMapper;
 import com.example.elicesecondproject.mall.domain.review.repository.ReviewRepository;
+import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final ReviewMapper reviewMapper;
+    private final PermissionValidator permissionValidator;
 
     public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable){
         if (!productRepository.existsByIdAndDeletedAtIsNull(productId)) {
@@ -94,7 +96,7 @@ public class ReviewService {
 
         Member member = getActiveMember(memberId);
 
-        validateReviewAccess(review, memberId, member.getRole());
+        permissionValidator.validate(review, member);
 
         review.softDelete();
 

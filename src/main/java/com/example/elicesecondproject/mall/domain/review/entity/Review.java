@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.review.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.global.common.Ownable;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Review extends SoftDeletableBaseEntity {
+public class Review extends SoftDeletableBaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,5 +43,10 @@ public class Review extends SoftDeletableBaseEntity {
         this.imageUrl = imageUrl;
 
         return this;
+    }
+
+    @Override
+    public Long getOwnerId() {
+        return member.getId();
     }
 }
