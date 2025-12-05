@@ -1,0 +1,177 @@
+<!-- src/main/resources/templates/product/product-reviews.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title>상품 후기 목록</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px 24px;
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            margin-bottom: 16px;
+            display: inline-block;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .review-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .review-rating {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .review-content {
+            font-size: 14px;
+            margin-top: 4px;
+            white-space: pre-line;
+        }
+
+        .review-image {
+            margin-top: 8px;
+        }
+
+        .review-image img {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .empty-message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .page-link {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .page-link.active {
+            font-weight: 700;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .page-link.disabled {
+            color: #aaa;
+            border-color: #eee;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- 뒤로가기: 상품 상세로 -->
+    <a th:href="@{'/products/' + ${productId}}" class="back-link">← 상품 상세로 돌아가기</a>
+
+    <h1>상품 후기</h1>
+
+    <!-- 후기 리스트 -->
+    <div class="review-list" th:if="${reviews.content.size() > 0}">
+        <div class="review-item" th:each="review : ${reviews.content}">
+            <div class="review-header">
+                <div>
+                    <span th:text="${review.memberNickname}">닉네임</span>
+                    &nbsp;·&nbsp;
+                    <span th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}">
+                        2025.11.28
+                    </span>
+                </div>
+                <div class="review-rating">
+                    평점 <span th:text="${review.rating}">5</span> / 5
+                </div>
+            </div>
+
+            <div class="review-content" th:text="${review.content}">
+                리뷰 내용이 들어갑니다.
+            </div>
+
+            <div class="review-image" th:if="${review.imageUrl != null}">
+                <img th:src="${review.imageUrl}" alt="리뷰 이미지">
+            </div>
+        </div>
+    </div>
+
+    <!-- 후기 없을 때 -->
+    <div class="empty-message" th:if="${reviews.content.size() == 0}">
+        아직 등록된 후기가 없습니다.
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" th:if="${reviews.totalPages > 1}">
+        <!-- 이전 페이지 -->
+        <a class="page-link"
+           th:classappend="${reviews.first} ? ' disabled'"
+           th:href="@{|/products/${productId}/reviews?page=${reviews.number - 1}|}">
+            이전
+        </a>
+
+        <!-- 페이지 번호 -->
+        <a class="page-link"
+           th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
+           th:text="${pageNum + 1}"
+           th:classappend="${pageNum} == ${reviews.number} ? ' active'"
+           th:href="@{|/products/${productId}/reviews?page=${pageNum}|}">
+        </a>
+
+        <!-- 다음 페이지 -->
+        <a class="page-link"
+           th:classappend="${reviews.last} ? ' disabled'"
+           th:href="@{|/products/${productId}/reviews?page=${reviews.number + 1}|}">
+            다음
+        </a>
+    </div>
+
+</div>
+</body>
+</html>
