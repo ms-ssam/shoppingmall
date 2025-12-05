@@ -42,7 +42,7 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
-    @PutMapping("/products/{productId}/reviews/{reviewId}")
+    @PutMapping("/products/{productId}/reviews/{reviewId}") //FIXME: 경로 /mypage/reviews/{reviewId} 이걸로 수정
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(@PathVariable Long reviewId,
                                                                     @Valid @RequestBody UpdateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
@@ -51,7 +51,7 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @DeleteMapping("/products/{productId}/reviews/{reviewId}")
+    @DeleteMapping("/products/{productId}/reviews/{reviewId}") //FIXME: 경로 /mypage/reviews/{reviewId} 이걸로 수정
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
                                              @AuthenticationPrincipal MemberDetail principal) {
 
