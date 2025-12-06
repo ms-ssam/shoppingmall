@@ -4,31 +4,24 @@ import com.example.elicesecondproject.mall.domain.category.entity.Category;
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
-import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
-import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
 import com.example.elicesecondproject.mall.domain.option.service.ProductOptionService;
 import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.entity.*;
 import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductImageRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
-import com.example.elicesecondproject.mall.domain.product.repository.ProductRepositoryCustom;
 import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
-import com.example.elicesecondproject.mall.global.service.ProductImageFileService;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

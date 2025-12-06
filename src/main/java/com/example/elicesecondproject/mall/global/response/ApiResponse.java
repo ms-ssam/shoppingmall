@@ -2,7 +2,7 @@ package com.example.elicesecondproject.mall.global.response;
 
 import com.example.elicesecondproject.mall.global.dto.ErrorResponse;
 import lombok.Getter;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 
 @Getter
 public class ApiResponse<T> {

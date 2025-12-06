@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.global.exception;
+package com.example.elicesecondproject.mall.global.error.exception;
 
 import lombok.Getter;
 

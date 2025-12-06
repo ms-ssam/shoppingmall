@@ -5,7 +5,7 @@ import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
 import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

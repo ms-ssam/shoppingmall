@@ -6,8 +6,8 @@ import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
