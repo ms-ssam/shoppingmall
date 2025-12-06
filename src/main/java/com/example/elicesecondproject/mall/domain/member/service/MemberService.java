@@ -53,41 +53,14 @@ public class MemberService {
     // 내 정보 수정 - 닉네임, 전화번호
     @Transactional
     public void updateMyProfile(Long memberId, UpdateMemberRequest request) {
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        String nickname = validateAndNormalizeNickname(request.getNickname());
-        String phone = validateAndNormalizePhone(request.getPhone());
+        String nickname = request.getNickname().trim();
+        String phone = request.getPhone();
 
         member.updateProfile(nickname, phone);
-    }
-
-    // 닉네임 유효성 검증 및 앞뒤 공백 제거
-    private String validateAndNormalizeNickname(String nickname) {
-        String trimmed = nickname.trim();
-        if(trimmed.length() < 2 || trimmed.length() > 20) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_NICKNAME_LENGTH);
-        }
-        return trimmed;
-    }
-
-    // 전화번호 유효성 검증
-    private String validateAndNormalizePhone(String phone) {
-
-        // 숫자만 남기기
-        String digits = phone.replaceAll("[^0-9]", "");
-
-        // 길이 체크 (11자리)
-        if (digits.length() != 11) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PHONE_FORMAT);
-        }
-
-        // 010으로 시작하는 번호만 가능
-        if (!digits.startsWith("010")) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PHONE_FORMAT);
-        }
-
-        return digits;
     }
 
     // 비밀번호 변경

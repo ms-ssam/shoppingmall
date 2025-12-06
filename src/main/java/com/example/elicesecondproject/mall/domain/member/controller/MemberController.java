@@ -1,31 +1,27 @@
 package com.example.elicesecondproject.mall.domain.member.controller;
 
 import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
-import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "회원 API", description = "로그인 및 회원가입 API")
 @RequiredArgsConstructor
-@RestController("/api/members")
+@RestController
+@RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
 /*
 
     @GetMapping("/hello")
