@@ -79,10 +79,10 @@ public class MypageViewController {
     }
 
     //TODO: 공부 다시 하기/
-    /*@PutMapping("/reviews/{reviewId}")*/
-    @PostMapping("/reviews/{reviewId}")
+    @PutMapping("/reviews/{reviewId}")
+    /*@PostMapping("/reviews/{reviewId}")*/
     public String updateMyReview(@PathVariable Long reviewId,
-                                 @Valid @RequestBody UpdateReviewRequest request,
+                                 @Valid @ModelAttribute UpdateReviewRequest request,
                                  @RequestParam(required = false) MultipartFile imageFile,
                                  @RequestParam(required = false, defaultValue = "false") boolean deleteImage,
                                  @AuthenticationPrincipal MemberDetail principal) {

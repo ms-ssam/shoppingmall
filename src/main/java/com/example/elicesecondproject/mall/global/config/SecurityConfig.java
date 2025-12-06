@@ -28,7 +28,7 @@ public class SecurityConfig {
     // 정적 파일(js, css, html)에는 스프링 시큐리티를 무시. WebSecurityCustomizer(ignoring())는 아예 필터를 타지 않는다.
     @Bean
     public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring() .requestMatchers("/static/**");
+        return (web) -> web.ignoring() .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**");
     }
 
 
@@ -58,7 +58,6 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
