@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.global.response;
 
+import com.example.elicesecondproject.mall.global.dto.ErrorResponse;
 import lombok.Getter;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
 
@@ -27,5 +28,13 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> fail(ErrorCode errorCode) {
         return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null);
+    }
+
+    public static ApiResponse<ErrorResponse> fail(ErrorCode errorCode, ErrorResponse errors) {
+        return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), errors);
+    }
+
+    public static <T> ApiResponse<T> fail(ErrorCode errorCode, T data) {
+        return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), data);
     }
 }
