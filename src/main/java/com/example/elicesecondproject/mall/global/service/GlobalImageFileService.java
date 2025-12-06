@@ -3,6 +3,7 @@ package com.example.elicesecondproject.mall.global.service;
 import com.example.elicesecondproject.mall.global.config.FileConfig;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.util.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
-import static com.example.elicesecondproject.mall.global.util.ImageFileUtil.deleteByWebPath;
-import static com.example.elicesecondproject.mall.global.util.ImageFileUtil.validateExtension;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GlobalImageFileService {
 
     private final FileConfig fileConfig;
+    private final ImageFileUtil imageFileUtil;
 
     /**
      * 공통 이미지 저장 메서드
@@ -42,7 +41,7 @@ public class GlobalImageFileService {
         }
 
         // 1) 확장자 검증
-        validateExtension(file, fileConfig);
+        imageFileUtil.validateExtension(file, fileConfig);
 
         // 2) 저장 디렉토리 결정
         Path baseDir = resolveBaseDir(productId, category);
@@ -105,7 +104,7 @@ public class GlobalImageFileService {
     public void deleteImage(String imageUrl) {
 
         try {
-            deleteByWebPath(imageUrl, fileConfig);
+            imageFileUtil.deleteByWebPath(imageUrl, fileConfig);
 
         } catch (Exception e) {
             log.error("[GlobalImageFileService] 이미지 삭제 실패: {}", imageUrl, e);

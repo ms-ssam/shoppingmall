@@ -16,8 +16,5 @@ public class MyReviewDetailResponse {
     private String imageUrl;      // 리뷰 이미지
     private LocalDateTime createdAt;
 
-
-    private Long productId;
-    private String productName;
-    private String productImageUrl;
+    private ReviewProductInfoDto product;
 }

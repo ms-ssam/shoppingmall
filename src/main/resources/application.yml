@@ -5,10 +5,14 @@ spring:
     active: local
   thymeleaf:
     cache: true
+#  mvc:
+#    hiddenmethod:
+#      filter:
+#        enabled: true  # PUT, DELETE 요청 hidden-method 지원
   mvc:
     hiddenmethod:
       filter:
-        enabled: true  # PUT, DELETE 요청 hidden-method 지원
+        enabled: true
   jpa:
     properties:
       hibernate:

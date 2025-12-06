@@ -65,7 +65,7 @@ public class MypageViewController {
         return "mypage/mypage-review";
     }
 
-    @GetMapping("/mypage/reviews/{reviewId}/edit")
+    @GetMapping("/reviews/{reviewId}/edit")
     public String editMyReviewForm(@PathVariable Long reviewId,
                                    @AuthenticationPrincipal MemberDetail principal,
                                    Model model) {
@@ -79,7 +79,8 @@ public class MypageViewController {
     }
 
     //TODO: 공부 다시 하기/
-    @PutMapping("/mypage/reviews/{reviewId}")
+    /*@PutMapping("/reviews/{reviewId}")*/
+    @PostMapping("/reviews/{reviewId}")
     public String updateMyReview(@PathVariable Long reviewId,
                                  @Valid @RequestBody UpdateReviewRequest request,
                                  @RequestParam(required = false) MultipartFile imageFile,

@@ -26,13 +26,17 @@
 
             <!-- 상품 정보 영역 -->
             <div class="review-edit-product">
-                <a th:href="@{'/products/' + ${review.productId}}" class="review-edit-product-link">
+                <a th:href="@{'/products/' + ${review.product.id}}"
+                   class="review-edit-product-link">
+
+                    <!-- 현재 DTO에는 이미지 필드가 없으니 기본 이미지 사용 -->
                     <img class="review-edit-product-image"
-                         th:src="${#strings.isEmpty(review.productImageUrl)} ? '/images/product-default.png' : ${review.productImageUrl}"
+                         th:src="@{/images/product-default.png}"
                          alt="상품 이미지">
 
                     <div class="review-edit-product-info">
-                        <div class="review-edit-product-name" th:text="${review.productName}">
+                        <div class="review-edit-product-name"
+                             th:text="${review.product.name}">
                             상품명
                         </div>
                         <div class="review-edit-date"

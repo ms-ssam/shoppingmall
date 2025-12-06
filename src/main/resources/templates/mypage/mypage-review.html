@@ -51,12 +51,16 @@
 
                     <!-- 1) 상품 정보 -->
                     <div class="myreview-item-header">
-                        <a th:href="@{'/products/' + ${review.productId}}" class="myreview-product-link">
+                        <a th:href="@{'/products/' + ${review.product.id}}"
+                           class="myreview-product-link">
+
+                            <!-- 상품 썸네일: 현재 DTO에는 이미지 필드가 없어서 기본이미지만 사용 -->
                             <img class="myreview-product-thumb"
-                                 th:src="${review.productImageUrl != null} ? ${review.productImageUrl} : @{/images/product-default.png}"
+                                 th:src="@{/images/product-default.png}"
                                  alt="상품 이미지">
 
-                            <span class="myreview-product-title" th:text="${review.productName}">상품명</span>
+                            <span class="myreview-product-title"
+                                  th:text="${review.product.name}">상품명</span>
                         </a>
                     </div>
 
@@ -72,8 +76,8 @@
 
                             <div class="myreview-rating-row">
                                 <div class="myreview-rating">
-                    <span th:each="i : ${#numbers.sequence(1, 5)}"
-                          th:text="${i <= review.rating} ? '★' : '☆'">★</span>
+                                    <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                          th:text="${i <= review.rating} ? '★' : '☆'">★</span>
                                 </div>
 
                                 <div class="myreview-date"
@@ -113,7 +117,6 @@
                    class="page-btn">&raquo;</a>
 
             </div>
-
 
         </div>
 

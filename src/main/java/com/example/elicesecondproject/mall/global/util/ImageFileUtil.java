@@ -1,13 +1,16 @@
 package com.example.elicesecondproject.mall.global.util;
 
 import com.example.elicesecondproject.mall.global.config.FileConfig;
-import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-@UtilityClass
+@Component
 public class ImageFileUtil {
 
     public void validateExtension(MultipartFile file, FileConfig fileConfig) {
