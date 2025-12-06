@@ -1,6 +1,5 @@
-package com.example.elicesecondproject.mall.domain.member.dto;
+package com.example.elicesecondproject.mall.domain.member.dto.response;
 
-import com.example.elicesecondproject.mall.domain.member.entity.AuthProvider;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import lombok.*;

@@ -1,51 +1,57 @@
 package com.example.elicesecondproject.mall.global.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
-public class ErrorResponse { // TODO : 맞게 수정해서 사용하기.
+@AllArgsConstructor
+public class ErrorResponse {
 
-    private final String message;
-    private final int status;
     private final List<CustomFieldError> errors;
-    private final String code;
 
-    private ErrorResponse(String message, int status, List<CustomFieldError> errors, String code) {
-        this.message = message;
-        this.status = status;
-        this.errors = errors;
-        this.code = code;
-    }
+    public static ErrorResponse of(BindingResult bindingResult) {
+            return new ErrorResponse(CustomFieldError.of(bindingResult));
+        }
 
-    public static ErrorResponse of(String message, int status, BindingResult bindingResult) {
-        return new ErrorResponse(message, status, CustomFieldError.of(bindingResult), "INVALID_INPUT_VALUE");
+    public static ErrorResponse of(String field, String value, String reason) {
+        return new ErrorResponse(
+                List.of(new CustomFieldError(field, value, reason))
+        );
     }
 
     @Getter
-    public static class CustomFieldError {
+    @AllArgsConstructor
+    static class CustomFieldError {
         private final String field;
         private final String value;
         private final String reason;
 
-        private CustomFieldError(String field, String value, String reason) {
-            this.field = field;
-            this.value = value;
-            this.reason = reason;
-        }
-
         public static List<CustomFieldError> of(BindingResult bindingResult) {
-            final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            return fieldErrors.stream()
+            return bindingResult.getFieldErrors().stream()
                     .map(error -> new CustomFieldError(
                             error.getField(),
-                            error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
-                            error.getDefaultMessage()))
-                    .collect(Collectors.toList());
+                            toSafeValue(error.getField(), error.getRejectedValue()),
+                            //error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
+                            error.getDefaultMessage()
+                    ))
+                    .toList();
+        }
+
+        private static String toSafeValue(String field, Object rejectedValue) {
+            if (rejectedValue == null) {
+                return "";
+            }
+
+            // 비밀번호 관련 필드는 값 숨기기
+            String lower = field.toLowerCase();
+            if (lower.contains("password")) {
+                return "";           // 혹은 "********" 같은 마스킹 문자열
+            }
+
+            return rejectedValue.toString();
         }
     }
 }
