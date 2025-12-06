@@ -120,23 +120,36 @@
                         <div class="review-edit-upload">
                             <label class="review-edit-upload-btn">
                                 사진 첨부하기
-                                <input type="file" name="imageFile" accept="image/*" hidden>
+                                <input type="file" id="imageFile" name="imageFile" accept="image/*" hidden>
                             </label>
-                            <span class="review-edit-upload-count">0 / 1</span>
+                            <!-- 기존 이미지가 있으면 1 / 1, 없으면 0 / 1 -->
+                            <span class="review-edit-upload-count"
+                                  id="uploadCount"
+                                  th:text="${review.imageUrl != null} ? '1 / 1' : '0 / 1'">
+                                0 / 1
+                            </span>
                         </div>
 
                         <div class="review-edit-upload-help">
                             사진은 최대 1장, 5MB 이하의 JPG, PNG 파일만 첨부 가능합니다.
                         </div>
 
+                        <!-- 새로 선택한 파일 정보 -->
+                        <div id="selectedFileInfo" class="review-edit-upload-fileinfo"></div>
+
                         <!-- 기존 이미지가 있을 경우 미리보기 -->
-                        <div class="review-edit-current-image" th:if="${review.imageUrl != null}">
+                        <div class="review-edit-current-image" id="currentImageWrapper" th:if="${review.imageUrl != null}">
                             <p>현재 등록된 사진</p>
-                            <img th:src="${review.imageUrl}" alt="현재 리뷰 이미지">
-                            <label class="review-edit-delete-image">
-                                <input type="checkbox" name="deleteImage">
-                                기존 이미지 삭제
-                            </label>
+
+                            <div class="image-wrapper">
+                                <img th:src="${review.imageUrl}" alt="현재 리뷰 이미지" class="current-review-img">
+
+                                <!-- X 버튼 -->
+                                <button type="button" id="deleteImageBtn" class="delete-img-btn">✕</button>
+                            </div>
+
+                            <!-- 실제 삭제 여부 전달용 hidden input -->
+                            <input type="hidden" name="deleteImage" id="deleteImageHidden" value="false">
                         </div>
 
                     </div>
@@ -154,6 +167,8 @@
 
     </div>
 </div>
+
+<script th:src="@{/js/mypage-review-edit.js}"></script>
 
 </body>
 </html>

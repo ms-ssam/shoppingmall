@@ -225,3 +225,35 @@
 .review-edit-btn.secondary:hover {
     border-color: #888;
 }
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.current-review-img {
+    width: 160px;
+    height: auto;
+    border-radius: 8px;
+}
+
+.delete-img-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.delete-img-btn:hover {
+    background: #d9363e;
+}

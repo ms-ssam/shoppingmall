@@ -22,13 +22,7 @@ public interface ReviewMapper {
     @Mapping(target = "productName", source = "product.name")
     ReviewAdminResponse toReviewAdminResponse(Review review);
 
-    /*@Mapping(target = "product.productId", source = "product.id")
-    @Mapping(target = "product.productName", source = "product.name")
-    @Mapping(target = "product.productImageUrl", source = "product.images[0].imageUrl")*/
     MyReviewDetailResponse toMyDetailReviewResponse(Review review);
 
-    /*@Mapping(target = "product.productId", source = "product.id")
-    @Mapping(target = "product.productName", source = "product.name")
-    @Mapping(target = "product.productImageUrl", source = "product.images[0].imageUrl")*/
     MyReviewResponse toMyReviewResponse(Review review);
 }

@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.global.service;
 
 import com.example.elicesecondproject.mall.global.config.FileConfig;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.util.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
