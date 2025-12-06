@@ -1,6 +1,5 @@
 package com.example.elicesecondproject.mall.domain.review.service;
 
-import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.review.dto.request.ReviewSearchCondition;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewAdminResponse;
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
@@ -17,14 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ReviewAdminService {
     private final ReviewRepository reviewRepository;
-    private final ProductRepository productRepository;
     private final ReviewMapper reviewMapper;
     private final ReviewService reviewService;
 
 
     public Page<ReviewAdminResponse> searchReviews(ReviewSearchCondition condition, Pageable pageable){
         Page<Review> reviews = reviewRepository.searchReviews(condition, pageable);
-        return reviews.map(reviewMapper::toAdminResponse);
+        return reviews.map(reviewMapper::toReviewAdminResponse);
     }
 
     @Transactional

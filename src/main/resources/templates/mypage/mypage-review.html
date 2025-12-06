@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 리뷰 내역</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-review.css}">
+</head>
+
+<body>
+
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+
+    <!-- 사이드바 -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 오른쪽 메인 영역 -->
+    <div class="mypage-content">
+
+        <div class="myreview-container">
+
+            <h2 class="myreview-header">내 리뷰 내역</h2>
+
+            <!-- 리뷰가 없을 때 -->
+            <div class="myreview-empty" th:if="${reviews.empty}">
+                아직 작성한 리뷰가 없습니다.
+            </div>
+
+            <!-- 리뷰 목록 -->
+            <div th:if="${!reviews.empty}">
+                <div th:each="review : ${reviews.content}" class="myreview-item">
+
+                    <!-- 상단 오른쪽 버튼 -->
+                    <div class="myreview-top-right">
+                        <a th:href="@{'/mypage/reviews/' + ${review.id} + '/edit'}"
+                           class="myreview-btn mini">
+                            수정
+                        </a>
+
+                        <form th:action="@{'/mypage/reviews/' + ${review.id}}"
+                              method="post"
+                              onsubmit="return confirm('이 리뷰를 삭제하시겠습니까?');">
+                            <input type="hidden" name="_method" value="delete"/>
+                            <button type="submit" class="myreview-btn mini">삭제</button>
+                        </form>
+                    </div>
+
+                    <!-- 1) 상품 정보 -->
+                    <div class="myreview-item-header">
+                        <a th:href="@{'/products/' + ${review.productId}}" class="myreview-product-link">
+                            <img class="myreview-product-thumb"
+                                 th:src="${review.productImageUrl != null} ? ${review.productImageUrl} : @{/images/product-default.png}"
+                                 alt="상품 이미지">
+
+                            <span class="myreview-product-title" th:text="${review.productName}">상품명</span>
+                        </a>
+                    </div>
+
+                    <!-- 2) 리뷰 영역 -->
+                    <div class="myreview-item-body">
+
+                        <div class="myreview-review-image-wrapper">
+                            <img th:src="${review.imageUrl != null} ? ${review.imageUrl} : @{/images/review-default.png}"
+                                 alt="리뷰 이미지">
+                        </div>
+
+                        <div class="myreview-right">
+
+                            <div class="myreview-rating-row">
+                                <div class="myreview-rating">
+                    <span th:each="i : ${#numbers.sequence(1, 5)}"
+                          th:text="${i <= review.rating} ? '★' : '☆'">★</span>
+                                </div>
+
+                                <div class="myreview-date"
+                                     th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}">
+                                    2025.12.06
+                                </div>
+                            </div>
+
+                            <div class="myreview-text" th:text="${review.content}">
+                                리뷰 내용
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="myreview-pagination" th:if="${reviews.totalPages > 1}">
+
+                <!-- 이전 버튼 -->
+                <a th:if="${reviews.hasPrevious()}"
+                   th:href="@{|/mypage/reviews?page=${reviews.number - 1}|}"
+                   class="page-btn">&laquo;</a>
+
+                <!-- 페이지 번호 -->
+                <span th:each="i : ${#numbers.sequence(0, reviews.totalPages-1)}">
+                    <a th:href="@{|/mypage/reviews?page=${i}|}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == reviews.number} ? 'active' : ''"
+                       class="page-btn">
+                    </a>
+                </span>
+
+                <!-- 다음 버튼 -->
+                <a th:if="${reviews.hasNext()}"
+                   th:href="@{|/mypage/reviews?page=${reviews.number + 1}|}"
+                   class="page-btn">&raquo;</a>
+
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

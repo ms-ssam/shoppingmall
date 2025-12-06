@@ -3,6 +3,7 @@ package com.example.elicesecondproject.mall.domain.review.controller;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.review.dto.request.CreateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
+import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
@@ -26,7 +27,6 @@ public class ReviewController {
 
     @GetMapping("/products/{productId}/reviews")
     public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getProductReviews(@PathVariable Long productId,
-                                                                               @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
                                                                                Pageable pageable
     ){
         Page<ReviewResponse> reviews = reviewService.getReviewsByProduct(productId, pageable);
@@ -42,14 +42,14 @@ public class ReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
-    @PutMapping("/products/{productId}/reviews/{reviewId}") //FIXME: 경로 /mypage/reviews/{reviewId} 이걸로 수정
+    /*@PutMapping("/products/{productId}/reviews/{reviewId}") //FIXME: 경로 /mypage/reviews/{reviewId} 이걸로 수정
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(@PathVariable Long reviewId,
                                                                     @Valid @RequestBody UpdateReviewRequest request,
                                                                     @AuthenticationPrincipal MemberDetail principal
     ) {
         ReviewResponse response = reviewService.updateReview(reviewId, request, principal.getMember().getId());
         return ResponseEntity.ok(ApiResponse.success(response));
-    }
+    }*/
 
     @DeleteMapping("/products/{productId}/reviews/{reviewId}") //FIXME: 경로 /mypage/reviews/{reviewId} 이걸로 수정
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
@@ -61,12 +61,11 @@ public class ReviewController {
 
     // 마이 페이지
 
-    @GetMapping("/mypage/reviews") //TODO : PAGE 설정 만들기
-    public ResponseEntity<ApiResponse<Page<ReviewResponse>>> getMyReviews(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.DESC)
-                                                                        Pageable pageable,
+    /*@GetMapping("/mypage/reviews") //TODO : PAGE 설정 만들기
+    public ResponseEntity<ApiResponse<Page<MyReviewResponse>>> getMyReviews(Pageable pageable,
                                                                         @AuthenticationPrincipal MemberDetail principal
     ){
-        Page<ReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), pageable);
+        Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), pageable);
         return ResponseEntity.ok(ApiResponse.success(reviews));
-    }
+    }*/
 }

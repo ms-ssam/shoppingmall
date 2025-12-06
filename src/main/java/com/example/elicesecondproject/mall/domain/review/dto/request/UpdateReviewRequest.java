@@ -16,7 +16,4 @@ public class UpdateReviewRequest {
 
     @NotBlank(message = "리뷰 내용은 필수입니다.")
     private String content;
-
-    private String imageUrl;
-
 }
