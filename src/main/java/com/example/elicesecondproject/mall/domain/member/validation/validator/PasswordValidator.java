@@ -1,5 +1,6 @@
-package com.example.elicesecondproject.mall.domain.member.dto;
+package com.example.elicesecondproject.mall.domain.member.validation.validator;
 
+import com.example.elicesecondproject.mall.domain.member.validation.annotation.ValidPassword;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
