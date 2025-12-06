@@ -49,7 +49,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         // Windows/Linux 모두 호환되도록 경로 정규화
         Path normalizedPath = Path.of(basePath).toAbsolutePath().normalize();
-        String resourceLocation = "file:///" + normalizedPath.toString().replace("\\", "/");
+        /*String resourceLocation = "file:///" + normalizedPath.toString().replace("\\", "/");*/
+        String resourceLocation = normalizedPath.toUri().toString();
 
         log.info("=======================================");
         log.info("[WebMvcConfig] Static resource mapping");

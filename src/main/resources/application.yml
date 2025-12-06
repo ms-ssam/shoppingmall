@@ -50,8 +50,10 @@ jwt:
 
 file:
   upload:
-    #    base-path: C:/uploads
+    base-path: C:/uploads
     product-path: products # /uploads/products
+    review-path: reviews
+    inquiry-path: inquiries
     allowed-extensions: jpg,jpeg,png,webp
   image:
     resize:

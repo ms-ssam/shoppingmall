@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 수정</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-review-edit.css}">
+</head>
+<body>
+
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+
+    <!-- 사이드바 -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 오른쪽 메인 영역 -->
+    <div class="mypage-content">
+
+        <div class="review-edit-container">
+
+            <h2 class="review-edit-title">리뷰 수정</h2>
+
+            <!-- 상품 정보 영역 -->
+            <div class="review-edit-product">
+                <a th:href="@{'/products/' + ${review.product.id}}"
+                   class="review-edit-product-link">
+
+                    <!-- 현재 DTO에는 이미지 필드가 없으니 기본 이미지 사용 -->
+                    <img class="review-edit-product-image"
+                         th:src="@{/images/product-default.png}"
+                         alt="상품 이미지">
+
+                    <div class="review-edit-product-info">
+                        <div class="review-edit-product-name"
+                             th:text="${review.product.name}">
+                            상품명
+                        </div>
+                        <div class="review-edit-date"
+                             th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')} + ' 작성'">
+                            2025.12.03 작성
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <hr class="review-edit-divider"/>
+
+            <!-- 리뷰 수정 폼 -->
+            <form th:action="@{'/mypage/reviews/' + ${review.id}}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="review-edit-form">
+
+                <input type="hidden" name="_method" value="put"/>
+
+                <!-- 별점 -->
+                <div class="review-edit-row">
+                    <div class="review-edit-label">별점</div>
+                    <div class="review-edit-field">
+
+                        <div class="review-edit-stars">
+                            <input type="radio" id="star5" name="rating" value="5"
+                                   th:checked="${review.rating == 5}"/>
+                            <label for="star5">★</label>
+
+                            <input type="radio" id="star4" name="rating" value="4"
+                                   th:checked="${review.rating == 4}"/>
+                            <label for="star4">★</label>
+
+                            <input type="radio" id="star3" name="rating" value="3"
+                                   th:checked="${review.rating == 3}"/>
+                            <label for="star3">★</label>
+
+                            <input type="radio" id="star2" name="rating" value="2"
+                                   th:checked="${review.rating == 2}"/>
+                            <label for="star2">★</label>
+
+                            <input type="radio" id="star1" name="rating" value="1"
+                                   th:checked="${review.rating == 1}"/>
+                            <label for="star1">★</label>
+                        </div>
+
+                        <div class="review-edit-rating-text"
+                             th:switch="${review.rating}">
+                            <span th:case="5"></span>
+                            <span th:case="4"></span>
+                            <span th:case="3"></span>
+                            <span th:case="2"></span>
+                            <span th:case="1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 구매 후기 -->
+                <div class="review-edit-row">
+                    <div class="review-edit-label">구매후기</div>
+                    <div class="review-edit-field">
+                        <textarea name="content"
+                                  rows="6"
+                                  class="review-edit-textarea"
+                                  placeholder="다른 고객님에게 도움이 되도록 상품에 대한 솔직한 평가를 남겨주세요."
+                                  th:text="${review.content}"></textarea>
+
+                        <div class="review-edit-help">
+                            · 상품 품질과 관계 없는 내용은 비공개 처리될 수 있습니다.<br/>
+                            · 작성된 리뷰는 삭제 전까지 ‘상품 리뷰’에 공개되며, 마이페이지 &gt; 리뷰 내역에서 수정 및 삭제가 가능합니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 사진 첨부 -->
+                <div class="review-edit-row">
+                    <div class="review-edit-label">사진첨부</div>
+                    <div class="review-edit-field">
+
+                        <div class="review-edit-upload">
+                            <label class="review-edit-upload-btn">
+                                사진 첨부하기
+                                <input type="file" name="imageFile" accept="image/*" hidden>
+                            </label>
+                            <span class="review-edit-upload-count">0 / 1</span>
+                        </div>
+
+                        <div class="review-edit-upload-help">
+                            사진은 최대 1장, 5MB 이하의 JPG, PNG 파일만 첨부 가능합니다.
+                        </div>
+
+                        <!-- 기존 이미지가 있을 경우 미리보기 -->
+                        <div class="review-edit-current-image" th:if="${review.imageUrl != null}">
+                            <p>현재 등록된 사진</p>
+                            <img th:src="${review.imageUrl}" alt="현재 리뷰 이미지">
+                            <label class="review-edit-delete-image">
+                                <input type="checkbox" name="deleteImage">
+                                기존 이미지 삭제
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="review-edit-actions">
+                    <a th:href="@{/mypage/reviews}" class="review-edit-btn secondary">취소</a>
+                    <button type="submit" class="review-edit-btn primary">수정 완료</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

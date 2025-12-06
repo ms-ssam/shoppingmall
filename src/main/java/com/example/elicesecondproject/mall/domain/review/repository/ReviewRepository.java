@@ -12,9 +12,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     Optional<Review> findByIdAndDeletedAtIsNull(Long id);
 
-    Page<Review> findByProductIdAndDeletedAtIsNull(Long productId, Pageable pageable);
+    Page<Review> findByProductIdAndDeletedAtIsNullOrderByIdDesc(Long productId, Pageable pageable);
 
-    Page<Review> findByMemberIdAndDeletedAtIsNull(Long memberId, Pageable pageable);
+    Page<Review> findByMemberIdAndDeletedAtIsNullOrderByIdDesc(Long memberId, Pageable pageable);
 
     Long countByProductIdAndDeletedAtIsNull(Long productId);
 }

@@ -23,7 +23,6 @@ public class ReviewAdminController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ReviewAdminResponse>>> getProductReviews(@ModelAttribute ReviewSearchCondition condition,
-                                                                                    @PageableDefault(size = 20)
                                                                                     Pageable pageable
     ){
         Page<ReviewAdminResponse> reviews = reviewAdminService.searchReviews(condition, pageable);
