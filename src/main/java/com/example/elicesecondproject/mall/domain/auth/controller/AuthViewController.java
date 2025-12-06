@@ -3,7 +3,7 @@ package com.example.elicesecondproject.mall.domain.auth.controller;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
-import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
