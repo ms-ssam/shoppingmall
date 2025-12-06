@@ -1,15 +1,16 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
-import com.example.elicesecondproject.mall.domain.member.dto.PasswordChangeRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.dto.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.exception.FieldValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -92,51 +93,22 @@ public class MemberService {
     // 비밀번호 변경
     @Transactional
     public void changePassword(Long memberId, PasswordChangeRequest request) {
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 1. 현재 비밀번호 확인
+        // 현재 비밀번호 확인
         if(!bCryptPasswordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
-            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+
+            throw new FieldValidationException("currentPassword", "", "현재 비밀번호가 일치하지 않습니다.");
         }
 
-        // 2. 새로운 비밀번호 정책 검증
-        validationNewPassword(request.getNewPassword(), member.getPassword());
-
-        // 3. 새 비밀번호, 비밀번호 확인 일치 확인
-        if(!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
-            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_CONFIRM_NOT_MATCH);
+        // 새로운 비밀번호와 기존 비밀번호 일치하면 안됨.
+        if(bCryptPasswordEncoder.matches(request.getNewPassword(), member.getPassword())) {
+            throw new FieldValidationException("newPassword", "", "새로운 비밀번호가 기존 비밀번호와 동일합니다.");
         }
 
         member.updatePassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
-    }
-
-    // 비밀번호 정책 검증
-    private void validationNewPassword(String password, String encodedCurrentPassword) {
-
-        // 1. 길이 8자 이상
-        if (password.length() < 8){
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
-        }
-
-        // 2. 영어, 숫자, 특수문자 최소 1개씩 포함
-        if (!password.matches(".*[A-Za-z].*")) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
-        }
-
-        if (!password.matches(".*\\d.*")) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
-        }
-
-        if (!password.matches(".*[@$!%*#?&].*")) {
-            throw new BusinessException(ErrorCode.MEMBER_INVALID_PASSWORD_FORMAT);
-        }
-
-        // 3. 기존 비밀번호랑 동일하면 안됨
-        if(bCryptPasswordEncoder.matches(password, encodedCurrentPassword)) {
-            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_SAME_AS_OLD);
-        }
-
     }
 
     // 회원 탈퇴
