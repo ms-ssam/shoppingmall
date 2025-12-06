@@ -1,6 +1,8 @@
-package com.example.elicesecondproject.mall.global.exception;
+package com.example.elicesecondproject.mall.global.error;
 
 import com.example.elicesecondproject.mall.global.dto.ErrorResponse;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.global.exception;
+package com.example.elicesecondproject.mall.global.error;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
