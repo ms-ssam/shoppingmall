@@ -22,5 +22,11 @@ public class PermissionValidator {
             throw new BusinessException(ErrorCode.FORBIDDEN);
         }
     }
+
+    public void validateAdminOnly(Member member) {
+        if (!member.isAdmin()) {
+            throw new BusinessException(ErrorCode.FORBIDDEN);
+        }
+    }
 }
 

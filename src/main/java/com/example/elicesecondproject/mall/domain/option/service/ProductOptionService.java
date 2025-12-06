@@ -24,19 +24,22 @@ public class ProductOptionService {
     }
 
     public void updateOptionGroups(Product product, List<ProductOptionGroupDto> requestGroups) {
+        // [수정] clear()는 orphanRemoval에 의해 물리 삭제를 유발하므로 softDelete로 변경
         if (requestGroups == null || requestGroups.isEmpty()) {
-            product.getOptionGroups().clear();
+            product.getOptionGroups().forEach(ProductOptionGroup::softDelete);
             return;
         }
 
-        // 1. 삭제 (DELETE)
+        // 1. 삭제 (DELETE) - Soft Delete 적용
         List<Long> requestIds = requestGroups.stream()
                 .map(ProductOptionGroupDto::getId)
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        product.getOptionGroups().removeIf(group ->
-                group.getId() != null && !requestIds.contains(group.getId()));
+        // 리스트에서 제거하지 않고 softDelete 호출 (물리 삭제 방지)
+        product.getOptionGroups().stream()
+                .filter(group -> group.getId() != null && !requestIds.contains(group.getId()))
+                .forEach(ProductOptionGroup::softDelete);
 
         // 2. 생성 및 수정 (CREATE & UPDATE)
         for (ProductOptionGroupDto groupDto : requestGroups) {
@@ -49,7 +52,7 @@ public class ProductOptionService {
 
                 if (groupDto.getDetails() != null) {
                     groupDto.getDetails().forEach(detailDto -> {
-                        //SKU 중복 체크
+                        // SKU 중복 체크
                         if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                             throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                         }
@@ -70,7 +73,7 @@ public class ProductOptionService {
                 ProductOptionGroup existingGroup = product.getOptionGroups().stream()
                         .filter(g -> g.getId().equals(groupDto.getId()))
                         .findFirst()
-                        .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_COLOR_NOT_FOUND)); // 적절한 에러코드 사용
+                        .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_COLOR_NOT_FOUND));
 
                 existingGroup.update(groupDto.getName(), groupDto.getDisplayOrder());
 
@@ -81,8 +84,9 @@ public class ProductOptionService {
     }
 
     private void updateOptionDetails(ProductOptionGroup group, List<OptionDetailDto> requestDetails) {
+        // [수정] clear() 대신 softDelete 호출하여 논리 삭제 유지
         if (requestDetails == null || requestDetails.isEmpty()) {
-            group.getDetails().clear();
+            group.getDetails().forEach(OptionDetail::softDelete);
             return;
         }
 
@@ -91,11 +95,20 @@ public class ProductOptionService {
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        group.getDetails().removeIf(detail ->
-                detail.getId() != null && !requestIds.contains(detail.getId()));
+        // [수정] removeIf(물리 삭제) 제거 -> softDelete(논리 삭제) 적용
+        // 리스트에서 제거하면 orphanRemoval=true 설정 때문에 DB에서 DELETE 됨.
+        // 따라서 리스트에 남겨두고 상태만 변경해야 함.
+        group.getDetails().stream()
+                .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
+                .forEach(OptionDetail::softDelete);
 
         for (OptionDetailDto detailDto : requestDetails) {
             if (detailDto.getId() == null || detailDto.getId() == 0) {
+                // [추가] 상세 옵션 추가 시에도 SKU 중복 체크 필수
+                if (optionDetailRepository.existsBySku(detailDto.getSku())) {
+                    throw new BusinessException(ErrorCode.DUPLICATE_SKU);
+                }
+
                 OptionDetail newDetail = OptionDetail.builder()
                         .name(detailDto.getName())
                         .sku(detailDto.getSku())
@@ -119,5 +132,17 @@ public class ProductOptionService {
                 );
             }
         }
+    }
+
+    public void decreaseStock(Long optionDetailId, int quantity) {
+        OptionDetail optionDetail = optionDetailRepository.findById(optionDetailId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+
+        // 1. 옵션 재고 차감
+        optionDetail.removeStock(quantity);
+
+        // 2. 상품(Product) 총 재고 재계산 (트랜잭션 내에서 한 번만 호출)
+        Product product = optionDetail.getProductOptionGroup().getProduct();
+        product.recalculateTotalStock();
     }
 }

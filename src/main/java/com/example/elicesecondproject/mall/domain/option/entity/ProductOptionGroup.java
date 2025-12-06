@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.option.entity;
 
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductOptionGroup extends BaseEntity {
+public class ProductOptionGroup extends SoftDeletableBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,7 +44,7 @@ public class ProductOptionGroup extends BaseEntity {
     @Column(nullable = false)
     private Integer displayOrder;
 
-    private LocalDateTime deletedAt;
+
 
     @Builder
     public ProductOptionGroup(String name, Integer displayOrder) {
@@ -79,6 +80,14 @@ public class ProductOptionGroup extends BaseEntity {
         }
         if (displayOrder != null) {
             this.displayOrder = displayOrder;
+        }
+    }
+
+
+    public void softDelete() {
+        super.softDelete(); // 자신의 deletedAt 설정
+        for (OptionDetail detail : details) {
+            detail.softDelete(); // 자식(OptionDetail)들에게 전파
         }
     }
 }

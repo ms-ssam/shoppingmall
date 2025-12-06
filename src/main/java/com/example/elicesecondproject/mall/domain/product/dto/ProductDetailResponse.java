@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter; // Setter 추가 (Service에서 값 주입용)
 
 import java.util.List;
 
 @Getter
+@Setter // Service에서 liked 값을 채우기 위해 Setter 추가
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,12 +25,15 @@ public class ProductDetailResponse {
     private String description;
     private ProductStatus status;
     private CategoryResponse category;
+
+    private String mainImageUrl;
+
     private List<ProductOptionGroupDto> optionGroups;
     private List<ProductImageDto> images;
     private Double averageRating;
     private Integer reviewCount;
     private Integer wishListCount;
-
-    //재고 추가
     private Integer totalStock;
+
+    private boolean liked;
 }
