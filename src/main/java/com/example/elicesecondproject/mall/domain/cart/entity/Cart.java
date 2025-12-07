@@ -53,6 +53,7 @@ public class Cart extends BaseEntity implements Ownable {
     public void addItem(CartItem item) {  // 장바구니에서 장바구니 항목 추가
         cartItems.add(item);
         item.setCart(this);
+        totalCount++;
     }
 
     public void removeItem(CartItem item) {  // 장바구니에서 장바구니 항목 삭제

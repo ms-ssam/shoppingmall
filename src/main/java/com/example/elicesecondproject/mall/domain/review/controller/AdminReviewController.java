@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin/reviews")
 @RequiredArgsConstructor
 @Secured("ROLE_ADMIN")
-public class ReviewAdminController {
+public class AdminReviewController {
     private final ReviewAdminService reviewAdminService;
 
     @GetMapping

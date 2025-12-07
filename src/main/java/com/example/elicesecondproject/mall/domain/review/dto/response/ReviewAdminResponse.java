@@ -19,7 +19,6 @@ public class ReviewAdminResponse {
     private Integer rating;
     private String content;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
+    private LocalDateTime deletedAt;
     private String imageUrl;
 }
