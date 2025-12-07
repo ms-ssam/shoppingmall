@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.option.entity;
 
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
@@ -98,6 +99,30 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         this.addPrice = addPrice;
         this.stockQuantity = stockQuantity;
         this.displayOrder = displayOrder;
+    }
+
+    // 헬퍼 메서드
+    public Product getProduct() {
+        return this.productOptionGroup.getProduct();
+    }
+
+    // 옵션 적용가 (제품 자체 원가 + 옵션 추가금)
+    public int getOptionAppliedUnitPrice() {
+        return getProduct().getPrice() + addPrice;
+    }
+
+    // 최종 판매가 반환 (할인가 + 옵션 추가금)
+    public int getSaleUnitPrice() {
+        return getProduct().getSalePrice() + addPrice;
+    }
+
+    public int getSubtotalPrice() {
+        return getSaleUnitPrice() * stockQuantity;
+    }
+
+    // 옵션 품절 여부 반환
+    public boolean isSoldOut() {
+        return stockQuantity <= 0 || getProduct().isSoldOut();
     }
 
 }
