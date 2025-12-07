@@ -4,7 +4,6 @@ import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,5 +38,9 @@ public class CartItem extends BaseEntity {
     // === 연관관계 편의 메서드 ===
     protected void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public void updateQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

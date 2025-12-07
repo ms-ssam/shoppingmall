@@ -40,6 +40,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "RT002", "해당 리플레시 토큰을 찾을 수 없습니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CAT002", "해당 카테고리를 찾을 수 없습니다."),
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "CT001", "해당 장바구니를 찾을 수 없습니다."),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "CI001", "해당 장바구니 항목을 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PR001", "해당 상품을 찾을 수 없습니다."),
     OPTION_COLOR_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT001", "해당 색상 옵션을 찾을 수 없습니다."),
     OPTION_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT002", "해당 사이즈 옵션을 찾을 수 없습니다."),
