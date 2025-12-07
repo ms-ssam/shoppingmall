@@ -4,12 +4,12 @@ import com.example.elicesecondproject.mall.domain.member.validation.annotation.P
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @Setter
+@NoArgsConstructor
 @PasswordMatch(field = "newPassword", fieldMatch = "newPasswordConfirm",
         message = "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.")
 public class PasswordChangeRequest {
