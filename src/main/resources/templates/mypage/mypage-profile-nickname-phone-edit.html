@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - 회원 정보 수정</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-profile-nickname-phone-edit.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+    <!-- 사이드바 fragment -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 오른쪽 메인 콘텐츠 -->
+    <main class="mypage-content">
+        <section class="profile-edit-card">
+            <header class="profile-edit-header">
+                <h2 class="profile-edit-title">회원 정보 수정</h2>
+            </header>
+            <!-- 성공 메시지 표시 영역 -->
+            <div th:if="${message}" class="alert alert-success">
+                <span th:text="${message}">수정 완료</span>
+            </div>
+            <!-- 회원 정보 수정 폼 -->
+            <section class="profile-edit-body">
+                <form th:action="@{/mypage/profile/nickname-phone}" th:object="${form}" method="post"
+                      class="profile-edit-form">
+
+                    <!-- PUT 지원 -->
+                    <input type="hidden" name="_method" value="PUT"/>
+
+                    <div class="form-row">
+                        <label for="nickname">닉네임</label>
+                        <!-- 처음에는 읽기 전용(readonly) -->
+                        <input id="nickname" type="text" th:field="*{nickname}" readonly>
+                        <div class="error" th:if="${#fields.hasErrors('nickname')}"
+                             th:errors="*{nickname}">닉네임 오류</div>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="phone">전화번호</label>
+                        <!-- 처음에는 읽기 전용(readonly) -->
+                        <input id="phone" type="text" th:field="*{phone}" readonly>
+                        <div class="error" th:if="${#fields.hasErrors('phone')}"
+                             th:errors="*{phone}">전화번호 오류</div>
+                    </div>
+
+                    <div class="button-group">
+                        <!-- 수정 모드로 전환하는 버튼 (JS만 동작, 서버로 안 감) -->
+                        <button type="button" id="edit-button" class="btn btn-secondary">
+                            수정하기
+                        </button>
+
+                        <!-- 실제 제출 버튼 (처음에는 비활성화) -->
+                        <button type="submit" id="submit-button" class="btn btn-primary" disabled>
+                            수정 완료
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/mypage-profile-nickname-phone-edit.js}"></script>
+</body>
+</html>

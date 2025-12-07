@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.option.entity;
 
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

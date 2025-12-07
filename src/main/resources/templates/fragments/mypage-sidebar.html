@@ -4,29 +4,26 @@
     <div class="sidebar-title">MYPAGE</div>
 
     <section class="sidebar-section">
-        <div class="sidebar-section-title">회원 정보</div>
+        <div class="sidebar-section-title">계정 관리</div>
         <ul class="sidebar-menu">
-            <li><a th:href="@{/mypage}">내 계정</a></li>
-            <li><a th:href="@{/mypage/profile}">회원정보 수정</a></li>
+            <li><a th:href="@{/mypage/profile}">회원 상세 정보</a></li>
             <li><a th:href="@{/mypage/addresses}">배송지 관리</a></li>
         </ul>
     </section>
 
     <section class="sidebar-section">
-        <div class="sidebar-section-title">회원 혜택</div>
+        <div class="sidebar-section-title">나의 쇼핑</div>
         <ul class="sidebar-menu">
-            <li><a th:href="@{/mypage/benefits}">멤버십 혜택</a></li>
-            <li><a th:href="@{/mypage/mileage}">적립금</a></li>
-            <li><a th:href="@{/mypage/coupons}">쿠폰</a></li>
+            <li><a th:href="@{/mypage/wish-list}">찜한 상품</a></li>
+            <li><a th:href="@{/mypage/orders}">주문 내역</a></li>
         </ul>
     </section>
 
     <section class="sidebar-section">
-        <div class="sidebar-section-title">쇼핑 정보</div>
+        <div class="sidebar-section-title">나의 활동</div>
         <ul class="sidebar-menu">
-            <li><a th:href="@{/mypage/orders}">주문 내역</a></li>
-            <li><a th:href="@{/mypage/returns}">교환 / 반품 내역</a></li>
             <li><a th:href="@{/mypage/reviews}">리뷰 내역</a></li>
+            <li><a th:href="@{/mypage/questions}">문의 내역</a></li>
         </ul>
     </section>
 

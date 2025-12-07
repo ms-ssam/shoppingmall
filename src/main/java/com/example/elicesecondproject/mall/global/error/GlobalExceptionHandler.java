@@ -1,10 +1,13 @@
-package com.example.elicesecondproject.mall.global.exception;
+package com.example.elicesecondproject.mall.global.error;
 
+import com.example.elicesecondproject.mall.global.dto.ErrorResponse;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
+import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,35 +16,41 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.stream.Collectors;
 
 @Slf4j
-@ControllerAdvice //(annotations = RestController.class)
+@ControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(FieldValidationException.class)
+    public ResponseEntity<Object> handleFieldValidation(FieldValidationException e) {
+
+        ErrorResponse errors = ErrorResponse.of(
+                e.getField(), e.getValue(), e.getReason()
+        );
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errors));
+    }
+
     /**
      * @Valid 어노테이션을 사용한 DTO의 유효성 검증 실패 시 발생하는 예외를 처리.
      * (주로 @RequestBody에 대한 유효성 검증 실패)
      * @param ex MethodArgumentNotValidException
      * @return 400 Bad Request와 함께 유효성 검증 실패 메시지를 담은 응답
      */
-    // TODO : bindingResult 내용을 담아서 리턴해줘야 함. 현재는 그냥 에러코드만 리턴.
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+    protected ResponseEntity<ApiResponse<ErrorResponse>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
-        log.warn("Validation failed (RequestBody): {}", errorMessage);
+        BindingResult bindingResult = ex.getBindingResult();
 
-        return ResponseEntity.status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
-                .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE));
+        // DTO 필드 에러들을 ErrorResponse로 변환
+        ErrorResponse errors = ErrorResponse.of(bindingResult);
+
+        ApiResponse<ErrorResponse> body = ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errors);
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_INPUT_VALUE.getStatus())
+                .body(body);
     }
-    /*
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        // 프론트엔드가 400 Bad Request임을 알 수 있도록 status 설정
-        final ErrorResponse response = ErrorResponse.of("입력값 검증에 실패했습니다.", HttpStatus.BAD_REQUEST.value(), e.getBindingResult());
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-     */
 
     /**
      * @Valid 어노테이션을 사용한 PathVariable 또는 RequestParam의 유효성 검증 실패 시 발생하는 예외를 처리.

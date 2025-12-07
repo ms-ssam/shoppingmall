@@ -1,9 +1,8 @@
 package com.example.elicesecondproject.mall.global.common;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.global.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.exception.ErrorCode;
-
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import org.springframework.stereotype.Component;
 
 @Component

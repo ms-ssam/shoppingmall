@@ -1,0 +1,70 @@
+/* mypage-main.css */
+
+/* ACCOUNT 메인 카드 */
+.account-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 32px 40px;
+    box-shadow: 0 0 0 1px #eee;
+}
+
+/* 카드 상단 타이틀 */
+.account-card-header {
+    margin-bottom: 32px;
+}
+
+.account-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+/* 공통 섹션 */
+.account-section {
+    margin-bottom: 32px;
+}
+
+.account-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* 회원 정보 리스트 */
+.account-info-list {
+    margin: 0;
+    padding: 0;
+}
+
+.account-info-row {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.account-info-label {
+    width: 80px;
+    color: #777;
+}
+
+.account-info-value {
+    margin: 0;
+}
+
+/* Orders 섹션 */
+.account-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.account-section-link {
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+.account-section-desc {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #777;
+}

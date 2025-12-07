@@ -19,9 +19,8 @@ public class FileConfig {
     private String productPath;          // "products"
     private String allowedExtensions;    // "jpg,jpeg,png,webp"
 
-    // 리뷰랑 프로필 이미지
-    private String reviewPath = "reviews";
-    private String profilePath = "profiles";
+    private String reviewPath;           // "reviews"
+    private String inquiryPath;          // "inquiries"
 
     /**
      * 상품 베이스 디렉터리
@@ -55,21 +54,6 @@ public class FileConfig {
         return getProductBaseDir(productId).resolve("description");
     }
 
-    /**
-     * 리뷰 디렉터리
-     * 예: C:/uploads/reviews/456
-     */
-    public Path getReviewDir(Long reviewId) {
-        return Paths.get(basePath, reviewPath, String.valueOf(reviewId));
-    }
-
-    /**
-     * 프로필 디렉터리
-     * 예: C:/uploads/profiles/789
-     */
-    public Path getProfileDir(Long memberId) {
-        return Paths.get(basePath, profilePath, String.valueOf(memberId));
-    }
 
     /**
      * original 하위 디렉터리
@@ -115,9 +99,6 @@ public class FileConfig {
      * DB에 저장되는 웹 경로 prefix (프로필)
      * 예: /uploads/profiles/789/
      */
-    public String getWebBasePathForProfile(Long memberId) {
-        return "/uploads/" + profilePath + "/" + memberId + "/";
-    }
 
     /**
      * 허용된 파일 확장자 배열

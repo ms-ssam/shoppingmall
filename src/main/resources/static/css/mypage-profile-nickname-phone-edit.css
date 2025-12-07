@@ -1,0 +1,121 @@
+/* -------------------------------------- */
+/* Profile Edit Page (회원 정보 수정)      */
+/* -------------------------------------- */
+
+.profile-edit-card {
+    background-color: #fff;
+    padding: 32px 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #eee;
+}
+
+.profile-edit-header {
+    margin-bottom: 24px;
+}
+
+.profile-edit-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+
+/* 성공 메시지 알럿 */
+.alert {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.alert-success {
+    background-color: #e6ffed;
+    border: 1px solid #b7e8c4;
+    color: #256029;
+}
+
+/* 폼 레이아웃 */
+.profile-edit-body {
+    max-width: 420px;   /* 너무 넓지 않게 */
+}
+
+.profile-edit-form .form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.profile-edit-form label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.profile-edit-form input[type="text"] {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* 포커스 / 읽기 전용 상태 */
+.profile-edit-form input[type="text"]:focus {
+    border-color: #111;
+}
+
+.profile-edit-form input[type="text"][readonly] {
+    background-color: #f5f5f5;
+    color: #777;
+}
+
+/* 에러 메시지 */
+.profile-edit-form .error {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #d32f2f;
+}
+
+/* 버튼 영역 */
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+/* 기본 버튼 스타일 (공통) */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background-color: #f5f5f5;   /* 기본은 연한 회색 */
+    color: #111;
+    transition: background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn:not(:disabled) {
+    background-color: #f5f5f5;
+    color: #111;
+    border-color: #ddd;
+}
+
+.btn:not(:disabled):hover {
+    background-color: #000;
+    color: #fff
+}
+
+/* 비활성 버튼 공통 */
+.btn:disabled {
+    background-color: #d6d6d6;   /* 흐릿한 회색 */
+    border-color: #cfcfcf;
+    color: #888;
+    opacity: 0.6;
+    cursor: not-allowed;
+}

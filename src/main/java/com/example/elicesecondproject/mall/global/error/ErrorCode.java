@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.global.exception;
+package com.example.elicesecondproject.mall.global.error;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -24,13 +24,7 @@ public enum ErrorCode {
     SEARCH_KEYWORD_REQUIRED(HttpStatus.BAD_REQUEST, "SRH001", "검색어를 입력해주세요."),
     SEARCH_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "SRH002", "검색어는 최소 2자 이상 입력해야 합니다."),
 
-    MEMBER_INVALID_NICKNAME_LENGTH(HttpStatus.BAD_REQUEST, "M002", "닉네임은 2~20자여야 합니다."),
-    MEMBER_INVALID_PHONE_FORMAT(HttpStatus.BAD_REQUEST, "M003", "전화번호 형식이 올바르지 않습니다."),
-
     MEMBER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "M004", "현재 비밀번호가 일치하지 않습니다."),
-    MEMBER_INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "M005", "비밀번호는 8자 이상이며 영문, 숫자, 특수문자(@$!%*#?&)를 최소 1개씩 포함해야 합니다."),
-    MEMBER_PASSWORD_SAME_AS_OLD(HttpStatus.BAD_REQUEST, "M006", "이전 비밀번호와 동일한 비밀번호는 사용할 수 없습니다."),
-    MEMBER_PASSWORD_CONFIRM_NOT_MATCH(HttpStatus.BAD_REQUEST, "M007", "새로운 비밀번호와 일치하지 않습니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
@@ -60,8 +54,8 @@ public enum ErrorCode {
     INVALID_STOCK_QUANTITY(HttpStatus.CONFLICT, "I002", "재고 수량이 유효하지 않습니다."),
 
     // 500 Internal Server Error
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다.");
-
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다."),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S002","파일 업로드에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;
