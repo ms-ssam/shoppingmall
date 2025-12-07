@@ -13,7 +13,6 @@ import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResp
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;

@@ -112,22 +112,22 @@ function syncHiddenFields() {
         return;
     }
 
-    // 🔥 현재 DTO는 optionDetailId, quantity 하나만 받으니까
-    // 일단 첫 번째 선택된 옵션만 서버로 보냄
-    const first = selectedItems[0];
+    selectedItems.forEach(item => {
+        // optionDetailIds 여러 개
+        const hiddenId = document.createElement('input');
+        hiddenId.type = 'hidden';
+        hiddenId.name = 'optionDetailIds';   // 🔥 DTO 필드명과 동일
+        hiddenId.value = item.id;
 
-    const hiddenId = document.createElement('input');
-    hiddenId.type = 'hidden';
-    hiddenId.name = 'optionDetailId';   // DTO 필드명과 동일
-    hiddenId.value = first.id;
+        // quantities 여러 개
+        const hiddenQty = document.createElement('input');
+        hiddenQty.type = 'hidden';
+        hiddenQty.name = 'quantities';       // 🔥 DTO 필드명과 동일
+        hiddenQty.value = item.qty;
 
-    const hiddenQty = document.createElement('input');
-    hiddenQty.type = 'hidden';
-    hiddenQty.name = 'quantity';        // DTO 필드명과 동일
-    hiddenQty.value = first.qty;
-
-    hiddenContainer.appendChild(hiddenId);
-    hiddenContainer.appendChild(hiddenQty);
+        hiddenContainer.appendChild(hiddenId);
+        hiddenContainer.appendChild(hiddenQty);
+    });
 }
 
 
