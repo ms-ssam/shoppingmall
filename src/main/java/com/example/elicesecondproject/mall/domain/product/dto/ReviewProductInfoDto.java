@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.review.dto.response;
+package com.example.elicesecondproject.mall.domain.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,5 +10,5 @@ import lombok.Getter;
 public class ReviewProductInfoDto {
     private Long id;
     private String name;
-    /*private String thumbnailImages;*/
+    private String thumbnailUrl;
 }

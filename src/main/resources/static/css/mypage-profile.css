@@ -55,6 +55,15 @@
     color: white;
 }
 
+.btn-withdraw {
+    background-color: #E55050; /* 진한 빨강(눈에 잘띄는 위험색) */
+    color: white;
+}
+
+.btn-withdraw:hover {
+    background-color: #CC4141; /* hover 시 조금 더 어둡게 */
+}
+
 .btn:hover {
     opacity: 0.9;
 }

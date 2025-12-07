@@ -13,6 +13,7 @@ import com.example.elicesecondproject.mall.global.error.exception.BusinessExcept
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -95,9 +97,11 @@ public class MemberService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 확인
+        log.info("@@@@@@@@@@@@@@@@@    서비스 - 비밀번호 확인 전   @@@@@@2");
         if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new BusinessException(ErrorCode.MEMBER_PASSWORD_MISMATCH);
+            throw new FieldValidationException("password", "", "비밀번호가 일치하지 않습니다.");
         }
+        log.info("$$$$$$$          비밀번호 확인 후        $$$$$$$$");
 
         member.withdraw();
     }
