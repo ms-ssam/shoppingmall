@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.review.dto.response;
 
+import com.example.elicesecondproject.mall.domain.product.dto.ReviewProductInfoDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

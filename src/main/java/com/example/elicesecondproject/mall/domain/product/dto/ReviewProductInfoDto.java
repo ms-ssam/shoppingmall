@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.domain.review.dto.response;
+package com.example.elicesecondproject.mall.domain.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
