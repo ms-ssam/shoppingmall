@@ -14,6 +14,7 @@ import lombok.Getter;
 public class CartItemInfoResponseDto {
     private long cartItemId;
     private int quantity;  // 장바구니에 담은 수량
+    private int subtotalPrice;
     private ProductInfoOfCartItemDto productInfo;
     private ProductOptionGroupInfoOfCartItemDto productOptionGroupInfo;
     private OptionDetailInfoOfCartItemDto optionDetailInfo;
@@ -22,11 +23,13 @@ public class CartItemInfoResponseDto {
     private CartItemInfoResponseDto(
             long cartItemId,
             int quantity,
+            int subtotalPrice,
             ProductInfoOfCartItemDto productInfo,
             ProductOptionGroupInfoOfCartItemDto productOptionGroupInfo,
             OptionDetailInfoOfCartItemDto optionDetailInfo) {
         this.cartItemId = cartItemId;
         this.quantity = quantity;
+        this.subtotalPrice = subtotalPrice;
         this.productInfo = productInfo;
         this.productOptionGroupInfo = productOptionGroupInfo;
         this.optionDetailInfo = optionDetailInfo;
@@ -41,6 +44,7 @@ public class CartItemInfoResponseDto {
         return CartItemInfoResponseDto.builder()
                 .cartItemId(cartItem.getId())
                 .quantity(quantity)
+                .subtotalPrice(optionDetail.getSaleUnitPrice() * quantity)
                 .productInfo(ProductInfoOfCartItemDto.of(product))
                 .productOptionGroupInfo(ProductOptionGroupInfoOfCartItemDto.of(productOptionGroup))
                 .optionDetailInfo(OptionDetailInfoOfCartItemDto.of(optionDetail))
@@ -53,6 +57,7 @@ public class CartItemInfoResponseDto {
 
 cartItemId
 quantity
+subtotalPrice  // 금액 소계
  */
 
 // ==========================================================================================
@@ -65,7 +70,6 @@ size
 soldOut (옵션 품절) (단, OptionDetail.isSoldOut() 등 메서드로 처리해서 받아야 함)
 optionAppliedUnitPrice  // Product 원가 + OptionDetail 옵션 추가금
 saleUnitPrice  // Product 원가에 할인률 적용 금액 + OptionDetail 옵션 추가금
-subtotalPrice  // 금액 소계
  */
 
 // ==========================================================================================

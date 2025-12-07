@@ -12,16 +12,14 @@ public class OptionDetailInfoOfCartItemDto {
     private boolean soldOut;
     private int optionAppliedUnitPrice;
     private int saleUnitPrice;
-    private int subtotalPrice;
 
     @Builder
-    private OptionDetailInfoOfCartItemDto(long id, String name, boolean soldOut, int  optionAppliedUnitPrice, int saleUnitPrice, int subtotalPrice) {
+    private OptionDetailInfoOfCartItemDto(long id, String name, boolean soldOut, int  optionAppliedUnitPrice, int saleUnitPrice) {
         this.id = id;
         this.name = name;
         this.soldOut = soldOut;
         this.optionAppliedUnitPrice = optionAppliedUnitPrice;
         this.saleUnitPrice = saleUnitPrice;
-        this.subtotalPrice = subtotalPrice;
     }
 
     public static OptionDetailInfoOfCartItemDto of(OptionDetail optionDetail) {
@@ -31,7 +29,6 @@ public class OptionDetailInfoOfCartItemDto {
                 .soldOut(optionDetail.isSoldOut())
                 .optionAppliedUnitPrice(optionDetail.getOptionAppliedUnitPrice())
                 .saleUnitPrice(optionDetail.getSaleUnitPrice())
-                .subtotalPrice(optionDetail.getSubtotalPrice())
                 .build();
     }
 }

@@ -116,10 +116,6 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         return getProduct().getSalePrice() + addPrice;
     }
 
-    public int getSubtotalPrice() {
-        return getSaleUnitPrice() * stockQuantity;
-    }
-
     // 옵션 품절 여부 반환
     public boolean isSoldOut() {
         return stockQuantity <= 0 || getProduct().isSoldOut();

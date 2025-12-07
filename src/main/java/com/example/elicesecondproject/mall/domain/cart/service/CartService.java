@@ -1,7 +1,11 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
+import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartRepository;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,19 +17,14 @@ public class CartService {
     private final CartRepository cartRepository;
     private final PermissionValidator permissionValidator;
 
-//    public CartInfoResponseDto getCartInfo(Long memberId) {
-//        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-//
-//
-//    }
-}
+    public CartInfoResponseDto getCartInfo(Long memberId) {
+        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
 
+        permissionValidator.validate(cart, cart.getMember());
 
-
-/*
-    실제 소유주 검증 방법 - PermissionValidator 사용법
-    public ... ...() {
-        permissionValidator.validate(wantsToValidateObject, actualOwner);
+        return CartInfoResponseDto.of(cart);
     }
-    */
+
+
+}

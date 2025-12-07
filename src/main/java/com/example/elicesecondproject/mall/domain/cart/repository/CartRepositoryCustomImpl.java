@@ -8,9 +8,11 @@ import com.example.elicesecondproject.mall.domain.option.entity.QProductOptionGr
 import com.example.elicesecondproject.mall.domain.product.entity.QProduct;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 @RequiredArgsConstructor
 public class CartRepositoryCustomImpl implements CartRepositoryCustom {
     private final JPAQueryFactory queryFactory;
