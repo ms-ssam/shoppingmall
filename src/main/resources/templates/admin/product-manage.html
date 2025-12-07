@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      th:replace="~{admin_layout :: layout(~{::div})}">
+<body>
+
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">상품 관리</h3>
+        <a th:href="@{/admin/products/new}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-bold">
+            + 상품 등록
+        </a>
+    </div>
+
+    <div class="flex gap-2 mb-6">
+        <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" class="border border-gray-300 rounded px-3 py-2 text-sm flex-1" th:value="${param.keyword}">
+        <select id="sortSelect" class="border border-gray-300 rounded px-3 py-2 text-sm min-w-[120px]" onchange="searchProducts()">
+            <option value="LATEST">최신순</option>
+            <option value="STOCK_HIGH">재고 많은순</option>
+            <option value="STOCK_LOW">재고 적은순</option>
+            <option value="PRICE_HIGH">가격 높은순</option>
+            <option value="PRICE_LOW">가격 낮은순</option>
+        </select>
+        <button onclick="searchProducts()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">필터</button>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+            <tr>
+                <th class="px-4 py-3 w-10"><input type="checkbox"></th>
+                <th class="px-4 py-3">상품명</th>
+                <th class="px-4 py-3">카테고리</th>
+                <th class="px-4 py-3">가격</th>
+                <th class="px-4 py-3">할인율</th>
+                <th class="px-4 py-3">판매가</th>
+                <th class="px-4 py-3">상태</th>
+                <th class="px-4 py-3">재고</th>
+                <th class="px-4 py-3">등록일</th>
+                <th class="px-4 py-3 text-center">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="bg-white border-b hover:bg-gray-50" th:each="p : ${products.content}">
+                <td class="px-4 py-3"><input type="checkbox"></td>
+                <td class="px-4 py-3 font-medium text-gray-900">
+                    <a th:href="@{/products/{id}(id=${p.id})}" target="_blank" class="hover:underline hover:text-blue-600" th:text="${p.name}">상품명</a>
+                </td>
+                <td class="px-4 py-3">의류 > 상의</td> <td class="px-4 py-3" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'"></td>
+                <td class="px-4 py-3 text-red-500" th:text="${p.discountRate} + '%'"></td>
+                <td class="px-4 py-3 font-bold" th:text="${#numbers.formatInteger(p.salePrice, 0, 'COMMA')} + '원'"></td>
+                <td class="px-4 py-3">
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                                  th:if="${p.status.name() == 'SELLING'}">판매중</span>
+                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                          th:if="${p.status.name() == 'SOLD_OUT'}">품절</span>
+                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                          th:if="${p.status.name() == 'STOP'}">판매중지</span>
+                </td>
+                <td class="px-4 py-3" th:text="${p.totalStock}">100</td>
+                <td class="px-4 py-3">2025.12.06</td>
+                <td class="px-4 py-3 text-center">
+                    <a th:href="@{/admin/products/{id}/edit(id=${p.id})}" class="text-blue-600 hover:underline mr-2"><i class="bi bi-pencil-square"></i></a>
+                    <button class="text-red-600 hover:underline"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function searchProducts() {
+        const keyword = document.getElementById('searchInput').value;
+        const sort = document.getElementById('sortSelect').value;
+        location.href = `/admin/products?keyword=${keyword}&sortType=${sort}`;
+    }
+</script>
+</body>
+</html>

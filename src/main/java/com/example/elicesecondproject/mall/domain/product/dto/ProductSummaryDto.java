@@ -25,4 +25,6 @@ public class ProductSummaryDto {
 
     // 재고 필드 추가
     private Integer totalStock;
+    //찜 여부 추가
+    private boolean liked;
 }
