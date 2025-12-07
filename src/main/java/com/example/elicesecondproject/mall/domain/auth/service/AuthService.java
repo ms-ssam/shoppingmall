@@ -48,10 +48,6 @@ public class AuthService {
         MemberDetail userDetails = (MemberDetail) authentication.getPrincipal();
         Member member = userDetails.getMember();
 
-        if (member.getStatus() == MemberStatus.WITHDRAWN) {
-            throw new BusinessException(ErrorCode.MEMBER_WITHDRAWN);
-        }
-
         refreshTokenStore.revokeByMember(member);
 
         String accessToken = jwtProvider.createAccessToken(authentication);
