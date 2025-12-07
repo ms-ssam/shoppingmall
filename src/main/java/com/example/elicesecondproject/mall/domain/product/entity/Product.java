@@ -10,12 +10,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +37,10 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOptionGroup> optionGroups = new ArrayList<>();
+
+    // 썸네일 이미지
+    private String thumbnailUrl;
+
 
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
@@ -92,6 +94,13 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     }
 
     // --- 비즈니스 메서드 ---
+
+    // 썸네일 이미지 업데이트
+    public void updateThumbnailUrl(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+
 
     // 상품 정보 수정
     /* [수정 전: Before]

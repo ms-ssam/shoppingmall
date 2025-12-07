@@ -8,36 +8,24 @@ spring:
   mvc:
     hiddenmethod:
       filter:
-        enabled: true  # PUT, DELETE 요청 hidden-method 지원
+        enabled: true
   jpa:
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
-
   data:
-    # 1. Spring MVC (직접 만든 Controller)용 설정
     web:
       pageable:
         default-page-size: 10
         max-page-size: 50
-
-    # 2. Spring Data REST (자동 생성 API)용 설정
     rest:
       default-page-size: 10
       max-page-size: 50
-
-  #  datasource:
-  #    url: jdbc:h2:mem:testdb
-  #    username: sa
-  #    password:
-  #  h2:
-  #    console:
-  #      enabled: true
   servlet:
     multipart:
-      max-file-size: 5MB # 단일 파일 최대
-      max-request-size: 20MB # 여러 파일 합계
+      max-file-size: 5MB
+      max-request-size: 20MB
 
 springdoc:
   api-docs:
@@ -58,16 +46,16 @@ jwt:
 
 file:
   upload:
-    #    base-path: C:/uploads
-    product-path: products # /uploads/products
+    product-path: products
     allowed-extensions: jpg,jpeg,png,webp
-  image:
-    resize:
-      max-width: 1920
-      quality: 0.85
-    thumbnail:
-      main-size: 300 # 300x300
-      slider-size: 100 # 100x100
+
+image:
+  resize:
+    max-width: 1200
+    quality: 0.85
+  thumbnail:
+    main-size: 300
+    slider-size: 100
 
 server:
   port: 8080

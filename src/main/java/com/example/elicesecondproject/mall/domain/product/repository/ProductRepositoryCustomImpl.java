@@ -58,13 +58,11 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<ProductSummaryDto> findAllProductsSummary(Pageable pageable, Long memberId, ProductSortType sortType) { // [수정] sortType 파라미터 추가
+    public Page<ProductSummaryDto> findAllProductsSummary(Pageable pageable, Long memberId, ProductSortType sortType) {
         BooleanExpression whereClause = productNotDeleted();
-
-        // [수정] 고정값 LATEST 대신 전달받은 sortType 사용
+        // [수정] sortType 적용
         List<ProductSummaryDto> content = fetchProducts(whereClause, sortType, pageable, memberId);
         Long total = countProducts(whereClause);
-
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
     }
 
@@ -78,8 +76,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 .select(createProductSummaryProjection(memberId))
                 .from(product)
                 .where(whereClause)
-                // 2차 정렬 조건 (ID 역순) 추가하여 정렬 순서 보장
-                .orderBy(getOrderSpecifier(sortType), product.id.desc())
+                .orderBy(getOrderSpecifier(sortType), product.id.desc()) // Stable Sort
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -94,6 +91,9 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             case REVIEW_COUNT -> product.reviewCount.desc();
             case WISHLIST_COUNT -> product.wishListCount.desc();
             case RATING -> product.averageRating.desc();
+            // [추가] 재고순 정렬 (필요하다면)
+            // case STOCK_HIGH -> product.totalStock.desc();
+            // case STOCK_LOW -> product.totalStock.asc();
             default -> product.createdAt.desc();
         };
     }
@@ -111,11 +111,16 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     }
 
     private Long countProducts(BooleanExpression whereClause) {
-        return queryFactory.select(product.count()).from(product).where(whereClause).fetchOne();
+        return queryFactory
+                .select(product.count())
+                .from(product)
+                .where(whereClause)
+                .fetchOne();
     }
 
     private BooleanExpression buildWhereClause(Long categoryId, Boolean includeSubCategories) {
-        return productNotDeleted().and(categoryCondition(categoryId, includeSubCategories));
+        return productNotDeleted()
+                .and(categoryCondition(categoryId, includeSubCategories));
     }
 
     private Expression<ProductSummaryDto> createProductSummaryProjection(Long memberId) {
@@ -136,11 +141,18 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
 
     private Expression<String> selectMainImage() {
         return JPAExpressions.select(productImage.imageUrl).from(productImage)
-                .where(productImage.product.eq(product), productImage.imageType.eq(ImageType.MAIN), productImage.deletedAt.isNull())
-                .orderBy(productImage.displayOrder.asc()).limit(1);
+                .where(
+                        productImage.product.eq(product),
+                        productImage.imageType.eq(ImageType.MAIN),
+                        productImage.deletedAt.isNull()
+                )
+                .orderBy(productImage.displayOrder.asc())
+                .limit(1);
     }
 
-    private BooleanExpression productNotDeleted() { return product.deletedAt.isNull(); }
+    private BooleanExpression productNotDeleted() {
+        return product.deletedAt.isNull();
+    }
 
     private BooleanExpression categoryCondition(Long categoryId, Boolean includeSubCategories) {
         if (categoryId == null) return null;

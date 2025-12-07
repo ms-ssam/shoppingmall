@@ -1,6 +1,5 @@
 package com.example.elicesecondproject.mall.domain.option.entity;
 
-import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import com.example.elicesecondproject.mall.global.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.exception.ErrorCode;
@@ -8,12 +7,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 
 @Entity
@@ -80,6 +76,10 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         }
         this.stockQuantity = restStock;
 
+        //상품의 전체 재고 자동 재계산
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
     }
 
     public void addStock(int quantity) {
@@ -87,7 +87,9 @@ public class OptionDetail extends SoftDeletableBaseEntity {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
         this.stockQuantity += quantity;
-
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
     }
 
     public void update(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
