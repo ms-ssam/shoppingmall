@@ -6,6 +6,7 @@
     <meta name="_csrf" th:content="${_csrf?.token}"/>
     <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
 
+    <link rel="stylesheet" th:href="@{/css/header.css}">
     <style>
         body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
@@ -87,7 +88,7 @@
 </head>
 <body>
 
-<div th:replace="~{fragments/new_header :: headerFragment}"></div>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
 
 <div class="container">
 
