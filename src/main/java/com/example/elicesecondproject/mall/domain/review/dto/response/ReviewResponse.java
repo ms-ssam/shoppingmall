@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.review.dto.response;
 
+import com.example.elicesecondproject.mall.domain.member.dto.response.MemberNicknameResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +21,5 @@ public class ReviewResponse {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    private String memberNickname;
+    private MemberNicknameResponse member;
 }

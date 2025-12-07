@@ -7,6 +7,8 @@ import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailRespo
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
+import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
+import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ public class ProductViewController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final ReviewService reviewService;
 
     /**
      * 상품 목록 페이지 (전체 / 카테고리 / 검색 통합)
@@ -93,10 +96,12 @@ public class ProductViewController {
      * 상품 상세 페이지
      */
     @GetMapping("/{productId}")
-    public String productDetail(@PathVariable Long productId, Model model, @AuthenticationPrincipal MemberDetail memberDetail) {
+    public String productDetail(@PathVariable Long productId, Model model, @AuthenticationPrincipal MemberDetail memberDetail, Pageable pageable) {
         Long memberId = (memberDetail != null) ? memberDetail.getMember().getId() : null;
         ProductDetailResponse product = productService.getProduct(productId, memberId);
         model.addAttribute("product", product);
+        Page<ReviewResponse> reviews = reviewService.getReviewsByProduct(productId, pageable);
+        model.addAttribute("reviews", reviews);
         return "product/detail";
     }
 }

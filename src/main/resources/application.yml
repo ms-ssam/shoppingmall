@@ -53,16 +53,18 @@ jwt:
 
 file:
   upload:
-    product-path: products
+    base-path: C:/uploads
+    product-path: products # /uploads/products
+    review-path: reviews
+    inquiry-path: inquiries
     allowed-extensions: jpg,jpeg,png,webp
-
-image:
-  resize:
-    max-width: 1200
-    quality: 0.85
-  thumbnail:
-    main-size: 300
-    slider-size: 100
+  image:
+    resize:
+      max-width: 1920
+      quality: 0.85
+    thumbnail:
+      main-size: 300 # 300x300
+      slider-size: 100 # 100x100
 
 server:
   port: 8080

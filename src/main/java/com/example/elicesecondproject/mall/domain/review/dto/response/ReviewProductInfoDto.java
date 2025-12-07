@@ -10,5 +10,5 @@ import lombok.Getter;
 public class ReviewProductInfoDto {
     private Long id;
     private String name;
-    /*private String thumbnailImages;*/
+    private String thumbnailUrl;
 }
