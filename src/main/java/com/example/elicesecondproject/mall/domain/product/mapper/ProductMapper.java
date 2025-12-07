@@ -20,11 +20,14 @@ public interface ProductMapper {
     ProductSummaryDto toSummaryDto(Product product);
 
     @Mapping(target = "salePrice", expression = "java(product.getSalePrice())")
-    @Mapping(target = "mainImageUrl", expression = "java(product.getMainImageUrl())") //
+    @Mapping(target = "mainImageUrl", source = "thumbnailUrl")
     ProductDetailResponse toDetailResponse(Product product);
 
     Product toEntity(CreateProductRequest request);
 
+
+
     ProductImageDto toImageDto(ProductImage image);
+
     ProductImage toImageEntity(ProductImageDto dto);
 }

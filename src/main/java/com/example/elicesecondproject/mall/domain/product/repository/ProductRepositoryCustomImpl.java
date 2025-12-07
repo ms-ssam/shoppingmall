@@ -129,18 +129,33 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                         .where(wishList.member.id.eq(memberId), wishList.product.id.eq(product.id))
                         .exists();
 
-        return Projections.constructor(ProductSummaryDto.class,
-                product.id, product.name, product.price, calculateSalePrice(), product.discountRate,
-                product.status, selectMainImage(), product.averageRating, product.reviewCount,
-                product.wishListCount, product.totalStock, isLikedExpr);
+        return Projections.constructor(
+                ProductSummaryDto.class,
+                product.id,
+                product.name,
+                product.price,
+                calculateSalePrice(),
+                product.discountRate,
+                product.status,
+                selectMainImage(),
+                product.averageRating,
+                product.reviewCount,
+                product.wishListCount,
+                product.totalStock,
+                isLikedExpr);
     }
 
     private Expression<Integer> calculateSalePrice() {
-        return product.price.subtract(product.price.multiply(product.discountRate).divide(DISCOUNT_DIVISOR)).intValue().as(SALE_PRICE_ALIAS);
+        return product.price
+                .subtract(product.price.multiply(product.discountRate).divide(DISCOUNT_DIVISOR))
+                .intValue()
+                .as(SALE_PRICE_ALIAS);
     }
 
     private Expression<String> selectMainImage() {
-        return JPAExpressions.select(productImage.imageUrl).from(productImage)
+        return JPAExpressions
+                .select(productImage.imageUrl)
+                .from(productImage)
                 .where(
                         productImage.product.eq(product),
                         productImage.imageType.eq(ImageType.MAIN),
@@ -167,4 +182,31 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 .where(category.id.eq(product.category.id), category.parent.id.eq(parentCategoryId))
                 .exists();
     }
-}
+}/*
+        // 2차 정렬로 id DESC 한 번 더 넣어주면 정렬 안정적
+        return switch (sortType) {
+            case LATEST -> new OrderSpecifier[]{
+                    product.createdAt.desc(),
+                    product.id.desc()
+            };
+            case PRICE_HIGH -> new OrderSpecifier[]{
+                    product.price.desc(),
+                    product.id.desc()
+            };
+            case PRICE_LOW -> new OrderSpecifier[]{
+                    product.price.asc(),
+                    product.id.desc()
+            };
+            case REVIEW_COUNT ->  new OrderSpecifier[]{
+                    product.reviewCount.desc(),
+                    product.id.desc()
+            };
+            case WISHLIST_COUNT -> new OrderSpecifier[]{
+                    product.WishListCount.desc(),
+                    product.id.desc()
+            };
+            case RATING ->  new OrderSpecifier[]{
+                    product.averageRating.desc(),
+                    product.id.desc()
+            };
+        };*/
