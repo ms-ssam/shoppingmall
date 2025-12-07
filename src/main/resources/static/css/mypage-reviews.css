@@ -163,3 +163,25 @@
     font-size: 13px;           /* 기존 12px → 13px */
     padding: 6px 12px;
 }
+
+.myreview-filter-form {
+    margin-bottom: 20px;
+}
+
+.filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+/* 버튼 그룹만 간격 좁게 */
+.filter-buttons {
+    display: flex;
+    gap: 6px; /* ← 검색 ↔ 초기화 사이가 붙도록 작은 gap */
+}
+
+.filter-row label {
+    display: flex;
+    flex-direction: column; /* label 위, input 아래 레이아웃 */
+    font-size: 14px;
+}

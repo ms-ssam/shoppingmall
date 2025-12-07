@@ -11,10 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import static org.springframework.util.StringUtils.hasText;
 
-import java.util.List;
 import java.time.LocalDate;
+import java.util.List;
+
+import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
@@ -76,6 +77,44 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         ratingLoe(condition.getMaxRating()),
                         deletedEq(condition.getDeleted()),
                         createdAtBetween(condition.getStartDate(), condition.getEndDate())
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
+    @Override
+    public Page<Review> findMyReviewsByPeriod(Long memberId,
+                                              LocalDate startDate,
+                                              LocalDate endDate,
+                                              Pageable pageable) {
+
+        QReview review = QReview.review;
+        QProduct product = QProduct.product;
+
+        // content 조회
+        List<Review> content = queryFactory
+                .selectFrom(review)
+                .join(review.product, product).fetchJoin()
+                .where(
+                        review.member.id.eq(memberId),   // 내 리뷰만
+                        review.deletedAt.isNull(),       // 삭제 안 된 것만
+                        createdAtBetween(startDate, endDate) // 기간 필터
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(review.id.desc())
+                .fetch();
+
+        // count 조회
+        Long total = queryFactory
+                .select(review.count())
+                .from(review)
+                .join(review.product, product)
+                .where(
+                        review.member.id.eq(memberId),
+                        review.deletedAt.isNull(),
+                        createdAtBetween(startDate, endDate)
                 )
                 .fetchOne();
 

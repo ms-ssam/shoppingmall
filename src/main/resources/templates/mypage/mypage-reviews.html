@@ -25,6 +25,28 @@
 
             <h2 class="myreview-header">내 리뷰 내역</h2>
 
+            <!--  기간 필터 -->
+            <form th:action="@{/mypage/reviews}" method="get" class="myreview-filter-form">
+
+                <div class="filter-row">
+                    <label>
+                        시작일
+                        <input type="date" id="startDate" name="startDate" th:value="${startDate}">
+                    </label>
+
+                    <label>
+                        종료일
+                        <input type="date" id="endDate" name="endDate" th:value="${endDate}">
+                    </label>
+
+                    <div class="filter-buttons">
+                        <button type="submit" class="myreview-btn filter">검색</button>
+                        <a th:href="@{/mypage/reviews}" class="myreview-btn secondary">초기화</a>
+                    </div>
+                </div>
+
+            </form>
+
             <!-- 리뷰가 없을 때 -->
             <div class="myreview-empty" th:if="${reviews.empty}">
                 아직 작성한 리뷰가 없습니다.
@@ -44,7 +66,7 @@
                         <form th:action="@{'/mypage/reviews/' + ${review.id}}"
                               method="post"
                               onsubmit="return confirm('이 리뷰를 삭제하시겠습니까?');">
-                            <input type="hidden" name="_method" value="delete"/>
+                            <input type="hidden" name="_method" value="delete">
                             <button type="submit" class="myreview-btn mini">삭제</button>
                         </form>
                     </div>
@@ -54,7 +76,6 @@
                         <a th:href="@{'/products/' + ${review.product.id}}"
                            class="myreview-product-link">
 
-                            <!-- 상품 썸네일: 현재 DTO에는 이미지 필드가 없어서 기본이미지만 사용 -->
                             <img class="myreview-product-thumb"
                                  th:src="@{/images/product-default.png}"
                                  alt="상품 이미지">
@@ -95,16 +116,17 @@
                 </div>
             </div>
 
+            <!-- 페이징 -->
             <div class="myreview-pagination" th:if="${reviews.totalPages > 1}">
 
                 <!-- 이전 버튼 -->
                 <a th:if="${reviews.hasPrevious()}"
-                   th:href="@{|/mypage/reviews?page=${reviews.number - 1}|}"
+                   th:href="@{|/mypage/reviews?page=${reviews.number - 1}&startDate=${startDate}&endDate=${endDate}|}"
                    class="page-btn">&laquo;</a>
 
                 <!-- 페이지 번호 -->
                 <span th:each="i : ${#numbers.sequence(0, reviews.totalPages-1)}">
-                    <a th:href="@{|/mypage/reviews?page=${i}|}"
+                    <a th:href="@{|/mypage/reviews?page=${i}&startDate=${startDate}&endDate=${endDate}|}"
                        th:text="${i + 1}"
                        th:classappend="${i == reviews.number} ? 'active' : ''"
                        class="page-btn">
@@ -113,7 +135,7 @@
 
                 <!-- 다음 버튼 -->
                 <a th:if="${reviews.hasNext()}"
-                   th:href="@{|/mypage/reviews?page=${reviews.number + 1}|}"
+                   th:href="@{|/mypage/reviews?page=${reviews.number + 1}&startDate=${startDate}&endDate=${endDate}|}"
                    class="page-btn">&raquo;</a>
 
             </div>
@@ -122,6 +144,8 @@
 
     </div>
 </div>
+
+<script th:src="@{/js/mypage-reviews.js}"></script>
 
 </body>
 </html>

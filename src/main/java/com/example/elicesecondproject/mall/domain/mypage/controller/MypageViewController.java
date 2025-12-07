@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mypage")
@@ -92,12 +94,18 @@ public class MypageViewController {
     }
 
     @GetMapping("/reviews")
-    public String getMyReview(Model model,
+    public String getMyReview(@AuthenticationPrincipal MemberDetail principal,
+                              @RequestParam(required = false) LocalDate startDate,
+                              @RequestParam(required = false) LocalDate endDate,
                               Pageable pageable,
-                              @AuthenticationPrincipal MemberDetail principal
+                              Model model
     ){
-        Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), pageable);
+        Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), startDate, endDate, pageable);
+
         model.addAttribute("reviews",reviews);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+
         return "mypage/mypage-reviews";
     }
 
@@ -116,10 +124,11 @@ public class MypageViewController {
 
     @PutMapping("/reviews/{reviewId}")
     public String updateMyReview(@PathVariable Long reviewId,
+                                 @AuthenticationPrincipal MemberDetail principal,
                                  @Valid @ModelAttribute UpdateReviewRequest request,
                                  @RequestParam(required = false) MultipartFile imageFile,
-                                 @RequestParam(required = false, defaultValue = "false") boolean deleteImage,
-                                 @AuthenticationPrincipal MemberDetail principal) {
+                                 @RequestParam(required = false, defaultValue = "false") boolean deleteImage
+    ) {
 
         reviewService.updateMyReview(reviewId,
                 principal.getMember().getId(),
