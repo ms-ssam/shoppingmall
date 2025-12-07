@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.auth.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
@@ -46,6 +47,10 @@ public class AuthService {
 
         MemberDetail userDetails = (MemberDetail) authentication.getPrincipal();
         Member member = userDetails.getMember();
+
+        if (member.getStatus() == MemberStatus.WITHDRAWN) {
+            throw new BusinessException(ErrorCode.MEMBER_WITHDRAWN);
+        }
 
         refreshTokenStore.revokeByMember(member);
 
