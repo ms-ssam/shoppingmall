@@ -6,8 +6,8 @@ import com.example.elicesecondproject.mall.domain.category.dto.UpdateCategoryReq
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
-import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
