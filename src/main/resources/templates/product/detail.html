@@ -83,38 +83,45 @@
                 <li>무료 배송 (50,000원 이상 구매 시)</li>
             </ul>
 
-            <!-- 옵션 선택 -->
-            <div class="opt-group">
-                <label class="opt-label">색상 선택</label>
-                <select id="colorSelect" class="opt-select" onchange="handleColorChange()">
-                    <option value="">색상을 선택하세요</option>
-                    <option th:each="group : ${product.optionGroups}"
-                            th:value="${group.id}"
-                            th:text="${group.name}">Color</option>
-                </select>
-            </div>
+            <!-- form -->
+            <form th:action="@{|/products/${product.id}/cart|}" method="post" id="cartForm">
+                <!-- 옵션 선택 -->
+                <div class="opt-group">
+                    <label class="opt-label">색상 선택</label>
+                    <select id="colorSelect" class="opt-select" onchange="handleColorChange()">
+                        <option value="">색상을 선택하세요</option>
+                        <option th:each="group : ${product.optionGroups}"
+                                th:value="${group.id}"
+                                th:text="${group.name}">Color</option>
+                    </select>
+                </div>
 
-            <div class="opt-group">
-                <label class="opt-label">사이즈</label>
-                <select id="sizeSelect" class="opt-select" disabled onchange="addOption()">
-                    <option value="">먼저 색상을 선택하세요</option>
-                </select>
-            </div>
+                <!-- 사이즈 선택 (여기서 value가 optionDetailId가 되게) -->
+                <div class="opt-group">
+                    <label class="opt-label">사이즈</label>
+                    <select id="sizeSelect" class="opt-select" disabled onchange="addOption()">
+                        <option value="">먼저 색상을 선택하세요</option>
+                    </select>
+                </div>
 
-            <!-- 선택된 옵션 목록 -->
-            <div id="selected-options"></div>
+                <!-- 선택된 옵션 목록 -->
+                <div id="selected-options"></div>
 
-            <!-- 총 금액 -->
-            <div class="total-box">
-                <span class="total-label">Total</span>
-                <span class="total-price" id="totalPrice">0원</span>
-            </div>
+                <!-- hidden 필드 넣는 전용 영역 -->
+                <div id="cart-hidden-fields"></div>
 
-            <!-- 장바구니 / 구매 버튼 -->
-            <div class="btn-row">
-                <button class="btn btn-cart">장바구니</button>
-                <button class="btn btn-buy">구매하기</button>
-            </div>
+                <!-- 총 금액 -->
+                <div class="total-box">
+                    <span class="total-label">Total</span>
+                    <span class="total-price" id="totalPrice">0원</span>
+                </div>
+
+                <!-- 장바구니 / 구매 버튼 -->
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-cart" >장바구니</button>
+                    <button class="btn btn-buy">구매하기</button>
+                </div>
+            </form>
         </div>
     </div>
 
