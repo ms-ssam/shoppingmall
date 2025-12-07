@@ -114,9 +114,7 @@ public class MypageViewController {
         return "mypage/mypage-review-edit";
     }
 
-    //TODO: 공부 다시 하기/
     @PutMapping("/reviews/{reviewId}")
-    /*@PostMapping("/reviews/{reviewId}")*/
     public String updateMyReview(@PathVariable Long reviewId,
                                  @Valid @ModelAttribute UpdateReviewRequest request,
                                  @RequestParam(required = false) MultipartFile imageFile,
@@ -128,6 +126,16 @@ public class MypageViewController {
                 request,
                 imageFile,
                 deleteImage);
+
+        return "redirect:/mypage/reviews";
+    }
+
+    @DeleteMapping("/reviews/{reviewId}")
+    public String deleteMyReview(@PathVariable Long reviewId,
+                                 @AuthenticationPrincipal MemberDetail principal
+
+    ) {
+        reviewService.softDeleteReview(reviewId, principal.getMember().getId());
 
         return "redirect:/mypage/reviews";
     }

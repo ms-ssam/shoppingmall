@@ -2,7 +2,6 @@ package com.example.elicesecondproject.mall.domain.review.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
-import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
@@ -15,8 +14,8 @@ import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.domain.review.mapper.ReviewMapper;
 import com.example.elicesecondproject.mall.domain.review.repository.ReviewRepository;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.service.GlobalImageFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -70,29 +69,21 @@ public class ReviewService {
         return reviewMapper.toReviewResponse(review);
     }
 
-    //TODO: 이미지 등록 공부 및 최적화 (이미시 설정도 확인)
     @Transactional
     public void updateMyReview(Long reviewId,
                                Long memberId,
                                UpdateReviewRequest request,
                                MultipartFile imageFile,
                                boolean deleteImage) {
-
-        // 1. 리뷰 조회 (소프트 삭제된 건 제외)
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
-
-        // 2. 회원 검증 + 권한 체크 (본인 or 관리자만 수정 가능)
+        // 1. 리뷰 검증 + 회원 검증 + 권한 체크
+        Review review = getActiveReview(reviewId);
         Member member = getActiveMember(memberId);
         permissionValidator.validate(review, member);
 
         Product product = review.getProduct();
         Long productId = product.getId();
 
-        Integer oldRating = review.getRating();
-        Integer newRating = request.getRating();
-
-        // 3. 이미지 URL 결정 로직
+        // 2. 이미지 URL 결정 로직
         String oldImageUrl = review.getImageUrl();
         String newImageUrl = oldImageUrl;
 
@@ -111,14 +102,17 @@ public class ReviewService {
             globalImageFileService.deleteImage(oldImageUrl);
         }
 
-        // 4. 리뷰 내용/평점/이미지 갱신
+        Integer oldRating = review.getRating();
+        Integer newRating = request.getRating();
+
+        // 3. 리뷰 내용/평점/이미지 갱신
         review.updateAll(
                 request.getRating(),
                 request.getContent(),
                 newImageUrl
         );
 
-        // 5. 평점이 바뀐 경우에만 상품 평균 평점 재계산
+        // 4. 평점이 바뀐 경우에만 상품 평균 평점 재계산
         if (!oldRating.equals(newRating)) {
             Double newAvg = reviewRepository.calculateAverageRating(product.getId());
             product.updateRating(newAvg);
@@ -128,9 +122,7 @@ public class ReviewService {
 
     @Transactional
     public void softDeleteReview(Long reviewId, Long memberId) {
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
-
+        Review review = getActiveReview(reviewId);
         Member member = getActiveMember(memberId);
 
         permissionValidator.validate(review, member);
@@ -153,23 +145,12 @@ public class ReviewService {
     }
 
     public MyReviewDetailResponse getMyReviewDetail(Long reviewId, Long memberId) {
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
-
+        Review review = getActiveReview(reviewId);
         Member member = getActiveMember(memberId);
 
         permissionValidator.validate(review, member);
 
         return reviewMapper.toMyDetailReviewResponse(review);
-    }
-
-    private void validateReviewAccess(Review review, Long memberId, Role role) {
-        boolean isOwner = review.getMember().getId().equals(memberId);
-        boolean isAdmin = role == Role.ADMIN;
-
-        if (!isOwner && !isAdmin) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
     }
 
     private void updateProductRatingAndCount(Product product) {
@@ -182,5 +163,10 @@ public class ReviewService {
     private Member getActiveMember(Long memberId) {
         return memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Review getActiveReview(Long reviewId) {
+        return reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
     }
 }
