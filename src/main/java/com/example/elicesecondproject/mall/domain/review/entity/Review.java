@@ -34,15 +34,14 @@ public class Review extends SoftDeletableBaseEntity implements Ownable {
     @Column(nullable = false)
     private String content;
 
-    @Column(name = "image_url"/*, nullable = false*/)
+    @Column(name = "image_url")
     private String imageUrl;
 
-    public Review update(Integer rating, String content, String imageUrl) {
+    public void updateAll(Integer rating, String content, String imageUrl) {
         this.rating = rating;
         this.content = content;
         this.imageUrl = imageUrl;
 
-        return this;
     }
 
     @Override

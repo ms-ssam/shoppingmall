@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 정보</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-profile.css}"> <!-- 프로필 전용 -->
+</head>
+
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+    <!-- 사이드바 -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 오른쪽 메인 영역 -->
+    <main class="mypage-content">
+        <section class="profile-card">
+            <h2 class="profile-title">회원 정보</h2>
+
+            <div class="info-row">
+                <div class="label">이름</div>
+                <div th:text="${member.name}">홍길동</div>
+            </div>
+
+            <div class="info-row">
+                <div class="label">이메일</div>
+                <div th:text="${member.email}">example@email.com</div>
+            </div>
+
+            <div class="info-row">
+                <div class="label">닉네임</div>
+                <div th:text="${member.nickname}">길동이</div>
+            </div>
+
+            <div class="info-row">
+                <div class="label">전화번호</div>
+                <div th:text="${member.phone}">010-0000-0000</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary"
+                        onclick="location.href='/mypage/profile/nickname-phone'">
+                    회원 정보 변경
+                </button>
+
+                <button class="btn btn-secondary"
+                        onclick="location.href='/mypage/profile/password'">
+                    비밀번호 변경
+                </button>
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>
