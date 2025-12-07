@@ -64,7 +64,7 @@ function addOption() {
 
     if (selectedItems.find(item => item.id === detailId)) {
         alert("이미 선택된 옵션입니다.");
-        sizeSelect.value = "";
+        //sizeSelect.value = "";
         return;
     }
 
@@ -100,8 +100,36 @@ function renderSelectedOptions() {
             `;
         container.insertAdjacentHTML('beforeend', html);
     });
+    syncHiddenFields();
     updateTotal();
 }
+
+function syncHiddenFields() {
+    const hiddenContainer = document.getElementById('cart-hidden-fields');
+    hiddenContainer.innerHTML = "";
+
+    if (selectedItems.length === 0) {
+        return;
+    }
+
+    // 🔥 현재 DTO는 optionDetailId, quantity 하나만 받으니까
+    // 일단 첫 번째 선택된 옵션만 서버로 보냄
+    const first = selectedItems[0];
+
+    const hiddenId = document.createElement('input');
+    hiddenId.type = 'hidden';
+    hiddenId.name = 'optionDetailId';   // DTO 필드명과 동일
+    hiddenId.value = first.id;
+
+    const hiddenQty = document.createElement('input');
+    hiddenQty.type = 'hidden';
+    hiddenQty.name = 'quantity';        // DTO 필드명과 동일
+    hiddenQty.value = first.qty;
+
+    hiddenContainer.appendChild(hiddenId);
+    hiddenContainer.appendChild(hiddenQty);
+}
+
 
 function changeQty(index, delta) {
     const item = selectedItems[index];
@@ -185,5 +213,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
+    });
+    // 장바구니 폼 제출 시 검증: 선택된 옵션 없으면 막기
+    const cartForm = document.getElementById('cartForm');
+    cartForm.addEventListener('submit', function (e) {
+        if (selectedItems.length === 0) {
+            alert("옵션을 최소 1개 이상 선택해 주세요.");
+            e.preventDefault();
+            return;
+        }
     });
 });
