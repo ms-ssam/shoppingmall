@@ -10,12 +10,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,6 +173,21 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     public int getSalePrice() {
         if (this.discountRate <= 0) return this.price;
         return this.price - (int) (((long) this.price * this.discountRate) / 100);
+    }
+
+    // 품절 여부 반환
+    public boolean isSoldOut() {
+        return this.status == ProductStatus.SOLD_OUT;
+    }
+
+    // 판매중인 상품인지 여부 반환
+    public boolean isOnSale() {
+        return this.status == ProductStatus.SELLING;
+    }
+
+    // 판매 중단 상품인지 여부 반환
+    public boolean isNotOnSale() {
+        return this.status == ProductStatus.STOP;
     }
 
     public void updateCategory(Category category){
