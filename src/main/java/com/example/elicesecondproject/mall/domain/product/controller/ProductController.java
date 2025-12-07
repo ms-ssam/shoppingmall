@@ -26,15 +26,19 @@ public class ProductController {
             @RequestParam(defaultValue = "false") Boolean includeSubCategories,
             @RequestParam(defaultValue = "LATEST") ProductSortType sortType,
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) int size) {
+            @RequestParam(defaultValue = "20") @Min(1) int size,
+            @AuthenticationPrincipal MemberDetail memberDetail
+    ) {
 
         Pageable pageable = PageRequest.of(page, size);
+        Long memberId = (memberDetail != null) ? memberDetail.getMember().getId() : null;
 
         Page<ProductSummaryDto> products = productService.getProductsByCategory(
                 categoryId,
                 includeSubCategories,
                 sortType,
-                pageable
+                pageable,
+                memberId
         );
 
         return ResponseEntity.ok(
@@ -45,13 +49,18 @@ public class ProductController {
     // [사용자] 전체 상품 목록 조회
     @GetMapping
     public ResponseEntity<ApiResponse<Page<ProductSummaryDto>>> getAllProducts(
+            @RequestParam(defaultValue = "LATEST") ProductSortType sortType, // [수정] sortType 추가
             @PageableDefault(
-                    size = 20,
                     sort = "id",
                     direction = Sort.Direction.DESC
-            ) Pageable pageable) {
+            ) Pageable pageable,
+            @AuthenticationPrincipal MemberDetail memberDetail
+    ) {
+        Long memberId = (memberDetail != null) ? memberDetail.getMember().getId() : null;
 
-        Page<ProductSummaryDto> products = productService.getAllProducts(pageable);
+        // [수정] sortType 전달 (인자 개수 맞춤)
+        Page<ProductSummaryDto> products = productService.getAllProducts(pageable, memberId, sortType);
+
         return ResponseEntity.ok(ApiResponse.success("상품 목록 조회 성공", products));
     }
 

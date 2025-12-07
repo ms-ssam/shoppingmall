@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.mypage.controller;
 
+import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
@@ -8,6 +9,7 @@ import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateRevie
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
+import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -90,7 +92,7 @@ public class MypageViewController {
         memberService.updateMyProfile(memberId, form);
         redirectAttributes.addFlashAttribute("message", "회원 정보가 수정되었습니다.");
 
-        return "redirect:/mypage/profile";
+        return "redirect:/mypage/profile/nickname-phone";
     }
 
     @GetMapping("/reviews")
@@ -148,4 +150,53 @@ public class MypageViewController {
 
         return "redirect:/mypage/reviews";
     }
+
+
+    // 비밀번호 변경 폼
+    @GetMapping("/profile/password")
+    public String passwordChangeForm(Model model) {
+
+        // 폼 객체 초기화
+        PasswordChangeRequest form = new PasswordChangeRequest();
+        model.addAttribute("form", form);
+
+        return "mypage-profile-password-edit";
+    }
+
+    // 비밀번호 변경 처리
+    @PutMapping("/profile/password")
+    public String changePassword(@AuthenticationPrincipal MemberDetail principal,
+                                 @Valid @ModelAttribute("form") PasswordChangeRequest form,
+                                 BindingResult bindingResult,
+                                 RedirectAttributes redirectAttributes,
+                                 Model model) {
+
+        // 1) 폼 검증 실패 → 다시 비밀번호 변경 화면으로
+        if (bindingResult.hasErrors()) {
+            return "mypage-profile-password-edit";
+        }
+
+        Long memberId = principal.getMember().getId();
+        try {
+            // 2) 서비스 비즈니스 검증 + 비밀번호 변경
+            memberService.changePassword(memberId, form);
+
+        } catch (FieldValidationException e) {
+            // 서비스에서 던진 필드 유효성 예외를 BindingResult로 변환
+            //bindingResult.rejectValue(e.getField(),"invalid." + e.getField(),e.getReason());
+
+            // 페이지 상단 alert로 보여주기
+            model.addAttribute("message", e.getReason());
+            model.addAttribute("error", true);
+
+            return "mypage-profile-password-edit";  // 비밀번호 페이지 다시 표시
+
+        }
+
+        // 3) 변경 성공
+        redirectAttributes.addFlashAttribute("message", "비밀번호가 변경되었습니다.");
+        return "redirect:/mypage/profile/password";
+    }
+
+
 }

@@ -9,9 +9,9 @@ public interface ProductRepositoryCustom {
 
     Page<ProductSummaryDto> searchProducts(String keyword, ProductSortType sortType, Pageable pageable);
 
-// * PROD-F-02: 카테고리별 상품 조회
-    Page<ProductSummaryDto> findProductsByCategory(Long categoryId,
-                                                   Boolean includeSubCategories,
-                                                   ProductSortType sortType,
-                                                   Pageable pageable);
+    // 카테고리별 상품 조회
+    Page<ProductSummaryDto> findProductsByCategory(Long categoryId, Boolean includeSubCategories, ProductSortType sortType, Pageable pageable, Long memberId);
+
+    // [수정] 전체 상품 조회 (sortType 추가)
+    Page<ProductSummaryDto> findAllProductsSummary(Pageable pageable, Long memberId, ProductSortType sortType);
 }

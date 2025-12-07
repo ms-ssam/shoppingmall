@@ -12,14 +12,15 @@ import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductImageRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class ProductService {
     private final MemberRepository memberRepository;
 
 
+
     // 하위 도메인 서비스로 분리 후 주입(옵션, 이미지)
     private final ProductOptionService productOptionService;
     private final ProductImageService productImageService;
@@ -48,7 +50,8 @@ public class ProductService {
             Long categoryId,
             Boolean includeSubCategories,
             ProductSortType sortType,
-            Pageable pageable) {
+            Pageable pageable,
+            Long memberId) {
 
         validateCategoryExists(categoryId);
 
@@ -59,78 +62,46 @@ public class ProductService {
                 categoryId,
                 includeSubCategories,
                 sortType,
-                pageable
+                pageable,
+                memberId
         );
     }
 
-
-
-
-
     //PROD-F-01
-    public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
+    public Page<ProductSummaryDto> getAllProducts(Pageable pageable, Long memberId, ProductSortType sortType) {
+        ProductSortType finalSortType = sortType != null ? sortType : ProductSortType.LATEST;
+        return productRepository.findAllProductsSummary(pageable, memberId, finalSortType);
+    }
+    /*public Page<ProductSummaryDto> getAllProducts(Pageable pageable) {
         Page<Product> products = productRepository.findByDeletedAtIsNull(pageable);
         return products.map(productMapper::toSummaryDto);
-    }
-
+    }*/
     // DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
-    public ProductDetailResponse getProduct(Long productId) {
+    public ProductDetailResponse getProduct(Long productId, Long memberId) {
         Product foundProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));  // 삭제된 제품 404 Error
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (foundProduct.getStatus() == ProductStatus.STOP) {
-            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);  // 판매중지 상품 400 error "현재 판매하지 않는 상품입니다" 메시지
+            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);
         }
 
-        return productMapper.toDetailResponse(foundProduct); // 2. toSummaryDto -> toDetailResponse
-    }
+        ProductDetailResponse response = productMapper.toDetailResponse(foundProduct);
 
-    /*//PROD-F-06 - 슬라이더 이미지 조회 -> 상품 조회로 대체 가능
-    public List<ProductImageDto> getSliderImages(Long productId) {
-        validateProductExists(productId);
-
-        List<ProductImage> sliderImages = productImageRepository.findSliderImagesByProductId(productId);
-
-        if (sliderImages.isEmpty()) {
-            throw new BusinessException(ErrorCode.IMAGE_NOT_FOUND);
+        if (memberId != null) {
+            boolean isLiked = wishListRepository.existsByMemberIdAndProductId(memberId, productId);
+            response.setLiked(isLiked);
         }
 
-        return sliderImages.stream()
-                .map(productMapper::toImageDto)
-                .collect(Collectors.toList());
+        return response;
     }
 
-
-    //main 이미지 조회
-    public ProductImageDto getMainImage(Long productId) {
-        validateProductExists(productId);
-
-        ProductImage mainImage = productImageRepository
-                .findFirstByProductIdAndImageTypeAndDeletedAtIsNull(productId, ImageType.MAIN)
-                .orElseThrow(() -> new BusinessException(ErrorCode.IMAGE_NOT_FOUND));
-
-        return productMapper.toImageDto(mainImage);
+    public ProductDetailResponse getProduct(Long productId) {
+        return getProduct(productId, null);
     }
-    // 상세 설명 이미지 조회
-    public List<ProductImageDto> getDescriptionImages(Long productId) {
-        validateProductExists(productId);
-
-        List<ProductImage> descImages = productImageRepository
-                .findByProductIdAndImageTypeAndDeletedAtIsNullOrderByDisplayOrderAsc(
-                        productId, ImageType.DESCRIPTION);
-
-        return descImages.stream()
-                .map(productMapper::toImageDto)
-                .collect(Collectors.toList());
-    }
-*/
-
 
     public List<ProductImageDto> getAllImages(Long productId) {
         validateProductExists(productId);
-
         List<ProductImage> images = productImageRepository.findByProductIdAndDeletedAtIsNull(productId);
-
         if (images.isEmpty()) {
             throw new BusinessException(ErrorCode.IMAGE_NOT_FOUND);
         }
@@ -142,7 +113,7 @@ public class ProductService {
 
 
 
-    //PROD-REG-F-10 상품 등록
+    /*//PROD-REG-F-10 상품 등록
     @Transactional
     public ProductDetailResponse createProduct(CreateProductRequest request) {
         // 1. 카테고리 조회 (Service 이용 권장)
@@ -157,6 +128,7 @@ public class ProductService {
                 category,
                 request.getStatus()
         );
+        productRepository.save(product);
 
         // 색상 옵션 저장
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
@@ -169,7 +141,7 @@ public class ProductService {
         productRepository.save(product);
 
         return productMapper.toDetailResponse(product);
-    }
+    }*/
 
 
 
@@ -177,41 +149,111 @@ public class ProductService {
 
 
 
-    // PROD-REG-F-11(관리자) 상품 상세 수정
+//    // PROD-REG-F-11(관리자) 상품 상세 수정
+//    @Transactional
+//    public ProductDetailResponse updateProduct(Long productId, UpdateProductRequest request) {
+//        Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+//
+//        // 1. 기본 정보 수정
+//        product.updateDetails(
+//                request.getName(),
+//                request.getPrice(),
+//                request.getDiscountRate(),
+//                request.getDescription(),
+//                request.getStatus()
+//        );
+//
+//        // 2. 카테고리 수정
+//        if (request.getCategoryId() != null) {
+//            Category currentCategory = product.getCategory();
+//            if (currentCategory == null || !currentCategory.getId().equals(request.getCategoryId())) {
+//                Category newCategory = categoryService.getCategoryById(request.getCategoryId());
+//                product.updateCategory(newCategory);
+//            }
+//        }
+//
+//
+//        // 3. 옵션 그룹 비교 수정
+//        productOptionService.updateOptionGroups(product, request.getOptionGroups());
+//        product.recalculateTotalStock();
+//
+//        // 4. 이미지 비교 수정
+//        productImageService.updateImages(product, request.getImages());
+//
+//        return productMapper.toDetailResponse(product);
+//    }
+
+
+
+
     @Transactional
-    public ProductDetailResponse updateProduct(Long productId, UpdateProductRequest request) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+    public ProductDetailResponse createProductWithFiles(
+            CreateProductRequest request,
+            MultipartFile mainImage,
+            List<MultipartFile> sliderImages,
+            List<MultipartFile> descImages
+    ) {
+        // 1. 카테고리 조회
+        Category category = categoryService.getCategoryById(request.getCategoryId());
 
-        // 1. 기본 정보 수정
-        product.updateDetails(
-                request.getName(),
-                request.getPrice(),
-                request.getDiscountRate(),
-                request.getDescription(),
-                request.getStatus()
+        // 2. 상품 저장 (ID 생성)
+        Product product = new Product(
+                request.getName(), request.getPrice(), request.getDiscountRate(),
+                request.getDescription(), category, request.getStatus()
         );
+        productRepository.save(product);
 
-        // 2. 카테고리 수정
-        if (request.getCategoryId() != null) {
-            Category currentCategory = product.getCategory();
-            if (currentCategory == null || !currentCategory.getId().equals(request.getCategoryId())) {
-                Category newCategory = categoryService.getCategoryById(request.getCategoryId());
-                product.updateCategory(newCategory);
-            }
-        }
-
-
-        // 3. 옵션 그룹 비교 수정
+        // 3. 옵션 저장 및 재고 계산
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
-
         product.recalculateTotalStock();
 
-        // 4. 이미지 비교 수정
-        productImageService.updateImages(product, request.getImages());
+        // 4. 이미지 저장 (ProductImageService로 위임!)
+        productImageService.uploadAndSaveImages(product, mainImage, sliderImages, descImages);
 
         return productMapper.toDetailResponse(product);
     }
+
+    // [수정] 상품 수정 (파일 업로드 포함)
+    @Transactional
+    public ProductDetailResponse updateProductWithFiles(
+            Long productId,
+            UpdateProductRequest request,
+            MultipartFile mainImage,
+            List<MultipartFile> sliderImages,
+            List<MultipartFile> descImages
+    ) {
+        Product product = findProductById(productId);
+
+        // 1. 정보 수정
+        product.updateDetails(
+                request.getName(), request.getPrice(), request.getDiscountRate(),
+                request.getDescription(), request.getStatus()
+        );
+
+        // 2. 카테고리 수정
+        if (request.getCategoryId() != null && !request.getCategoryId().equals(product.getCategory().getId())) {
+            Category newCategory = categoryService.getCategoryById(request.getCategoryId());
+            product.updateCategory(newCategory);
+        }
+
+        // 3. 옵션 수정
+        productOptionService.updateOptionGroups(product, request.getOptionGroups());
+        product.recalculateTotalStock();
+
+        // 4. 이미지 수정 (새 파일이 있는 경우만 덮어쓰기 로직 예시)
+        if (mainImage != null || (sliderImages != null && !sliderImages.isEmpty()) || (descImages != null && !descImages.isEmpty())) {
+            if (mainImage != null && !mainImage.isEmpty()) product.getImages().removeIf(img -> img.getImageType() == ImageType.MAIN);
+            if (sliderImages != null && !sliderImages.isEmpty()) product.getImages().removeIf(img -> img.getImageType() == ImageType.SLIDER);
+            if (descImages != null && !descImages.isEmpty()) product.getImages().removeIf(img -> img.getImageType() == ImageType.DESCRIPTION);
+
+            productImageService.uploadAndSaveImages(product, mainImage, sliderImages, descImages);
+        }
+
+        return productMapper.toDetailResponse(product);
+    }
+
+
 
     @Transactional
     public void deleteProduct(Long productId) {
@@ -342,3 +384,5 @@ public class ProductService {
         return new WishListToggleResponseDto(false, product.getWishListCount());
     }
 }
+
+

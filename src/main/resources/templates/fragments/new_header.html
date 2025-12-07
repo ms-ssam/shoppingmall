@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="headerFragment">
+    <style>
+        .black-header {
+            background-color: #000;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* [1] 왼쪽 영역 */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            min-width: 250px;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #fff;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            margin-right: 20px;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .nav-menu a:hover { opacity: 0.7; }
+
+        /* [2] 중앙 영역 (반응형 검색창) */
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0 20px;
+        }
+        .search-form {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            min-width: 250px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 75px 12px 15px; /* 버튼 공간 확보 */
+            border-radius: 4px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            box-sizing: border-box;
+        }
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .search-btn:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        /* [3] 오른쪽 영역 */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 250px;
+            justify-content: flex-end;
+        }
+
+        .auth-menu {
+            display: flex;
+            align-items: center;
+        }
+        .auth-menu a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-left: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-left: 20px;
+            cursor: pointer;
+            padding: 0;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        /* [관리자 버튼 스타일] */
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #374151; /* 진한 회색 */
+            color: #fff !important; /* 텍스트 흰색 강제 */
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 20px; /* 왼쪽 요소와 간격 */
+            transition: background-color 0.2s;
+            border: 1px solid #4b5563;
+        }
+        .admin-btn:hover {
+            background-color: #4b5563; /* 호버 시 조금 더 밝게 */
+        }
+    </style>
+
+    <div class="black-header">
+        <div class="header-left">
+            <a href="/" class="logo">
+                <svg width="32" height="32" viewBox="0 0 100 100" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round">
+                    <path d="M 45,15 Q 50,10 55,15" />
+                    <line x1="35" y1="18" x2="65" y2="18" />
+                    <line x1="50" y1="20" x2="25" y2="75" />
+                    <line x1="50" y1="20" x2="75" y2="75" />
+                    <line x1="40" y1="50" x2="60" y2="50" />
+                </svg>
+                <span>BLANC</span>
+            </a>
+
+            <nav class="nav-menu">
+                <a href="/products">SHOP</a>
+                <a href="#" onclick="alert('준비 중입니다.'); return false;">NOTICE</a>
+            </nav>
+        </div>
+
+        <div class="header-center">
+            <form action="/products" method="get" class="search-form">
+                <input type="text" name="keyword" class="search-input"
+                       placeholder="상품명, 카테고리 등 입력"
+                       th:value="${param.keyword}">
+
+                <button type="submit" class="search-btn">
+                    <span>🔍</span>
+                    <span>검색</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="header-right">
+            <div class="auth-menu">
+                <div sec:authorize="isAnonymous()">
+                    <a href="/login">LOGIN</a>
+                    <a href="/signup">SIGNUP</a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center;">
+
+                    <a th:href="@{/admin/products}" class="admin-btn" sec:authorize="hasRole('ADMIN')">
+                        <i class="bi bi-gear-fill"></i> ADMIN MODE
+                    </a>
+
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" class="logout-btn">LOGOUT</button>
+                    </form>
+
+                    <a href="/mypage">MY</a>
+                </div>
+
+                <a href="/cart">CART(0)</a>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
