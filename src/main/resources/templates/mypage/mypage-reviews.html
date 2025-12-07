@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
-    <link rel="stylesheet" th:href="@{/css/mypage-review.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-reviews.css}">
 </head>
 
 <body>
@@ -36,7 +36,7 @@
 
                     <!-- 상단 오른쪽 버튼 -->
                     <div class="myreview-top-right">
-                        <a th:href="@{'/mypage/reviews/' + ${review.id} + '/edit'}"
+                        <a th:href="@{'/mypage/reviews/' + ${review.id}}"
                            class="myreview-btn mini">
                             수정
                         </a>
