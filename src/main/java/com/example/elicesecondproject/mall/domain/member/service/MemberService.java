@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
+import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
@@ -40,6 +41,9 @@ public class MemberService {
                 .phone(dto.getPhone())
                 .role(Role.USER)
                 .build();
+
+        Cart cart = Cart.create();
+        member.assignCart(cart);
 
         return memberRepository.save(member).getId();
     }

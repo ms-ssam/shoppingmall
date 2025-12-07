@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.domain.address.entity.Address;
+import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
-import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -70,10 +70,8 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Review> reviews;
 
-    /*
-    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
-    */
 
     // ----------
     @Builder
@@ -124,6 +122,12 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
 
     public boolean isAdmin() {
         return this.role == Role.ADMIN;
+    }
+
+    // --- 연관관계 편의 메서드 ---
+    public void assignCart(Cart cart) {
+        this.cart = cart;
+        cart.setMember(this);
     }
 
     // --- UserDetails 구현 ---
