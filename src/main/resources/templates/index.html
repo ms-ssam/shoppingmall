@@ -89,7 +89,7 @@
 <body>
 
 <!-- 상단바 플래그먼트 -->
-<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+<div th:replace="~{fragments/new_header :: headerFragment}"></div>
 
 <!-- 메인 컨텐츠 -->
 <main class="main-container">

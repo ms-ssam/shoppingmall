@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name}">상품 상세</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+        /* 레이아웃 */
+        .detail-wrap { display: flex; gap: 60px; margin-bottom: 80px; }
+        .left-col { flex: 1.2; width: 0; /* Swiper width 계산 버그 방지 */ }
+        .right-col { flex: 1; }
+
+        /* [Swiper] 상단 큰 이미지 */
+        .swiper-container-main { width: 100%; aspect-ratio: 1/1.2; background: #f5f5f5; border-radius: 4px; margin-bottom: 10px; }
+        .mySwiper2 { width: 100%; height: 100%; }
+        .mySwiper2 .swiper-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* [Swiper] 하단 썸네일 (최대 5개 배치) */
+        .swiper-container-thumbs { width: 100%; height: 100px; box-sizing: border-box; }
+        .mySwiper .swiper-slide { width: 20%; height: 100%; opacity: 0.4; cursor: pointer; border-radius: 4px; overflow: hidden; }
+        .mySwiper .swiper-slide-thumb-active { opacity: 1; border: 2px solid #333; }
+        .mySwiper .swiper-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* 우측 정보 */
+        .p-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .p-title { font-size: 26px; font-weight: 600; margin: 0; line-height: 1.3; }
+
+        .wish-btn { font-size: 24px; color: #ccc; cursor: pointer; transition: 0.2s; }
+        .wish-btn:hover { transform: scale(1.1); }
+        .wish-btn.active { color: #ff4d4f; }
+
+        .rating-row { font-size: 14px; color: #666; margin-bottom: 20px; display: flex; align-items: center; gap: 5px; }
+        .star { color: #ffc107; }
+
+        .price-area { padding-bottom: 20px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+        .price { font-size: 28px; font-weight: 700; color: #333; }
+        .origin { font-size: 16px; color: #aaa; text-decoration: line-through; margin-left: 8px; }
+
+        .info-list { font-size: 14px; color: #555; margin-bottom: 30px; }
+        .info-list li { margin-bottom: 6px; list-style: none; position: relative; padding-left: 10px; }
+        .info-list li::before { content: "•"; position: absolute; left: 0; color: #ccc; }
+
+        /* 옵션 선택 */
+        .opt-group { margin-bottom: 15px; }
+        .opt-label { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; }
+        .opt-select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; }
+
+        /* 선택된 옵션 박스 */
+        #selected-options { margin-top: 20px; border-top: 1px solid #eee; }
+        .sel-item { background: #f9f9f9; padding: 15px; margin-top: 10px; border-radius: 4px; position: relative; }
+        .sel-item-top { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; font-weight: 500; }
+        .sel-close { cursor: pointer; color: #999; }
+        .sel-item-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .qty-box { display: flex; border: 1px solid #ddd; background: #fff; border-radius: 2px; }
+        .qty-btn { width: 28px; height: 28px; border: none; background: #fff; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+        .qty-input { width: 34px; height: 28px; border: none; border-left: 1px solid #ddd; border-right: 1px solid #ddd; text-align: center; font-size: 13px; outline: none; }
+        .sel-price { font-weight: 700; font-size: 15px; }
+
+        /* 총 가격 및 버튼 */
+        .total-box { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px; padding-top: 20px; border-top: 2px solid #333; }
+        .total-label { font-size: 16px; font-weight: 700; }
+        .total-price { font-size: 24px; font-weight: 700; color: #e65100; }
+
+        .btn-row { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 18px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-cart { background: #fff; border: 1px solid #ddd; color: #333; }
+        .btn-buy { background: #3a8589; color: #fff; }
+
+        /* 하단 탭 및 상세정보 */
+        .tab-menu { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 40px; margin-top: 60px; padding: 0; }
+        .tab-item { flex: 1; text-align: center; padding: 15px; font-size: 15px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; list-style: none; }
+        .tab-item.active { color: #333; font-weight: 700; border-bottom-color: #333; }
+
+        .detail-content { width: 100%; max-width: 860px; margin: 0 auto; text-align: center; }
+
+        /* [중요] 상세 정보 더보기 (초기 2개만 노출) */
+        .desc-list-wrap { width: 100%; }
+        .desc-img { width: 100%; max-width: 100%; display: block; margin-bottom: 0; }
+
+        /* 기본 상태: 3번째 이미지부터 숨김 */
+        .desc-list-wrap:not(.expanded) .desc-img-item:nth-of-type(n+3) {
+            display: none;
+        }
+
+        /* 확장 상태: 모두 보임 */
+        .desc-list-wrap.expanded .desc-img-item {
+            display: block;
+        }
+
+        .more-btn-area { padding: 20px 0; text-align: center; margin-top: 20px; }
+        .btn-more {
+            padding: 12px 40px; border: 1px solid #ddd; background: #fff; color: #555; cursor: pointer; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/new_header :: headerFragment}"></div>
+
+<div class="container">
+
+    <div class="detail-wrap">
+
+        <div class="left-col">
+            <div class="swiper-container-main">
+                <div class="swiper mySwiper2">
+                    <div class="swiper-wrapper">
+                        <th:block th:each="img : ${product.images}">
+                            <div class="swiper-slide" th:if="${img.imageType.name() == 'MAIN' or img.imageType.name() == 'SLIDER'}">
+                                <img th:src="${img.imageUrl}" alt="Product Image"
+                                     onerror="this.src='https://via.placeholder.com/600x720?text=No+Image'">
+                            </div>
+                        </th:block>
+                    </div>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                </div>
+            </div>
+
+            <div class="swiper-container-thumbs">
+                <div class="swiper mySwiper">
+                    <div class="swiper-wrapper">
+                        <th:block th:each="img : ${product.images}">
+                            <div class="swiper-slide" th:if="${img.imageType.name() == 'MAIN' or img.imageType.name() == 'SLIDER'}">
+                                <img th:src="${img.imageUrl}" alt="Thumb"
+                                     onerror="this.src='https://via.placeholder.com/100x120?text=No'">
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="p-header">
+                <h1 class="p-title" th:text="${product.name}">상품명</h1>
+
+                <i class="bi wish-btn"
+                   th:classappend="${product.liked} ? 'bi-heart-fill active' : 'bi-heart'"
+                   th:onclick="|toggleWish(${product.id})|"></i>
+            </div>
+
+            <div class="rating-row">
+                <span class="star"><i class="bi bi-star-fill"></i></span>
+                <span th:text="${product.averageRating}">0.0</span>
+                <span style="color:#ddd; margin:0 5px;">|</span>
+                <span th:text="|${product.reviewCount}개 리뷰|">0개 리뷰</span>
+            </div>
+
+            <div class="price-area">
+                <span class="price" th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">0원</span>
+                <span class="origin" th:if="${product.discountRate > 0}" th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">0원</span>
+            </div>
+
+            <ul class="info-list">
+                <li th:text="${product.description}">상품 설명</li>
+                <li>무료 배송 (50,000원 이상 구매 시)</li>
+            </ul>
+
+            <div class="opt-group">
+                <label class="opt-label">색상 선택</label>
+                <select id="colorSelect" class="opt-select" onchange="handleColorChange()">
+                    <option value="">색상을 선택하세요</option>
+                    <option th:each="group : ${product.optionGroups}"
+                            th:value="${group.id}"
+                            th:text="${group.name}">Color</option>
+                </select>
+            </div>
+
+            <div class="opt-group">
+                <label class="opt-label">사이즈</label>
+                <select id="sizeSelect" class="opt-select" disabled onchange="addOption()">
+                    <option value="">먼저 색상을 선택하세요</option>
+                </select>
+            </div>
+
+            <div id="selected-options"></div>
+
+            <div class="total-box">
+                <span class="total-label">Total</span>
+                <span class="total-price" id="totalPrice">0원</span>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-cart">장바구니</button>
+                <button class="btn btn-buy">구매하기</button>
+            </div>
+        </div>
+    </div>
+
+    <ul class="tab-menu">
+        <li class="tab-item active">상세정보</li>
+        <li class="tab-item">구매후기 (<span th:text="${product.reviewCount}">0</span>)</li>
+        <li class="tab-item">상품문의</li>
+    </ul>
+
+    <div class="detail-content">
+        <div class="desc-list-wrap" id="descListWrap">
+            <th:block th:each="img : ${product.images}">
+                <div class="desc-img-item" th:if="${img.imageType.name() == 'DESCRIPTION'}">
+                    <img th:src="${img.imageUrl}" class="desc-img" alt="Detail Info"
+                         onerror="this.src='https://via.placeholder.com/860x1000?text=Detail+Image'">
+                </div>
+            </th:block>
+
+            <div th:if="${product.images.isEmpty()}" style="padding:50px; color:#999;">
+                상세 이미지가 없습니다.
+            </div>
+        </div>
+
+        <div class="more-btn-area">
+            <button class="btn-more" onclick="toggleDesc()">
+                상세 정보 더보기 <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const optionGroups = /*[[${product.optionGroups}]]*/ [];
+    const basePrice = /*[[${product.salePrice}]]*/ 0;
+    /*]]>*/
+
+    // --- Swiper 연동 (Thumbs Gallery) ---
+    var swiperThumbs = new Swiper(".mySwiper", {
+        spaceBetween: 10,
+        slidesPerView: 5, // 5개 보이게 설정 (이미지가 3개면 3개만 보임)
+        freeMode: true,
+        watchSlidesProgress: true,
+    });
+
+    var swiperMain = new Swiper(".mySwiper2", {
+        spaceBetween: 10,
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        thumbs: {
+            swiper: swiperThumbs,
+        },
+    });
+
+    // --- 옵션 선택 및 가격 계산 ---
+    let selectedItems = [];
+
+    function handleColorChange() {
+        const colorSelect = document.getElementById('colorSelect');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const groupId = colorSelect.value;
+
+        sizeSelect.innerHTML = '<option value="">사이즈 선택</option>';
+        sizeSelect.disabled = true;
+
+        if (!groupId) {
+            sizeSelect.innerHTML = '<option value="">먼저 색상을 선택하세요</option>';
+            return;
+        }
+
+        const group = optionGroups.find(g => g.id == groupId);
+        if (group && group.details) {
+            sizeSelect.disabled = false;
+            group.details.forEach(detail => {
+                const opt = document.createElement('option');
+                opt.value = detail.id;
+
+                if(detail.stockQuantity <= 0) {
+                    opt.text = `${detail.name} (품절)`;
+                    opt.disabled = true;
+                } else {
+                    opt.text = detail.name + (detail.addPrice > 0 ? ` (+${detail.addPrice}원)` : '');
+                }
+
+                opt.dataset.price = basePrice + detail.addPrice;
+                opt.dataset.name = `${group.name} / ${detail.name}`;
+                sizeSelect.add(opt);
+            });
+        }
+    }
+
+    function addOption() {
+        const sizeSelect = document.getElementById('sizeSelect');
+        const detailId = sizeSelect.value;
+        if(!detailId) return;
+
+        if(selectedItems.find(item => item.id === detailId)) {
+            alert("이미 선택된 옵션입니다.");
+            sizeSelect.value = "";
+            return;
+        }
+
+        const optionEl = sizeSelect.options[sizeSelect.selectedIndex];
+        const name = optionEl.dataset.name;
+        const price = parseInt(optionEl.dataset.price);
+
+        selectedItems.push({ id: detailId, name: name, price: price, qty: 1 });
+        renderSelectedOptions();
+        sizeSelect.value = "";
+    }
+
+    function renderSelectedOptions() {
+        const container = document.getElementById('selected-options');
+        container.innerHTML = "";
+
+        selectedItems.forEach((item, index) => {
+            const html = `
+                <div class="sel-item">
+                    <div class="sel-item-top">
+                        <span>${item.name}</span>
+                        <i class="bi bi-x-lg sel-close" onclick="removeOption(${index})"></i>
+                    </div>
+                    <div class="sel-item-bottom">
+                        <div class="qty-box">
+                            <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+                            <input type="text" class="qty-input" value="${item.qty}" readonly>
+                            <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                        </div>
+                        <span class="sel-price">${(item.price * item.qty).toLocaleString()}원</span>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+        updateTotal();
+    }
+
+    function changeQty(index, delta) {
+        const item = selectedItems[index];
+        if(item.qty + delta < 1) return;
+        item.qty += delta;
+        renderSelectedOptions();
+    }
+
+    function removeOption(index) {
+        selectedItems.splice(index, 1);
+        renderSelectedOptions();
+    }
+
+    function updateTotal() {
+        const total = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        document.getElementById('totalPrice').innerText = total.toLocaleString() + "원";
+    }
+
+    // --- 더보기 버튼 ---
+    function toggleDesc() {
+        const wrap = document.getElementById('descListWrap');
+        const btn = document.querySelector('.btn-more');
+
+        if (wrap.classList.contains('expanded')) {
+            wrap.classList.remove('expanded');
+            btn.innerHTML = '상세 정보 더보기 <i class="bi bi-chevron-down"></i>';
+        } else {
+            wrap.classList.add('expanded');
+            btn.innerHTML = '상세 정보 접기 <i class="bi bi-chevron-up"></i>';
+        }
+    }
+
+    // --- 찜 토글 ---
+    function toggleWish(pId) {
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+        const btn = document.querySelector('.wish-btn');
+        const isLiked = btn.classList.contains('active');
+        const method = isLiked ? 'DELETE' : 'POST';
+        const url = isLiked ? `/api/products/${pId}/wish` : `/api/products/${pId}/wishList`;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if(csrfHeader) headers[csrfHeader] = csrfToken;
+
+        fetch(url, { method: method, headers: headers })
+            .then(res => {
+                if(res.ok) {
+                    btn.classList.toggle('active');
+                    btn.classList.toggle('bi-heart-fill');
+                    btn.classList.toggle('bi-heart');
+                } else if (res.status === 401) {
+                    if(confirm('로그인이 필요합니다. 이동하시겠습니까?')) location.href = '/login';
+                }
+            });
+    }
+</script>
+
+</body>
+</html>

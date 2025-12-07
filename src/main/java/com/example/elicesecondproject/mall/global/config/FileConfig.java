@@ -79,7 +79,7 @@ public class FileConfig {
     }
 
     /**
-     * DB에 저장되는 웹 경로 prefix
+     * DB에 저장되는 웹 경로 prefix (상품)
      * 예: /uploads/products/123/
      */
     public String getWebBasePath(Long productId) {
