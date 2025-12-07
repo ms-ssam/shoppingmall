@@ -29,9 +29,7 @@ public class ProductImageFileService {
     public enum UploadTarget {
         MAIN,           // 상품 대표 이미지
         SLIDER,         // 추가 이미지 (갤러리)
-        DESCRIPTION,    // 상세 설명 이미지
-        REVIEW,         // 리뷰 이미지
-        PROFILE         // 프로필 이미지
+        DESCRIPTION     // 상세 설명 이미지
     }
 
     /**
@@ -143,13 +141,7 @@ public class ProductImageFileService {
 
                 // 기본값 처리
                 if (size <= 0) {
-                    size = switch (target) {
-                        case MAIN -> 300;
-                        case SLIDER -> 100;
-                        case REVIEW -> 100;
-                        case PROFILE -> 200;
-                        default -> 300;
-                    };
+                    size = (target == UploadTarget.MAIN) ? 300 : 100;
                     log.warn("[ProductImageFileService] 썸네일 크기가 설정되지 않아 기본값 사용: {}", size);
                 }
 
@@ -271,8 +263,6 @@ public class ProductImageFileService {
             case MAIN -> fileConfig.getMainDir(productId);
             case SLIDER -> fileConfig.getSliderDir(productId);
             case DESCRIPTION -> fileConfig.getDescriptionDir(productId);
-            case REVIEW -> fileConfig.getReviewDir(productId);
-            case PROFILE -> fileConfig.getProfileDir(productId);
         };
     }
 
@@ -296,37 +286,23 @@ public class ProductImageFileService {
         int size = switch (target) {
             case MAIN -> imageConfig.getThumbnail().getMainSize();
             case SLIDER -> imageConfig.getThumbnail().getSliderSize();
-            case REVIEW -> 100;
-            case PROFILE -> 200;
             default -> 0;
         };
 
         if (size <= 0) {
-            return switch (target) {
-                case MAIN -> 300;
-                case SLIDER -> 100;
-                case REVIEW -> 100;
-                case PROFILE -> 200;
-                default -> 0;
-            };
+            return (target == UploadTarget.MAIN) ? 300 : 100;
         }
 
         return size;
     }
 
     private String buildWebPath(Long productId, UploadTarget target, String filename) {
-        String webBase = switch (target) {
-            case MAIN, SLIDER, DESCRIPTION -> fileConfig.getWebBasePath(productId);
-            case REVIEW -> fileConfig.getWebBasePathForReview(productId);
-            case PROFILE -> fileConfig.getWebBasePathForProfile(productId);
-        };
+        String webBase = fileConfig.getWebBasePath(productId);
 
         String typePath = switch (target) {
             case MAIN -> "main";
             case SLIDER -> "slider";
             case DESCRIPTION -> "description";
-            case REVIEW -> "review";
-            case PROFILE -> "profile";
         };
 
         String directory = (target == UploadTarget.DESCRIPTION) ? "resized" : "thumbnail";
