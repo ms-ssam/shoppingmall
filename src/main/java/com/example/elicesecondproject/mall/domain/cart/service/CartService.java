@@ -5,7 +5,6 @@ import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartRepository;
-import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
@@ -22,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartService {
     private final CartRepository cartRepository;
     private final OptionDetailRepository optionalDetailRepository;
-    private final MemberRepository memberRepository;
     private final CartItemRepository cartItemRepository;
     private final PermissionValidator permissionValidator;
 
