@@ -1,72 +1,42 @@
 spring:
-  application:
-    name: shoppingMall
-  profiles:
-    active: local
-  thymeleaf:
-    cache: true
-  mvc:
-    hiddenmethod:
-      filter:
-        enabled: true  # PUT, DELETE 요청 hidden-method 지원
+  datasource:
+    # H2로 쓰고 싶을 때는 아래 주석을 켜고, MySQL 쪽은 끄면 됨
+    # url: jdbc:h2:mem:testdb
+    # username: sa
+    # password:
+    # driver-class-name: org.h2.Driver
+
+    url: jdbc:mysql://localhost:3306/shop?createDatabaseIfNotExist=true
+    username: root
+    password: passw0rd
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
   jpa:
+    hibernate:
+      ddl-auto: create-drop
     properties:
       hibernate:
-        format_sql: true
-        default_batch_fetch_size: 100
-  data:
-    web:
-      pageable:
-        default-page-size: 10
-        max-page-size: 50
-    rest:
-      max-page-size: 50
-      default-page-size: 10
-  #  datasource:
-  #    url: jdbc:h2:mem:testdb
-  #    username: sa
-  #    password:
-  #  h2:
-  #    console:
-  #      enabled: true
-  servlet:
-    multipart:
-      max-file-size: 5MB # 단일 파일 최대
-      max-request-size: 20MB # 여러 파일 합계
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui
-    operations-sorter: method
-    tags-sorter: alpha
-    doc-expansion: none
-    try-it-out-enabled: true
-
-jwt:
-  secret: "s5TTgY4zdXRTZ58o/UdClxBqf4SKi3Hn11obMgLdP5w="
-  access-token-expiration: 1800000
-  refresh-token-expiration: 604800000
+        show_sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+#  servlet:
+#    multipart:
+#      max-file-size: 5MB # 단일 파일 최대
+#      max-request-size: 20MB # 여러 파일 합계
 
 file:
   upload:
-    product-path: products
-    allowed-extensions: jpg,jpeg,png,webp
-
-image:
-  resize:
-    max-width: 1200
-    quality: 0.85
-  thumbnail:
-    main-size: 300
-    slider-size: 100
-
-server:
-  port: 8080
+    base-path: C:/uploads
 
 logging:
   level:
     root: INFO
+    com.example.elicesecondproject: DEBUG
