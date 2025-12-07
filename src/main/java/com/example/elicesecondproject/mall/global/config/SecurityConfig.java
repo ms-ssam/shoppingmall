@@ -25,7 +25,8 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
-    // 정적 파일(js, css, html)에는 스프링 시큐리티를 무시. WebSecurityCustomizer(ignoring())는 아예 필터를 타지 않는다.
+    // 정적 파일(js, css, html 등)에는 스프링 시큐리티를 무시. 
+    // WebSecurityCustomizer(ignoring())는 아예 필터를 타지 않는다. 시큐리티가 필요없고 필터 적용 시 성능이 떨어짐 
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring() .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**");
@@ -58,6 +59,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
+                        .requestMatchers("/error", "/error/**").permitAll()
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
