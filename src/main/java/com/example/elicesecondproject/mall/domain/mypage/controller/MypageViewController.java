@@ -30,7 +30,6 @@ import java.time.LocalDate;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mypage")
-@Slf4j
 public class MypageViewController {
     private final MemberService memberService;
     private final ReviewService reviewService;
@@ -217,27 +216,17 @@ public class MypageViewController {
                            BindingResult bindingResult,
                            RedirectAttributes redirectAttributes) {
 
-/*
-        if (bindingResult.hasErrors()) {
-        return "mypage/mypage-profile-withdraw";
-    }
-*/
-
         Long memberId = principal.getMember().getId();
-        log.info("======= memberId: "+memberId+"============");
 
         try {
             memberService.withdraw(memberId, form);
-            log.info("======       서비스에서 컨트롤러 넘어옴    =========");
 
         } catch (FieldValidationException e) {
-            log.info("======= 서비스에서 잡힌 예외 잡힘 =========");
             // 비밀번호 불일치 - 서비스에서 던진 필드 유효성 예외를 BindingResult로 변환
             bindingResult.rejectValue(e.getField(), "PASSWORD_MISMATCH", e.getReason());
             return "mypage/mypage-profile-withdraw";
         }
 
-        log.info("=======     탈퇴완료     ======");
         redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
         // 로그아웃으로 보내기
         return "redirect:/logout";

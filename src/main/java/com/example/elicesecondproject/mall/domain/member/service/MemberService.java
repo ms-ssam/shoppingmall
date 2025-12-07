@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -97,11 +96,9 @@ public class MemberService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // 비밀번호 확인
-        log.info("@@@@@@@@@@@@@@@@@    서비스 - 비밀번호 확인 전   @@@@@@2");
         if(!bCryptPasswordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new FieldValidationException("password", "", "비밀번호가 일치하지 않습니다.");
         }
-        log.info("$$$$$$$          비밀번호 확인 후        $$$$$$$$");
 
         member.withdraw();
     }
