@@ -43,4 +43,9 @@ public class CartItem extends BaseEntity {
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    // === 수량 증가 메서드 ===
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
+    }
 }

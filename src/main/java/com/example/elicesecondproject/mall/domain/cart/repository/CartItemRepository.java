@@ -15,4 +15,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             "productOptionDetail.productOptionGroup.details"            // ProductOptionGroup.details (현재 색상의 사이즈들)
     })
     Optional<CartItem> findWithProductAndOptionsById(Long id);
+
+    // 카트 + 옵션 기준으로 장바구니 항목 1개 찾기 (CART-F-10에서 사용)
+    Optional<CartItem> findByCartIdAndProductOptionDetailId(Long cartId, Long productOptionDetailId);
 }
