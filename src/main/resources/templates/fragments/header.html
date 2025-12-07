@@ -2,56 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Header</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+</head>
 <body>
-<header th:fragment="topHeader(cartCount)">
-    <div class="layout-header">
-        <!-- 왼쪽 -->
-        <div class="layout-header-left">
-            <a th:href="@{/}">LOGO</a>
+<header th:fragment="topHeader(cartCount)" class="site-header">
 
-            <!-- ⭐ SHOP + NOTICE 묶는 박스 추가 -->
-            <div class="layout-header-menu">
-                <a th:href="@{/shop}">SHOP</a>
-                <a th:href="@{/notice}">NOTICE</a>
-            </div>
+    <div class="black-header">
+        <!-- [1] 왼쪽 영역 -->
+        <div class="header-left">
+            <a th:href="@{/}" class="logo">
+                <svg width="32" height="32" viewBox="0 0 100 100"
+                     fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round">
+                    <path d="M 45,15 Q 50,10 55,15" />
+                    <line x1="35" y1="18" x2="65" y2="18" />
+                    <line x1="50" y1="20" x2="25" y2="75" />
+                    <line x1="50" y1="20" x2="75" y2="75" />
+                    <line x1="40" y1="50" x2="60" y2="50" />
+                </svg>
+                <span>BLANC</span>
+            </a>
+
+            <nav class="nav-menu">
+                <a th:href="@{/products}">SHOP</a>
+                <a href="#" onclick="alert('준비 중입니다.'); return false;">NOTICE</a>
+            </nav>
         </div>
 
-        <!-- 가운데 검색 -->
-        <div class="layout-header-center">
-            <form th:action="@{/search}" method="get" class="layout-header-search-box">
+        <!-- [2] 중앙 검색 영역 -->
+        <div class="header-center">
+            <form th:action="@{/products}" method="get" class="search-form">
                 <input type="text"
-                       name="q"
-                       class="layout-header-search-input"
-                       placeholder="검색어를 입력하세요">
-                <button type="submit"
-                        class="layout-header-search-icon layout-header-link-button">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+                       name="keyword"
+                       class="search-input"
+                       placeholder="상품명, 카테고리 등 입력"
+                       th:value="${param.keyword}">
+                <button type="submit" class="search-btn">
+                    <span>🔍</span>
+                    <span>검색</span>
                 </button>
             </form>
         </div>
 
-        <!-- 오른쪽 -->
-        <div class="layout-header-right">
-            <!-- 비로그인 -->
-            <div sec:authorize="isAnonymous()">
-                <a th:href="@{/login}">LOGIN</a>
-                <a th:href="@{/signup}">SIGNUP</a>
-                <a th:href="@{/cart}">
-                    CART(<span th:text="${cartCount} ?: 0">0</span>)
-                </a>
-            </div>
+        <!-- [3] 오른쪽 영역 -->
+        <div class="header-right">
+            <div class="auth-menu">
 
-            <!-- 로그인 -->
-            <div sec:authorize="isAuthenticated()">
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit" class="layout-header-link-button">LOGOUT</button>
-                </form>
-                <a th:href="@{/mypage}">MY</a>
-                <a th:href="@{/cart}">
+                <!-- 비로그인 -->
+                <div class="auth-links" sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}">LOGIN</a>
+                    <a th:href="@{/signup}">SIGNUP</a>
+                </div>
+
+                <!-- 로그인 -->
+                <div class="auth-links" sec:authorize="isAuthenticated()">
+
+                    <!-- 관리자 전용 버튼 -->
+                    <a th:href="@{/admin/products}"
+                       class="admin-btn"
+                       sec:authorize="hasRole('ADMIN')">
+                        <i class="bi bi-gear-fill"></i>
+                        <span>ADMIN MODE</span>
+                    </a>
+
+                    <form th:action="@{/logout}" method="post" class="logout-form">
+                        <button type="submit" class="logout-btn">LOGOUT</button>
+                    </form>
+
+                    <a th:href="@{/mypage}">MY</a>
+                </div>
+
+                <!-- CART (로그인/비로그인 공통) -->
+                <a th:href="@{/cart}" class="cart-link">
                     CART(<span th:text="${cartCount} ?: 0">0</span>)
                 </a>
             </div>

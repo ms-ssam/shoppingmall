@@ -13,8 +13,8 @@ public class ErrorResponse {
     private final List<CustomFieldError> errors;
 
     public static ErrorResponse of(BindingResult bindingResult) {
-            return new ErrorResponse(CustomFieldError.of(bindingResult));
-        }
+        return new ErrorResponse(CustomFieldError.of(bindingResult));
+    }
 
     public static ErrorResponse of(String field, String value, String reason) {
         return new ErrorResponse(

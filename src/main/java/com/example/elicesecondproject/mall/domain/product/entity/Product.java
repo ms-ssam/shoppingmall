@@ -38,6 +38,10 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOptionGroup> optionGroups = new ArrayList<>();
 
+    // 썸네일 이미지
+    private String thumbnailUrl;
+
+
     // [이미지 구조] 성능 최적화를 위한 BatchSize 적용
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
@@ -90,6 +94,13 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     }
 
     // --- 비즈니스 메서드 ---
+
+    // 썸네일 이미지 업데이트
+    public void updateThumbnailUrl(String thumbnailUrl){
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
+
 
     // 상품 정보 수정
     /* [수정 전: Before]

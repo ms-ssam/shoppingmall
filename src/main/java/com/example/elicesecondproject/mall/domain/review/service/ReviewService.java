@@ -2,24 +2,29 @@ package com.example.elicesecondproject.mall.domain.review.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
-import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.review.dto.request.CreateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
+import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
+import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.domain.review.mapper.ReviewMapper;
 import com.example.elicesecondproject.mall.domain.review.repository.ReviewRepository;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.service.GlobalImageFileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
 
 
 @Service
@@ -32,14 +37,15 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final ReviewMapper reviewMapper;
     private final PermissionValidator permissionValidator;
+    private final GlobalImageFileService globalImageFileService;
 
     public Page<ReviewResponse> getReviewsByProduct(Long productId, Pageable pageable){
         if (!productRepository.existsByIdAndDeletedAtIsNull(productId)) {
             throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        Page<Review> reviews = reviewRepository.findByProductIdAndDeletedAtIsNull(productId, pageable);
-        return reviews.map(reviewMapper::toResponse);
+        Page<Review> reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByIdDesc(productId, pageable);
+        return reviews.map(reviewMapper::toReviewResponse);
     }
 
     @Transactional
@@ -62,38 +68,63 @@ public class ReviewService {
         // product 리뷰 수 증가, 평균 평점 갱신
         updateProductRatingAndCount(product);
 
-        return reviewMapper.toResponse(review);
+        return reviewMapper.toReviewResponse(review);
     }
 
     @Transactional
-    public ReviewResponse updateReview(Long reviewId, UpdateReviewRequest request, Long memberId){
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
-
+    public void updateMyReview(Long reviewId,
+                               Long memberId,
+                               UpdateReviewRequest request,
+                               MultipartFile imageFile,
+                               boolean deleteImage) {
+        // 1. 리뷰 검증 + 회원 검증 + 권한 체크
+        Review review = getActiveReview(reviewId);
         Member member = getActiveMember(memberId);
-
-        validateReviewAccess(review, memberId, member.getRole());
+        permissionValidator.validate(review, member);
 
         Product product = review.getProduct();
+        Long productId = product.getId();
+
+        // 2. 이미지 URL 결정 로직
+        String oldImageUrl = review.getImageUrl();
+        String newImageUrl = oldImageUrl;
+
+        // 1) 삭제 체크박스가 눌린 경우 → 최종적으로 이미지 없음
+        if (deleteImage) {
+            newImageUrl = null;
+        }
+
+        // 2) 새 파일이 업로드된 경우 → 최종적으로 새 이미지로 교체
+        if (imageFile != null && !imageFile.isEmpty()) {
+            newImageUrl = globalImageFileService.saveReviewImage(productId, imageFile);
+        }
+
+        // 3) 최종 URL이 바뀌었으면, old 파일은 삭제
+        if (oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            globalImageFileService.deleteImage(oldImageUrl);
+        }
 
         Integer oldRating = review.getRating();
         Integer newRating = request.getRating();
 
-        review.update(request.getRating(), request.getContent(), request.getImageUrl());
+        // 3. 리뷰 내용/평점/이미지 갱신
+        review.updateAll(
+                request.getRating(),
+                request.getContent(),
+                newImageUrl
+        );
 
+        // 4. 평점이 바뀐 경우에만 상품 평균 평점 재계산
         if (!oldRating.equals(newRating)) {
             Double newAvg = reviewRepository.calculateAverageRating(product.getId());
             product.updateRating(newAvg);
         }
-
-        return reviewMapper.toResponse(review);
     }
+
 
     @Transactional
     public void softDeleteReview(Long reviewId, Long memberId) {
-        Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
-
+        Review review = getActiveReview(reviewId);
         Member member = getActiveMember(memberId);
 
         permissionValidator.validate(review, member);
@@ -105,23 +136,23 @@ public class ReviewService {
         updateProductRatingAndCount(product);
     }
 
-    public Page<ReviewResponse> getReviewsByMember(Long memberId, Pageable pageable){
+    public Page<MyReviewResponse> getReviewsByMember(Long memberId, LocalDate startDate, LocalDate endDate ,Pageable pageable){
         // TODO: 회원 상태가 ACTIVE인 회원만 로그인 가능하도록 정책이 확정되면
         //  로그인 시점에서 이미 필터링되므로 이 검증 로직은 제거해도 됨.
         memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Page<Review> reviews = reviewRepository.findByMemberIdAndDeletedAtIsNull(memberId, pageable);
-        return reviews.map(reviewMapper::toResponse);
+        Page<Review> reviews = reviewRepository.findMyReviewsByPeriod(memberId, startDate, endDate, pageable);
+        return reviews.map(reviewMapper::toMyReviewResponse);
     }
 
-    private void validateReviewAccess(Review review, Long memberId, Role role) {
-        boolean isOwner = review.getMember().getId().equals(memberId);
-        boolean isAdmin = role == Role.ADMIN;
+    public MyReviewDetailResponse getMyReviewDetail(Long reviewId, Long memberId) {
+        Review review = getActiveReview(reviewId);
+        Member member = getActiveMember(memberId);
 
-        if (!isOwner && !isAdmin) {
-            throw new BusinessException(ErrorCode.REVIEW_ACCESS_DENIED);
-        }
+        permissionValidator.validate(review, member);
+
+        return reviewMapper.toMyDetailReviewResponse(review);
     }
 
     private void updateProductRatingAndCount(Product product) {
@@ -134,5 +165,10 @@ public class ReviewService {
     private Member getActiveMember(Long memberId) {
         return memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Review getActiveReview(Long reviewId) {
+        return reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
     }
 }

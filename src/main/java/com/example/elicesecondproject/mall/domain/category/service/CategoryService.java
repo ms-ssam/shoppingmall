@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,38 +68,10 @@ public class CategoryService {
     // 카테고리 수정
     @Transactional
     public CategoryResponse updateCategory(Long categoryId, UpdateCategoryRequest request) {
-        Category category = getCategoryById(categoryId);
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        // 1. Slug 변경 시 중복 체크
-        if (request.getSlug() != null &&
-                !category.getSlug().equals(request.getSlug()) &&
-                categoryRepository.existsBySlug(request.getSlug())) {
-            throw new BusinessException(ErrorCode.DUPLICATE_CATEGORY_SLUG);
-        }
-
-        // 2. 부모 변경 처리
-        if (request.getParentId() != null) {
-            Long newParentId = request.getParentId();
-
-            // 자기 자신을 부모로 지정 금지
-            if (categoryId.equals(newParentId)) {
-                throw new BusinessException(ErrorCode.CATEGORY_CANNOT_BE_ITS_OWN_PARENT);
-            }
-
-            Category newParent = getCategoryById(newParentId);
-
-            // depth 2단계 제한
-            if (newParent.getDepth() >= 1) {
-                throw new BusinessException(ErrorCode.CATEGORY_DEPTH_EXCEEDED);
-            }
-
-            category.setParent(newParent);
-        } else {
-            // parentId를 null로 보내면 최상위로 승격
-            category.setParent(null);
-        }
-
-        // 3. 나머지 정보 업데이트 (이름, slug, isVisible, displayOrder 등)
+        // 1. 기본 정보 수정
         category.updateDetails(
                 request.getName(),
                 request.getSlug(),
@@ -106,7 +79,48 @@ public class CategoryService {
                 request.getDisplayOrder()
         );
 
+        // 2. 부모 카테고리 변경 감지 및 처리
+        if (request.getParentId() != null) {
+            // 기존 부모 ID와 요청된 부모 ID가 다를 경우에만 로직 수행
+            Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
+
+            if (!Objects.equals(currentParentId, request.getParentId())) {
+                // 자기 자신을 부모로 설정하는 경우 예외 처리
+                if (category.getId().equals(request.getParentId())) {
+                    throw new BusinessException(ErrorCode.CATEGORY_CANNOT_BE_ITS_OWN_PARENT);
+                }
+
+                Category newParent = categoryRepository.findById(request.getParentId())
+                        .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
+
+                // 부모 변경 및 경로 갱신
+                category.setParent(newParent);
+                category.completePath();
+
+                // [핵심] 하위 카테고리들도 재귀적으로 경로 업데이트
+                updateChildrenPath(category);
+            }
+        }
+        // 부모를 제거하여 최상위로 만드는 경우 (request.getParentId()가 0 또는 특정 값일 때 처리 필요 시 추가)
+
         return categoryMapper.toResponse(category);
+    }
+
+    // 재귀적으로 자식들의 Path와 Depth를 갱신하는 메서드
+    private void updateChildrenPath(Category parent) {
+        List<Category> children = parent.getChildren();
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+
+        for (Category child : children) {
+            // 부모(parent)의 바뀐 path와 depth를 기반으로 자식 갱신
+            child.setParent(parent);
+            child.completePath(); // path 문자열 재계산
+
+            // 손자, 증손자 등 하위로 계속 전파
+            updateChildrenPath(child);
+        }
     }
 
     // 카테고리 삭제 (Soft Delete)

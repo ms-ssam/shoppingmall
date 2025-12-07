@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 목록</title>
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+        /* [1] 대분류 탭 스타일 */
+        .category-tabs {
+            display: flex; gap: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;
+        }
+        .tab-item {
+            cursor: pointer; color: #999; font-weight: 500; font-size: 16px; text-decoration: none;
+            padding-bottom: 13px; border-bottom: 2px solid transparent; transition: all 0.2s;
+        }
+        .tab-item:hover { color: #555; }
+
+        /* 선택된 상태: 진한 청록색 + 굵게 + 밑줄 */
+        .tab-item.active {
+            color: #3a8589 !important; font-weight: 800; border-bottom: 2px solid #3a8589;
+        }
+
+        /* [2] 소분류 탭 (둥근 버튼) 스타일 */
+        .sub-categories { display: flex; gap: 10px; margin-bottom: 50px; flex-wrap: wrap; }
+        .pill-btn {
+            padding: 8px 18px; border-radius: 20px; border: 1px solid #eee;
+            background: #fff; color: #888; cursor: pointer; font-size: 13px; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .pill-btn:hover { background: #f5f5f5; color: #555; }
+
+        /* 선택된 상태: 배경색 채우기 */
+        .pill-btn.active {
+            background: #3a8589 !important; color: #fff !important; border-color: #3a8589 !important; font-weight: bold;
+        }
+
+        /* [3] 리스트 헤더 */
+        .list-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .total-cnt { font-size: 14px; color: #666; }
+        .sort-sel {
+            padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; color: #555;
+            font-size: 13px; cursor: pointer; outline: none;
+        }
+
+        /* [4] 상품 그리드 */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px 24px; }
+        .card { cursor: pointer; position: relative; }
+
+        .img-box {
+            width: 100%; aspect-ratio: 3/4; background: #f5f5f5; margin-bottom: 15px;
+            overflow: hidden; position: relative; border-radius: 4px;
+        }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .card:hover .img-box img { transform: scale(1.05); }
+
+        /* 하트 아이콘 */
+        .wish-icon {
+            position: absolute; top: 10px; right: 10px; z-index: 10;
+            width: 32px; height: 32px; background: rgba(255,255,255,0.8);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #ccc; cursor: pointer; transition: 0.2s;
+        }
+        .wish-icon:hover { background: rgba(255,255,255,1); transform: scale(1.1); }
+        .wish-icon.active { color: #ff4d4f; }
+        .wish-icon.active i { color: #ff4d4f; }
+
+        .title { font-size: 14px; margin-bottom: 5px; color: #333; font-weight: 500; line-height: 1.4; }
+
+        /* [수정] 가격 및 할인율 스타일 */
+        .price-row { margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .sale { color: #333; font-weight: bold; font-size: 16px; } /* 판매가는 검정색 */
+        .origin { color: #aaa; text-decoration: line-through; font-size: 13px; }
+        .discount-rate { color: #e65100; font-weight: 700; font-size: 16px; margin-right: 2px; } /* 할인율 스타일 추가 */
+
+        .meta { font-size: 12px; color: #888; display: flex; gap: 10px; align-items: center; }
+        .star { color: #ffc107; }
+
+        .no-data { grid-column: 1 / -1; text-align: center; padding: 100px 0; color: #888; }
+    </style>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="container">
+
+    <div class="category-tabs">
+        <a th:href="@{/products}"
+           class="tab-item"
+           th:classappend="${categoryId == null} ? 'active'">전체</a>
+
+        <a th:each="cat : ${categoryTree}"
+           th:href="@{/products(categoryId=${cat.id})}"
+           class="tab-item"
+           th:text="${cat.name}"
+           th:classappend="${categoryId == cat.id or (cat.children != null and #lists.contains(cat.children.![id], categoryId))} ? 'active'">
+            상의
+        </a>
+    </div>
+
+    <div class="sub-categories" th:if="${subCategories != null and !subCategories.isEmpty()}">
+        <a th:each="sub : ${subCategories}"
+           th:href="@{/products(categoryId=${sub.id}, sortType=${sortType})}"
+           class="pill-btn"
+           th:text="${sub.name}"
+           th:classappend="${categoryId == sub.id} ? 'active'">
+            티셔츠
+        </a>
+    </div>
+
+    <div class="list-info">
+        <span class="total-cnt" th:text="|총 ${products.totalElements}개 상품|">총 0개 상품</span>
+
+        <select class="sort-sel" id="sortSelect" onchange="changeSort()">
+            <option value="LATEST" th:selected="${sortType.name() == 'LATEST'}">최신순</option>
+            <option value="PRICE_HIGH" th:selected="${sortType.name() == 'PRICE_HIGH'}">가격 높은순</option>
+            <option value="PRICE_LOW" th:selected="${sortType.name() == 'PRICE_LOW'}">가격 낮은순</option>
+            <option value="REVIEW_COUNT" th:selected="${sortType.name() == 'REVIEW_COUNT'}">리뷰 많은순</option>
+            <option value="WISHLIST_COUNT" th:selected="${sortType.name() == 'WISHLIST_COUNT'}">찜 많은순</option>
+            <option value="RATING" th:selected="${sortType.name() == 'RATING'}">평점 높은순</option>
+        </select>
+    </div>
+
+    <div class="grid">
+        <div th:if="${products.isEmpty()}" class="no-data">
+            등록된 상품이 없습니다.
+        </div>
+
+        <div class="card" th:each="product : ${products.content}">
+
+            <div class="img-box"
+                 th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">
+                <img th:src="${product.mainImageUrl} ?: 'https://via.placeholder.com/300x400?text=No+Image'"
+                     alt="Product Image"
+                     onerror="this.src='https://via.placeholder.com/300x400?text=Image+Not+Found';">
+            </div>
+
+            <div class="wish-icon"
+                 th:classappend="${product.liked} ? 'active'"
+                 th:onclick="|toggleWish(event, ${product.id})|">
+                <i th:class="${product.liked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+            </div>
+
+            <div class="title" th:text="${product.name}"
+                 th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">상품명</div>
+
+            <div class="price-row">
+                <span class="discount-rate"
+                      th:if="${product.discountRate > 0}"
+                      th:text="${product.discountRate} + '%'">10%</span>
+
+                <span class="sale"
+                      th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">28,000원</span>
+
+                <span class="origin"
+                      th:if="${product.discountRate > 0}"
+                      th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">35,000원</span>
+            </div>
+
+            <div class="meta">
+                <span><i class="bi bi-star-fill star"></i> <span th:text="${product.averageRating}">0.0</span> (<span th:text="${product.reviewCount}">0</span>)</span>
+                <span><i class="bi bi-heart-fill" style="color:#ccc; font-size:10px;"></i> <span th:text="${product.wishListCount}">0</span></span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const currentCategoryId = /*[[${categoryId}]]*/ null;
+    /*]]>*/
+
+    // 정렬 변경 함수
+    function changeSort() {
+        const sortType = document.getElementById('sortSelect').value;
+        let url = '/products?sortType=' + sortType;
+
+        // 현재 카테고리가 있다면 URL에 포함 (필터 유지)
+        if (currentCategoryId) {
+            url += '&categoryId=' + currentCategoryId;
+        }
+        location.href = url;
+    }
+
+    // 찜 토글 함수
+    function toggleWish(event, productId) {
+        event.stopPropagation(); // 카드 클릭 이동 방지
+
+        const iconBox = event.currentTarget;
+        const icon = iconBox.querySelector('i');
+        const isActive = iconBox.classList.contains('active');
+
+        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+        const method = isActive ? 'DELETE' : 'POST';
+        const url = isActive ? `/api/products/${productId}/wish` : `/api/products/${productId}/wishList`;
+
+        const headers = { 'Content-Type': 'application/json' };
+        if (csrfHeader && csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        fetch(url, { method: method, headers: headers })
+            .then(response => {
+                if (response.ok) {
+                    iconBox.classList.toggle('active');
+                    if (isActive) {
+                        icon.className = 'bi bi-heart';
+                    } else {
+                        icon.className = 'bi bi-heart-fill';
+                    }
+                } else if (response.status === 401) {
+                    if(confirm('로그인이 필요한 서비스입니다. 로그인 하시겠습니까?')) {
+                        location.href = '/login';
+                    }
+                } else {
+                    alert('오류가 발생했습니다.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>

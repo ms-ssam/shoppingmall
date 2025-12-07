@@ -19,6 +19,9 @@ public class FileConfig {
     private String productPath;          // "products"
     private String allowedExtensions;    // "jpg,jpeg,png,webp"
 
+    private String reviewPath;           // "reviews"
+    private String inquiryPath;          // "inquiries"
+
     /**
      * 상품 베이스 디렉터리
      * 예: C:/uploads/products/123
@@ -76,12 +79,48 @@ public class FileConfig {
     }
 
     /**
-     * DB에 저장되는 웹 경로 prefix
+     * DB에 저장되는 웹 경로 prefix (상품)
      * 예: /uploads/products/123/
      */
     public String getWebBasePath(Long productId) {
         return "/uploads/" + productPath + "/" + productId + "/";
     }
+
+    // ==================== 리뷰 / 문의 ====================
+
+    /**
+     * 리뷰 이미지 베이스 디렉토리
+     * 예: C:/uploads/reviews/123
+     */
+    public Path getReviewBaseDir(Long productId) {
+        return Paths.get(basePath, reviewPath, String.valueOf(productId));
+    }
+
+    /**
+     * 문의 이미지 베이스 디렉토리
+     * 예: C:/uploads/inquiries/123
+     */
+    public Path getInquiryBaseDir(Long productId) {
+        return Paths.get(basePath, inquiryPath, String.valueOf(productId));
+    }
+
+    /**
+     * 리뷰 웹 경로 prefix
+     * 예: /uploads/reviews/123/
+     */
+    public String getReviewWebBasePath(Long productId) {
+        return "/uploads/" + reviewPath + "/" + productId + "/";
+    }
+
+    /**
+     * 문의 웹 경로 prefix
+     * 예: /uploads/inquiries/123/
+     */
+    public String getInquiryWebBasePath(Long productId) {
+        return "/uploads/" + inquiryPath + "/" + productId + "/";
+    }
+
+    // ==================== 공통 ====================
 
     /**
      * 허용된 파일 확장자 배열

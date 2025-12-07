@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>마이페이지 - 회원 정보 수정</title>
     <link rel="stylesheet" th:href="@{/css/header.css}">
-    <link rel="stylesheet" th:href="@{/css/mypage.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
     <link rel="stylesheet" th:href="@{/css/mypage-profile-edit.css}">
 </head>
 <body>
@@ -26,7 +26,7 @@
             </div>
             <!-- 회원 정보 수정 폼 -->
             <section class="profile-edit-body">
-                <form th:action="@{/mypage/profile}" th:object="${form}" method="post"
+                <form th:action="@{/mypage/profile/nickname-phone}" th:object="${form}" method="post"
                       class="profile-edit-form">
 
                     <!-- PUT 지원 -->
@@ -65,6 +65,6 @@
         </section>
     </main>
 </div>
-<script th:src="@{/js/mypage-profile-edit.js}"></script>
+<script th:src="@{/js/mypage-profile-nickname-phone-edit.js}"></script>
 </body>
 </html>
