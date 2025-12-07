@@ -24,12 +24,11 @@ public enum ErrorCode {
     SEARCH_KEYWORD_REQUIRED(HttpStatus.BAD_REQUEST, "SRH001", "검색어를 입력해주세요."),
     SEARCH_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "SRH002", "검색어는 최소 2자 이상 입력해야 합니다."),
 
-    MEMBER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "M004", "현재 비밀번호가 일치하지 않습니다."),
-
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "A003", "아이디 또는 비밀번호가 올바르지 않습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "RT001", "유효하지 않은 리프레시 토큰입니다."),
+    MEMBER_WITHDRAWN(HttpStatus.UNAUTHORIZED, "M001", "탈퇴한 회원입니다. 로그인이 불가능합니다."),
 
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "접근 권한이 없습니다."),

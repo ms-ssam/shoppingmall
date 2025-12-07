@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.mypage.controller;
 
 import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
@@ -9,9 +10,11 @@ import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateRevie
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +30,7 @@ import java.time.LocalDate;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/mypage")
+@Slf4j
 public class MypageViewController {
     private final MemberService memberService;
     private final ReviewService reviewService;
@@ -160,7 +164,7 @@ public class MypageViewController {
         PasswordChangeRequest form = new PasswordChangeRequest();
         model.addAttribute("form", form);
 
-        return "mypage-profile-password-edit";
+        return "mypage/mypage-profile-password-edit";
     }
 
     // 비밀번호 변경 처리
@@ -173,7 +177,7 @@ public class MypageViewController {
 
         // 1) 폼 검증 실패 → 다시 비밀번호 변경 화면으로
         if (bindingResult.hasErrors()) {
-            return "mypage-profile-password-edit";
+            return "mypage/mypage-profile-password-edit";
         }
 
         Long memberId = principal.getMember().getId();
@@ -189,14 +193,53 @@ public class MypageViewController {
             model.addAttribute("message", e.getReason());
             model.addAttribute("error", true);
 
-            return "mypage-profile-password-edit";  // 비밀번호 페이지 다시 표시
+            return "mypage/mypage-profile-password-edit";  // 비밀번호 페이지 다시 표시
 
         }
-
         // 3) 변경 성공
         redirectAttributes.addFlashAttribute("message", "비밀번호가 변경되었습니다.");
         return "redirect:/mypage/profile/password";
     }
 
+    // 회원 탈퇴
+    @GetMapping("/profile/withdraw")
+    public String withdrawForm(Model model) {
 
+        if (!model.containsAttribute("form")) {
+            model.addAttribute("form", new WithdrawMemberRequest());
+        }
+        return "mypage/mypage-profile-withdraw";
+    }
+
+    @DeleteMapping("/profile/withdraw")
+    public String withdraw(@AuthenticationPrincipal MemberDetail principal,
+                           @Valid @ModelAttribute("form") WithdrawMemberRequest form,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirectAttributes) {
+
+/*
+        if (bindingResult.hasErrors()) {
+        return "mypage/mypage-profile-withdraw";
+    }
+*/
+
+        Long memberId = principal.getMember().getId();
+        log.info("======= memberId: "+memberId+"============");
+
+        try {
+            memberService.withdraw(memberId, form);
+            log.info("======       서비스에서 컨트롤러 넘어옴    =========");
+
+        } catch (FieldValidationException e) {
+            log.info("======= 서비스에서 잡힌 예외 잡힘 =========");
+            // 비밀번호 불일치 - 서비스에서 던진 필드 유효성 예외를 BindingResult로 변환
+            bindingResult.rejectValue(e.getField(), "PASSWORD_MISMATCH", e.getReason());
+            return "mypage/mypage-profile-withdraw";
+        }
+
+        log.info("=======     탈퇴완료     ======");
+        redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
+        // 로그아웃으로 보내기
+        return "redirect:/logout";
+    }
 }
