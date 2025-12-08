@@ -88,4 +88,8 @@ public class ProductOptionGroup extends SoftDeletableBaseEntity {
             detail.softDelete(); // 자식(OptionDetail)들에게 전파
         }
     }
+
+    public List<OptionDetail> getOptionDetails(){
+        return this.details;
+    }
 }

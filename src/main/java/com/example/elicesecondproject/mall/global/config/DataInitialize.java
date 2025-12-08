@@ -1,5 +1,6 @@
 package com.example.elicesecondproject.mall.global.config;
 
+import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
@@ -24,6 +25,9 @@ public class DataInitialize implements CommandLineRunner {
 
         // 1. 관리자 계정 생성
         if (memberRepository.findByEmail("admin@test.com").isEmpty()) {
+
+            Cart adminCart = Cart.create();   // 🔥 카트 생성
+
             Member admin = Member.builder()
                     .email("admin@test.com")
                     .password(passwordEncoder.encode("1234"))
@@ -33,12 +37,18 @@ public class DataInitialize implements CommandLineRunner {
                     .role(Role.ADMIN)
                     .build();
 
+            admin.assignCart(adminCart);  // 🔥 카트 연결
+
             memberRepository.save(admin);
+
             System.out.println(">>> 관리자 계정 생성 완료: admin@test.com / 1234");
         }
 
-        // 2. 일반 사용자 계정 생성
+        // 2. 일반 사용자 계정 생성 + Cart 할당
         if (memberRepository.findByEmail("user@test.com").isEmpty()) {
+
+            Cart userCart = Cart.create();   // 🔥 카트 생성
+
             Member user = Member.builder()
                     .email("user@test.com")
                     .password(passwordEncoder.encode("1234"))
@@ -48,7 +58,10 @@ public class DataInitialize implements CommandLineRunner {
                     .role(Role.USER)
                     .build();
 
+            user.assignCart(userCart);   // 🔥 카트 연결
+
             memberRepository.save(user);
+
             System.out.println(">>> 일반 사용자 계정 생성 완료: user@test.com / 1234");
         }
 

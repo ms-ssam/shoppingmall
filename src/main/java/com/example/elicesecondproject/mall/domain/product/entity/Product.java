@@ -228,4 +228,8 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         }
 
     }
+
+    public List<ProductOptionGroup> getProductOptionGroups(){
+        return this.optionGroups;
+    }
 }
