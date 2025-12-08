@@ -27,10 +27,7 @@ public class AdminProductViewController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    /**
-     * [관리자] 상품 목록 페이지
-     * URL: /admin/products?page=0&keyword=...
-     */
+
     @GetMapping
     public String productManage(
             @RequestParam(required = false) String keyword,
@@ -42,11 +39,10 @@ public class AdminProductViewController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductSummaryDto> products;
 
-        // ✅ 이 부분을 수정했는지 확인
         if (keyword != null && !keyword.isBlank()) {
-            products = productService.searchProductsForAdmin(keyword, sortType, pageable); // ✅ ForAdmin 추가
+            products = productService.searchProductsForAdmin(keyword, sortType, pageable);
         } else {
-            products = productService.getAllProductsForAdmin(pageable, sortType); // ✅ ForAdmin 추가
+            products = productService.getAllProductsForAdmin(pageable, sortType);
         }
 
         model.addAttribute("products", products);
@@ -59,10 +55,7 @@ public class AdminProductViewController {
     }
 
 
-    /**
-     * [관리자] 상품 등록 페이지
-     * URL: /admin/products/new
-     */
+
     @GetMapping("/new")
     public String createProductForm(Model model) {
         // 카테고리 선택 모달을 위해 트리 정보 필요
@@ -75,10 +68,7 @@ public class AdminProductViewController {
         return "admin/product-form";
     }
 
-    /**
-     * [관리자] 상품 수정 페이지
-     * URL: /admin/products/{id}/edit
-     */
+
     @GetMapping("/{id}/edit")
     public String updateProductForm(@PathVariable Long id, Model model) {
         // 기존 상품 정보 조회

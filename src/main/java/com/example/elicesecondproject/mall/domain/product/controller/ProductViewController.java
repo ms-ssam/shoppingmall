@@ -35,9 +35,7 @@ public class ProductViewController {
     private final ReviewService reviewService;
     private final CartService cartService;
 
-    /**
-     * 상품 목록 페이지 (전체 / 카테고리 / 검색 통합)
-     */
+
     @GetMapping
     public String productList(
             @RequestParam(required = false) String keyword, // [추가] 검색어
