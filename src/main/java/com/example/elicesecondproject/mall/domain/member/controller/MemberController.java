@@ -22,23 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
-/*
-
-    @GetMapping("/hello")
-    public ResponseEntity<String> hello() {
-        return ResponseEntity.ok("hello");
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(
-            @Valid @RequestBody AddMemberRequest request
-            ){
-        memberService.save(request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("회원가입 성공", null));
-    }
-*/
 
     // 내 정보 조회
     @GetMapping("/me")

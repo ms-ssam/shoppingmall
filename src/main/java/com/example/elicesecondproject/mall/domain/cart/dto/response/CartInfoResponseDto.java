@@ -10,14 +10,14 @@ import java.util.List;
 public class CartInfoResponseDto {
     private long cartId;
     private List<CartItemInfoResponseDto> cartItems;
-    private int totalPrice;  // (수량 고려)
+//    private int totalPrice;  // (수량 고려)
     private int totalCount;  // 장바구니 안 장바구니 항목의 개수 (각각의 수량 고려 X)
 
     @Builder
-    private CartInfoResponseDto(long cartId, List<CartItemInfoResponseDto> cartItems, int totalPrice, int totalCount) {
+    private CartInfoResponseDto(long cartId, List<CartItemInfoResponseDto> cartItems, /*int totalPrice,*/ int totalCount) {
         this.cartId = cartId;
         this.cartItems = cartItems;
-        this.totalPrice = totalPrice;
+//        this.totalPrice = totalPrice;
         this.totalCount = totalCount;
     }
 
@@ -26,16 +26,16 @@ public class CartInfoResponseDto {
                 .map(CartItemInfoResponseDto::of)
                 .toList();
 
-        int totalPrice = items.stream()
-                .mapToInt(item -> item.getOptionDetailInfo().getSubtotalPrice())
-                .sum();
+//        int totalPrice = items.stream()
+//                .mapToInt(item -> item.getSubtotalPrice())
+//                .sum();
 
         int totalCount = items.size();
 
         return CartInfoResponseDto.builder()
                 .cartId(cart.getId())
                 .cartItems(items)
-                .totalPrice(totalPrice)
+//                .totalPrice(totalPrice)
                 .totalCount(totalCount)
                 .build();
     }

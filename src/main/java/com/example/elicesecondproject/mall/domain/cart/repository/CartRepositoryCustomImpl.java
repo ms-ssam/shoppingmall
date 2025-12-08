@@ -8,15 +8,17 @@ import com.example.elicesecondproject.mall.domain.option.entity.QProductOptionGr
 import com.example.elicesecondproject.mall.domain.product.entity.QProduct;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 @RequiredArgsConstructor
 public class CartRepositoryCustomImpl implements CartRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<Cart> findWithItemsByMemberId(Long memberId) {  // TODO: 성능 최적화 필요한지 확인하기
+    public Optional<Cart> findWithItemsByMemberId(Long memberId) {  // TODO: 성능 최적화 필요한지 확인하기 -> @Table 이용해서 index 걸기
         QCart cart = QCart.cart;
         QCartItem cartItem = QCartItem.cartItem;
         QOptionDetail optionDetail = QOptionDetail.optionDetail;

@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
 import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRequest;
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.dto.request.CartItemOptionModifyRequest;
 import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
@@ -29,18 +30,21 @@ import java.util.List;
 @Service
 public class CartService {
     private final CartRepository cartRepository;
+    private final OptionDetailRepository optionalDetailRepository;
     private final CartItemRepository cartItemRepository;
     private final OptionDetailRepository optionalDetailRepository;
     private final ProductOptionGroupRepository productOptionGroupRepository;
     private final PermissionValidator permissionValidator;
     private final OptionMapper optionMapper;
 
-//    public CartInfoResponseDto getCartInfo(Long memberId) {
-//        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-//
-//
-//    }
+    public CartInfoResponseDto getCartInfo(Long memberId) {
+        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+
+        permissionValidator.validate(cart, cart.getMember());
+
+        return CartInfoResponseDto.of(cart);
+    }
 
     public CartItemEditPopupResponse getCartItemEditPopup(Long cartItemId) {
 
@@ -142,12 +146,3 @@ public class CartService {
         }
     }
 }
-
-
-
-/*
-    실제 소유주 검증 방법 - PermissionValidator 사용법
-    public ... ...() {
-        permissionValidator.validate(wantsToValidateObject, actualOwner);
-    }
-    */

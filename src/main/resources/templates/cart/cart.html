@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>장바구니</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/cart.css}">
+    <style>/* ===========================
+   공통 레이아웃
+   =========================== */
+
+    .cart-page {
+        background-color: #f5f5f5;
+        min-height: calc(100vh - 80px); /* 헤더 높이만큼 빼줌 */
+        padding: 40px 0 60px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* 컨테이너: 장바구니 목록 + 주문 요약 */
+    .cart-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 2.1fr) minmax(320px, 0.9fr);
+        gap: 32px;
+        align-items: flex-start;
+    }
+
+    /* 작은 화면에서는 세로 배치 */
+    @media (max-width: 960px) {
+        .cart-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ===========================
+       1) 빈 장바구니 화면
+       =========================== */
+
+    .empty-cart-wrapper {
+        min-height: calc(100vh - 80px); /* 헤더 제외 전체 높이 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-cart-inner {
+        text-align: center;
+        color: #4b5563; /* text-gray-600 */
+    }
+
+    .empty-cart-icon {
+        margin-bottom: 16px;
+    }
+
+    .empty-cart-icon .icon-cart {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 999px;
+        background-color: #e5e7eb; /* gray-200 */
+        font-size: 40px;
+        color: #9ca3af; /* gray-400 */
+    }
+
+    .empty-cart-main-text {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .empty-cart-sub-text {
+        font-size: 14px;
+        color: #9ca3af;
+        margin-bottom: 20px;
+    }
+
+    /* ===========================
+       버튼 공통 스타일
+       =========================== */
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 24px;
+        border-radius: 999px;
+        background-color: #000000;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary:hover {
+        background-color: #111827; /* gray-900 */
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .btn-primary:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+        box-shadow: none;
+    }
+
+    .btn-outline {
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+        font-size: 12px;
+        font-weight: 500;
+        color: #374151;
+        cursor: not-allowed; /* 지금은 미구현이라 disabled */
+    }
+
+    .btn-text {
+        display: inline-block;
+        margin-top: 10px;
+        font-size: 13px;
+        color: #6b7280;
+        text-decoration: underline;
+    }
+
+    /* ===========================
+       2) 장바구니 목록 영역
+       =========================== */
+
+    .cart-items-area {
+        min-width: 0;
+    }
+
+    .cart-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .cart-title span {
+        font-size: 16px;
+        color: #6b7280;
+    }
+
+    .cart-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    /* 개별 카드 */
+    .cart-item-card {
+        display: grid;
+        grid-template-columns: auto 96px minmax(0, 1.6fr) 140px;
+        gap: 18px;
+        padding: 18px 22px;
+        background-color: #ffffff;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    }
+
+    @media (max-width: 960px) {
+        .cart-item-card {
+            grid-template-columns: 24px 80px minmax(0, 1fr);
+            grid-template-rows: auto auto;
+            grid-template-areas:
+            "check thumb info"
+            "check thumb right";
+        }
+
+        .cart-item-select { grid-area: check; }
+        .cart-item-thumbnail { grid-area: thumb; }
+        .cart-item-info { grid-area: info; }
+        .cart-item-right { grid-area: right; }
+    }
+
+    /* 체크박스 영역 */
+    .cart-item-select {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cart-item-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* 썸네일 */
+    .cart-item-thumbnail {
+        width: 96px;
+        height: 96px;
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: #f3f4f6;
+    }
+
+    .cart-item-thumbnail img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* 중앙 정보 영역 */
+    .cart-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-option {
+        font-size: 13px;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* 품절 뱃지 */
+    .badge-soldout {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #b91c1c;
+        background-color: #fee2e2;
+    }
+
+    .price-block {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-top: 2px;
+        font-size: 13px;
+    }
+
+    .original-price {
+        color: #9ca3af;
+        text-decoration: line-through;
+    }
+
+    .discount-rate {
+        color: #b91c1c;
+        font-weight: 600;
+    }
+
+    .option-price {
+        color: #6b7280;
+    }
+
+    .final-price {
+        color: #111827;
+        font-weight: 700;
+    }
+
+    /* 옵션 변경 버튼 */
+    .option-edit {
+        margin-top: 6px;
+    }
+
+    /* 오른쪽 수량/소계/삭제 */
+    .cart-item-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 13px;
+        color: #4b5563;
+    }
+
+    .quantity-display {
+        font-size: 13px;
+        color: #4b5563;
+        align-self: flex-start;
+    }
+
+    .item-subtotal span {
+        font-weight: 700;
+    }
+
+    .delete-btn {
+        border: none;
+        background: none;
+        cursor: not-allowed; /* 미구현 */
+        font-size: 18px;
+        color: #9ca3af;
+    }
+
+    /* ===========================
+       주문 요약 영역
+       =========================== */
+
+    .order-summary-area {
+        position: sticky;
+        top: 110px; /* 헤더 + 여백 */
+    }
+
+    .order-summary-card {
+        background-color: #ffffff;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        padding: 22px 20px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .order-summary-card h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 14px;
+        margin-bottom: 10px;
+        color: #4b5563;
+    }
+
+    .summary-row span:last-child {
+        font-weight: 600;
+    }
+
+    .total-row {
+        font-size: 16px;
+        margin-top: 8px;
+        margin-bottom: 14px;
+        color: #111827;
+    }
+
+    .order-summary-card hr {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 14px 0;
+    }
+
+    .summary-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ===========================
+       기타
+       =========================== */
+
+    @media (max-width: 768px) {
+        .cart-page {
+            padding: 24px 0 40px;
+        }
+
+        .order-summary-area {
+            position: static;
+        }
+
+        .order-summary-card {
+            margin-top: 12px;
+        }
+    }
+    </style>
+</head>
+<body>
+
+<!-- 공통 헤더 fragment -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<main class="cart-page">
+
+    <!-- ✅ 빈 장바구니 화면 -->
+    <section class="empty-cart-wrapper"
+             th:if="${cartInfo.totalCount == 0}">
+        <div class="empty-cart-inner">
+            <div class="empty-cart-icon">
+                <!-- 간단한 아이콘 (SVG/폰트로 대체해도 됨) -->
+                <span class="icon-cart">🛒</span>
+            </div>
+            <p class="empty-cart-main-text">장바구니가 비었습니다</p>
+            <p class="empty-cart-sub-text">상품을 추가해보세요.</p>
+
+            <a th:href="@{/products}" class="btn-primary">
+                쇼핑 계속하기
+            </a>
+        </div>
+    </section>
+
+    <!-- ✅ 장바구니 리스트 + 주문 요약 -->
+    <section class="cart-wrapper"
+             th:if="${cartInfo.totalCount > 0}">
+
+        <div class="cart-container">
+
+            <!-- 왼쪽: 장바구니 목록 -->
+            <div class="cart-items-area">
+                <h2 class="cart-title">
+                    장바구니
+                    <span th:text="'(' + ${cartInfo.totalCount} + ')'">(0)</span>
+                </h2>
+
+                <div class="cart-items-list">
+                    <div class="cart-item-card"
+                         th:each="item : ${cartInfo.cartItems}"
+                         th:data-cart-item-id="${item.cartItemId}"
+                         th:data-subtotal="${item.subtotalPrice}">
+
+                        <!-- 체크박스 -->
+                        <div class="cart-item-select">
+                            <input type="checkbox"
+                                   class="cart-item-checkbox"
+                                   checked="checked"
+                                   th:disabled="${item.optionDetailInfo.soldOut}">
+                        </div>
+
+                        <!-- 상품 썸네일 -->
+                        <div class="cart-item-thumbnail">
+                            <img th:src="${item.productInfo.thumbnailUrl}"
+                                 alt="상품 썸네일">
+                        </div>
+
+                        <!-- 중앙: 상품/옵션/가격 정보 -->
+                        <div class="cart-item-info">
+                            <!-- 상품명 -->
+                            <div class="product-name"
+                                 th:text="${item.productInfo.name}">
+                                상품명
+                            </div>
+
+                            <!-- 옵션 정보 -->
+                            <div class="product-option">
+                                <span th:text="'색상/옵션: '
+                                        + ${item.productOptionGroupInfo.name}
+                                        + ' / '
+                                        + ${item.optionDetailInfo.name}">
+                                    옵션 정보
+                                </span>
+
+                                <!-- 품절 뱃지 -->
+                                <span class="badge-soldout"
+                                      th:if="${item.optionDetailInfo.soldOut}">
+                                    품절
+                                </span>
+                            </div>
+
+                            <!-- 가격 정보 -->
+                            <div class="price-block">
+                                <div class="original-price"
+                                     th:text="${#numbers.formatInteger(item.productInfo.price, 0, 'COMMA')} + '원'">
+                                    45,000원
+                                </div>
+
+                                <div class="discount-rate"
+                                     th:if="${item.productInfo.discountRate > 0}"
+                                     th:text="${item.productInfo.discountRate} + '% 할인'">
+                                    15% 할인
+                                </div>
+
+                                <div class="option-price">
+                                    옵션 적용가:
+                                    <span th:text="${#numbers.formatInteger(item.optionDetailInfo.optionAppliedUnitPrice, 0, 'COMMA')} + '원'">
+                                        38,250원
+                                    </span>
+                                </div>
+
+                                <div class="final-price">
+                                    최종 가격:
+                                    <span th:text="${#numbers.formatInteger(item.optionDetailInfo.saleUnitPrice, 0, 'COMMA')} + '원'">
+                                        38,250원
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- 옵션 변경 버튼 -->
+                            <div class="option-edit">
+                                <button type="button"
+                                        class="btn-outline"
+                                        disabled
+                                        title="아직 개발되지 않은 기능입니다.">
+                                    옵션 변경하기
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 오른쪽: 수량/소계/삭제 -->
+                        <div class="cart-item-right">
+                            <!-- 수량 표시 (읽기 전용) -->
+                            <div class="quantity-display">
+                                수량:
+                                <span th:text="${item.quantity}">1</span>개
+                            </div>
+
+                            <!-- 소계 -->
+                            <div class="item-subtotal">
+                                소계:
+                                <span th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
+                                    76,500원
+                                </span>
+                            </div>
+
+                            <!-- 삭제 버튼 -->
+                            <button type="button"
+                                    class="delete-btn"
+                                    th:data-cart-item-id="${item.cartItemId}"
+                                    disabled
+                                    title="아직 개발되지 않은 기능입니다.">
+                                🗑
+                            </button>
+                        </div>
+
+                    </div> <!-- /cart-item-card -->
+                </div> <!-- /cart-items-list -->
+            </div>
+
+            <!-- 오른쪽: 주문 요약 -->
+            <aside class="order-summary-area">
+                <div class="order-summary-card">
+                    <h3>주문 요약</h3>
+
+                    <div class="summary-row">
+                        <span>선택한 상품</span>
+                        <span><span id="selected-count">0</span>개</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>소계</span>
+                        <span id="summary-subtotal">₩0</span>
+                    </div>
+
+                    <hr>
+
+                    <div class="summary-row total-row">
+                        <span>총 금액</span>
+                        <span id="summary-total">₩0</span>
+                    </div>
+
+                    <button type="button" class="btn-primary summary-btn" disabled>
+                        결제하기
+                    </button>
+
+                    <a th:href="@{/products}" class="btn-text">
+                        쇼핑 계속하기
+                    </a>
+                </div>
+            </aside>
+
+        </div> <!-- /cart-container -->
+
+    </section>
+
+</main>
+
+<!-- ✅ 체크박스 선택에 따라 주문 요약 갱신 JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+        const selectedCountEl = document.getElementById('selected-count');
+        const subtotalEl = document.getElementById('summary-subtotal');
+        const totalEl = document.getElementById('summary-total');
+
+        function formatWon(value) {
+            return '₩' + new Intl.NumberFormat('ko-KR').format(value);
+        }
+
+        function recalcSummary() {
+            let count = 0;
+            let sum = 0;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked && !cb.disabled) {
+                    const parentCard = cb.closest('.cart-item-card');
+                    const subtotal = parseInt(parentCard.dataset.subtotal, 10) || 0;
+                    count++;
+                    sum += subtotal;
+                }
+            });
+
+            selectedCountEl.textContent = count;
+            subtotalEl.textContent = formatWon(sum);
+            totalEl.textContent = formatWon(sum); // 추후 배송비 포함 시 여기서 + 배송비
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', recalcSummary);
+        });
+
+        recalcSummary();
+    });
+</script>
+
+</body>
+</html>

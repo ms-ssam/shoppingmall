@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.cart.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
+import com.example.elicesecondproject.mall.global.common.Ownable;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "carts")
 @Entity
-public class Cart extends BaseEntity {
+public class Cart extends BaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -62,6 +63,11 @@ public class Cart extends BaseEntity {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    @Override
+    public Long getOwnerId() {
+        return member.getId();
     }
 }
 

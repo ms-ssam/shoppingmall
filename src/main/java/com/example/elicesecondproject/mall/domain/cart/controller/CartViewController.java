@@ -2,17 +2,22 @@ package com.example.elicesecondproject.mall.domain.cart.controller;
 
 import com.example.elicesecondproject.mall.domain.cart.dto.request.CartItemOptionModifyRequest;
 import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequiredArgsConstructor  // TODO: 주소 cart가 맞을지, carts가 맞을지 찾아보기 (cart 같은 경우엔 여러 개 조회하는 게 아니니까 cart가 맞나?)
-@RequestMapping("/cart")  // TODO: 경로 매핑 팀원들한테 물어보기 (Security 걸리는 거 때문에 - API의 경우 /api로 시작해서 로그인 사용자만 볼 수 있도록...)
+@RequiredArgsConstructor
+@RequestMapping("/cart")
 @Controller
 public class CartViewController {
     private final CartService cartService;
@@ -57,5 +62,17 @@ public class CartViewController {
         }
 
         return "redirect:/cart";
+    }
+    @GetMapping
+    public String showCartPage(Model model, @AuthenticationPrincipal MemberDetail memberDetail) {
+        Long memberId = memberDetail.getMember().getId();
+
+        CartInfoResponseDto cartInfo = cartService.getCartInfo(memberId);
+
+        model.addAttribute("cartInfo", cartInfo);
+
+        model.addAttribute("cartCount", cartInfo.getTotalCount());
+
+        return "cart/cart";  // src/main/resources/templates/cart/cart.html
     }
 }
