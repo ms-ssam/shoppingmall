@@ -125,6 +125,6 @@ public class ProductViewController {
         cartService.addItemToCart(memberDetail.getMember().getId(), request);
 
         redirectAttributes.addFlashAttribute("cartSuccess", "장바구니에 상품이 추가되었습니다.");
-        return "redirect:/products/" + productId;
+        return "redirect:/products/" + productId + "?addedToCart=true";
     }
 }

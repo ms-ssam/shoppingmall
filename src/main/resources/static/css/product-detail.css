@@ -452,3 +452,34 @@
 .product-detail-page .tab-content.active {
     display: block;
 }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+}
+
+.modal {
+    background: #fff;
+    padding: 20px 24px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 240px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.modal-actions button {
+    padding: 6px 12px;
+    cursor: pointer;
+}
