@@ -5,8 +5,6 @@
 <head>
     <!-- 상품 등록/수정 전용 CSS -->
     <link rel="stylesheet" th:href="@{/css/product-form.css}">
-    <!-- Sortable.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
 
@@ -179,12 +177,14 @@
         </div>
     </div>
 
-    <!-- Thymeleaf 데이터 주입 및 JavaScript 초기화 -->
+    <!-- Sortable.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- Thymeleaf 데이터 주입 -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        // Thymeleaf에서 서버 데이터를 주입
-        const categoryTreeData = /*[[${categoryTree}]]*/ [];
-        const productData = /*[[${product}]]*/ null;
+        var categoryTreeData = /*[[${categoryTree}]]*/ [];
+        var productData = /*[[${product}]]*/ null;
         /*]]>*/
     </script>
 
@@ -194,7 +194,7 @@
     <script>
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            initializeProductForm(categoryTreeData, productData);
+            initializeProductForm();
         });
     </script>
 

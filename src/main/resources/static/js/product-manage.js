@@ -6,7 +6,39 @@
 // 1. 검색 기능
 // ========================================
 function searchProducts() {
-    const keyword = document.getElementById('searchInput').value.trim();
+    const input = document.getElementById('searchInput');
+    const keyword = input.value.trim();
+    const errorMsg = document.getElementById('searchError');
+
+    // ✅ 검색어가 비어있으면 전체 검색
+    if (!keyword) {
+        errorMsg.classList.add('hidden');
+        const sortType = document.getElementById('sortSelect').value;
+        window.location.href = `/admin/products?sortType=${sortType}`;
+        return;
+    }
+
+    // ✅ 검색어가 2글자 미만이면 경고 표시
+    if (keyword.length < 2) {
+        errorMsg.innerHTML = `
+            <i class="bi bi-exclamation-circle mr-1"></i>
+            검색어는 최소 <strong>2글자 이상</strong> 입력해주세요.
+        `;
+        errorMsg.classList.remove('hidden');
+        input.focus();
+
+        // ✅ input 테두리 빨간색으로 강조
+        input.classList.add('border-red-500', 'focus:ring-red-500');
+        input.classList.remove('border-gray-300');
+
+        return; // ✅ 서버 요청 중단
+    }
+
+    // ✅ 검증 통과 시 에러 메시지 숨기고 검색 실행
+    errorMsg.classList.add('hidden');
+    input.classList.remove('border-red-500', 'focus:ring-red-500');
+    input.classList.add('border-gray-300');
+
     const sortType = document.getElementById('sortSelect').value;
     window.location.href = `/admin/products?keyword=${encodeURIComponent(keyword)}&sortType=${sortType}`;
 }
@@ -18,6 +50,18 @@ document.getElementById('searchBtn')?.addEventListener('click', searchProducts);
 document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         searchProducts();
+    }
+});
+
+// ✅ 입력 중에 에러 메시지 자동 숨김 (글자 수 기준)
+document.getElementById('searchInput')?.addEventListener('input', function() {
+    const errorMsg = document.getElementById('searchError');
+    if (!errorMsg.classList.contains('hidden')) {
+        if (this.value.trim().length >= 2) {
+            errorMsg.classList.add('hidden');
+            this.classList.remove('border-red-500', 'focus:ring-red-500');
+            this.classList.add('border-gray-300');
+        }
     }
 });
 

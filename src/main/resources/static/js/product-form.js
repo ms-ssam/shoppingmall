@@ -4,17 +4,12 @@ let sliderImages = [];
 let descImages = [];
 let colorVariantIndex = 0;
 let sizeVariantIndexMap = {};
-
-// Thymeleaf에서 주입받을 전역 변수 (HTML에서 설정됨)
-let categoryTreeData = [];
-let productData = null;
 let isEditMode = false;
 let productId = null;
 
 // ==================== 초기화 함수 ====================
-function initializeProductForm(categoryTree, product) {
-    categoryTreeData = categoryTree;
-    productData = product;
+function initializeProductForm() {
+    // HTML에서 주입된 전역 변수 사용
     isEditMode = productData !== null;
     productId = isEditMode ? productData.id : null;
 
@@ -114,6 +109,11 @@ function initializeEventListeners() {
 
 // ==================== Sortable 초기화 ====================
 function initializeSortable() {
+    if (typeof Sortable === 'undefined') {
+        console.warn('Sortable.js가 로드되지 않았습니다.');
+        return;
+    }
+
     new Sortable(document.getElementById('sliderImageList'), {
         animation: 150,
         ghostClass: 'sortable-ghost',
@@ -572,3 +572,4 @@ function submitProduct() {
             alert("서버 오류가 발생했습니다.");
         });
 }
+

@@ -33,11 +33,12 @@
 
         <!-- [2] 중앙 검색 영역 -->
         <div class="header-center">
-            <form th:action="@{/products}" method="get" class="search-form">
+            <form th:action="@{/products}" method="get" class="search-form" id="headerSearchForm">
                 <input type="text"
                        name="keyword"
+                       id="headerSearchInput"
                        class="search-input"
-                       placeholder="상품명, 카테고리 등 입력"
+                       placeholder="상품명, 카테고리 등 입력 (최소 2글자)"
                        th:value="${param.keyword}">
                 <button type="submit" class="search-btn">
                     <span>🔍</span>
@@ -81,6 +82,34 @@
             </div>
         </div>
     </div>
+    <!-- ✅ 검색 검증 JavaScript -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('headerSearchForm');
+            var input = document.getElementById('headerSearchInput');
+
+            if (form && input) {
+                form.addEventListener('submit', function(e) {
+                    var keyword = input.value.trim();
+
+                    // 빈 검색어는 허용 (전체 검색)
+                    if (keyword === '') {
+                        return true;
+                    }
+
+                    // 2글자 미만 검증
+                    if (keyword.length < 2) {
+                        e.preventDefault(); // 폼 제출 중단
+                        alert('⚠️ 검색어는 최소 2글자 이상 입력해주세요.');
+                        input.focus();
+                        return false;
+                    }
+                    return true;
+                });
+            }
+        });
+    </script>
+
 </header>
 </body>
 </html>
