@@ -16,10 +16,10 @@ public interface ProductRepositoryCustom {
     Page<ProductSummaryDto> findAllProductsSummary(Pageable pageable, Long memberId, ProductSortType sortType);
 
 
-    // ✅ 관리자 전용 - 전체 상품 조회 (STOP 상태 포함)
+    // [추가] 관리자용 - 전체 상품 조회 (STOP 상태 포함)
     Page<ProductSummaryDto> findAllProductsForAdmin(Pageable pageable, ProductSortType sortType);
 
-    // ✅ 관리자 전용 - 검색 (STOP 상태 포함)
+    // [추가] 관리자용 - 검색 (STOP 상태 포함)
     Page<ProductSummaryDto> searchProductsForAdmin(String keyword, ProductSortType sortType, Pageable pageable);
 }
 

@@ -36,7 +36,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
 
-    // ✅ 관리자 전용 - 전체 상품 조회 (STOP 포함)
+    // [추가] 관리자용 - 전체 상품 조회 (STOP 포함)
     @Override
     public Page<ProductSummaryDto> findAllProductsForAdmin(Pageable pageable, ProductSortType sortType) {
         BooleanExpression whereClause = productNotDeletedForAdmin(); // ✅ 관리자용 조건
@@ -45,7 +45,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
         return new PageImpl<>(content, pageable, total != null ? total : 0L);
     }
 
-    // ✅ 관리자 전용 - 검색 (STOP 포함)
+    // [추가] 관리자용 - 검색 (STOP 포함)
     @Override
     public Page<ProductSummaryDto> searchProductsForAdmin(String keyword, ProductSortType sortType, Pageable pageable) {
         BooleanExpression whereClause = productNotDeletedForAdmin().and(keywordCondition(keyword));
