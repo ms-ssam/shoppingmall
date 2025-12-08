@@ -118,25 +118,32 @@ public class CartService {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
-        Long optionDetailId;
-        int quantity;
         for (int i = 0; i < request.getOptionDetailIds().size(); i++) {
 
-            optionDetailId = request.getOptionDetailIds().get(i);
-            quantity = request.getQuantities().get(i);
+            Long optionDetailId = request.getOptionDetailIds().get(i);
+            int quantity = request.getQuantities().get(i);
 
             OptionDetail optionDetail = optionalDetailRepository
                     .findById(optionDetailId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
 
-            if (optionDetail.isSoldOut()) {
-                throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
-            }
-
+            // 이미 장바구니에 있는지 조회
             CartItem cartItem = cartItemRepository
                     .findByCartIdAndProductOptionDetailId(cart.getId(), optionDetailId)
                     .orElse(null);
 
+            // 이번에 장바구니에 들어가게 될 총 수량 = 기존수량 + 새로 담는 수량
+            int totalQuantity = quantity;
+            if (cartItem != null) {
+                totalQuantity += cartItem.getQuantity();
+            }
+
+            // 재고보다 많이 담으려고 하면 에러
+            if (optionDetail.getStockQuantity() < totalQuantity) {
+                throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
+            }
+
+            // 실제 담기
             if (cartItem != null) {
                 cartItem.increaseQuantity(quantity);
             } else {
