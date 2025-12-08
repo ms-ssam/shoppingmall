@@ -328,7 +328,7 @@ public class ProductService {
         return trimmed;
     }
 
-
+    //[추가] 다건 삭제
     @Transactional
     public void bulkDeleteProducts(List<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
@@ -345,9 +345,7 @@ public class ProductService {
         products.forEach(Product::delete);
     }
 
-    /**
-     * [관리자] 상품 상태 일괄 변경
-     */
+    //[추가] 상품 여러 개 동시 상태 변경
     @Transactional
     public void bulkUpdateStatus(List<Long> productIds, ProductStatus status) {
         if (productIds == null || productIds.isEmpty()) {

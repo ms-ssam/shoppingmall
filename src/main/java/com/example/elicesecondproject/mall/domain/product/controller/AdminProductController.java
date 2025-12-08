@@ -82,12 +82,7 @@ public class AdminProductController {
         return ResponseEntity.ok(ApiResponse.success("이미지 목록 조회 성공", images));
     }
 
-// AdminProductController.java 파일 끝부분에 추가 (기존 getAllImages() 아래)
-
-    /**
-     * [관리자] 상품 일괄 삭제
-     * DELETE /api/admin/products/bulk
-     */
+    // 다건 삭제
     @DeleteMapping("/bulk")
     public ResponseEntity<ApiResponse<Void>> bulkDeleteProducts(
             @AuthenticationPrincipal MemberDetail principal,
@@ -100,10 +95,7 @@ public class AdminProductController {
         ));
     }
 
-    /**
-     * [관리자] 상품 상태 일괄 변경
-     * PATCH /api/admin/products/bulk/status
-     */
+    // 다건 상태 변경
     @PatchMapping("/bulk/status")
     public ResponseEntity<ApiResponse<Void>> bulkUpdateStatus(
             @AuthenticationPrincipal MemberDetail principal,

@@ -52,7 +52,7 @@ public class ProductOptionService {
 
                 if (groupDto.getDetails() != null) {
                     groupDto.getDetails().forEach(detailDto -> {
-                        // ✅ 신규 생성: 전체 DB에서 SKU 중복 체크
+                        // SKU 중복 체크
                         if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                             throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                         }
@@ -84,6 +84,7 @@ public class ProductOptionService {
     }
 
     private void updateOptionDetails(ProductOptionGroup group, List<OptionDetailDto> requestDetails) {
+        // [수정] clear() 대신 softDelete 호출하여 논리 삭제 유지
         if (requestDetails == null || requestDetails.isEmpty()) {
             group.getDetails().forEach(OptionDetail::softDelete);
             return;
@@ -100,7 +101,7 @@ public class ProductOptionService {
 
         for (OptionDetailDto detailDto : requestDetails) {
             if (detailDto.getId() == null || detailDto.getId() == 0) {
-                // ✅ 신규 추가: 전체 DB에서 SKU 중복 체크
+                // [추가] 상세 옵션 추가 시에도 SKU 중복 체크 필수
                 if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                     throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                 }
@@ -114,7 +115,6 @@ public class ProductOptionService {
                         .build();
                 group.addDetail(newDetail);
             } else {
-                // ✅ 기존 수정: 자기 자신을 제외하고 SKU 중복 체크
                 OptionDetail existingDetail = group.getDetails().stream()
                         .filter(d -> d.getId().equals(detailDto.getId()))
                         .findFirst()
