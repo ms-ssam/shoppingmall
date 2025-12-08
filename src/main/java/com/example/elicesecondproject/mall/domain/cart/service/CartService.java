@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
 import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRequest;
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
@@ -24,12 +25,14 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final PermissionValidator permissionValidator;
 
-//    public CartInfoResponseDto getCartInfo(Long memberId) {
-//        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-//
-//
-//    }
+    public CartInfoResponseDto getCartInfo(Long memberId) {
+        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+
+        permissionValidator.validate(cart, cart.getMember());
+
+        return CartInfoResponseDto.of(cart);
+    }
 
     // 카트에 아이템 추가(카트아이템 생성)
     @Transactional
@@ -69,12 +72,3 @@ public class CartService {
         }
     }
 }
-
-
-
-/*
-    실제 소유주 검증 방법 - PermissionValidator 사용법
-    public ... ...() {
-        permissionValidator.validate(wantsToValidateObject, actualOwner);
-    }
-    */
