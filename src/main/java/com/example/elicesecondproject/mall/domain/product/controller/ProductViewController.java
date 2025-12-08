@@ -127,4 +127,23 @@ public class ProductViewController {
         redirectAttributes.addFlashAttribute("cartSuccess", "장바구니에 상품이 추가되었습니다.");
         return "redirect:/products/" + productId + "?addedToCart=true";
     }
+
+    // 구매하기 버튼으로 장바구니에 상품 추가 후 장바구니로 이동
+    @PostMapping("/{productId}/purchase")
+    public String buyProduct(@PathVariable Long productId,
+                              @AuthenticationPrincipal MemberDetail memberDetail,
+                              @Valid @ModelAttribute AddCartItemRequest request,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("cartError", "장바구니 추가 정보가 올바르지 않습니다.");
+            // 보고있던 상품 상세페이지로
+            return "redirect:/products/" + productId;
+        }
+
+        cartService.addItemToCart(memberDetail.getMember().getId(), request);
+
+        return "redirect:/cart";
+    }
 }

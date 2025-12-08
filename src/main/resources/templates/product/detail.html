@@ -119,9 +119,8 @@
                         <div id="cart-hidden-fields"></div>
                         <button type="submit" class="btn btn-cart">장바구니</button>
                     </form>
-                    <!--  구매하기 폼 -->
-                    <form th:action="@{|/orders/checkout/${product.id}|}" method="post" id="buyNowForm">
-                        <!-- 구매하기 hidden 필드 -->
+                    <!--  구매하기 폼: 장바구니에 담고 바로 장바구니로 이동 -->
+                    <form th:action="@{|/products/${product.id}/purchase|}" method="post" id="buyNowForm">
                         <div id="buy-hidden-fields"></div>
                         <button type="submit" class="btn btn-buy">구매하기</button>
                     </form>
