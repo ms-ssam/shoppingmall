@@ -5,6 +5,7 @@ import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -61,6 +62,10 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // swagger는 권한없이 이용 (개발 단계 이후 삭제)
                         .requestMatchers("/error", "/error/**").permitAll()
                         .requestMatchers("/login", "/signup", "/" , "/api/auth/**").permitAll()
+                        // 제품 상세 페이지 조회는 비회원도 가능
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        // 장바구니 담기는 회원만 가능
+                        .requestMatchers(HttpMethod.POST, "/products/*/cart").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
