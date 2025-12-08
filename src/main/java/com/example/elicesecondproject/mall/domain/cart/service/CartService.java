@@ -32,7 +32,6 @@ public class CartService {
     private final CartRepository cartRepository;
     private final OptionDetailRepository optionalDetailRepository;
     private final CartItemRepository cartItemRepository;
-    private final OptionDetailRepository optionalDetailRepository;
     private final ProductOptionGroupRepository productOptionGroupRepository;
     private final PermissionValidator permissionValidator;
     private final OptionMapper optionMapper;
