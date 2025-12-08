@@ -214,13 +214,50 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
     // 장바구니 폼 제출 시 검증: 선택된 옵션 없으면 막기
     const cartForm = document.getElementById('cartForm');
-    cartForm.addEventListener('submit', function (e) {
-        if (selectedItems.length === 0) {
-            alert("옵션을 최소 1개 이상 선택해 주세요.");
-            e.preventDefault();
-            return;
+    if (cartForm) { // 혹시 다른 페이지에서 이 JS를 같이 쓰면 대비
+        cartForm.addEventListener('submit', function (e) {
+            if (selectedItems.length === 0) {
+                alert("옵션을 최소 1개 이상 선택해 주세요.");
+                e.preventDefault();
+                return;
+            }
+        });
+    }
+
+    // ✅ 장바구니 담기 성공 시 모달 띄우기
+    const params = new URLSearchParams(window.location.search);
+    const added = params.get("addedToCart");
+
+    if (added === "true") {
+        const modal = document.getElementById("cart-added-modal");
+        if (modal) {
+            modal.style.display = "flex"; // overlay 보이게
+
+            const btnContinue = document.getElementById("btn-continue-shopping");
+            const btnGoCart = document.getElementById("btn-go-cart");
+
+            if (btnContinue) {
+                btnContinue.addEventListener("click", function () {
+                    modal.style.display = "none";
+
+                    // URL에서 addedToCart 파라미터 제거 (새로고침 시 모달 안 뜨게)
+                    if (window.history.replaceState) {
+                        const url = new URL(window.location);
+                        url.searchParams.delete("addedToCart");
+                        window.history.replaceState({}, document.title, url);
+                    }
+                });
+            }
+
+            if (btnGoCart) {
+                btnGoCart.addEventListener("click", function () {
+                    window.location.href = "/cart"; // 실제 장바구니 URL에 맞게 수정
+                });
+            }
         }
-    });
+    }
+
 });
