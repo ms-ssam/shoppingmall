@@ -9,7 +9,9 @@ public class CategoryResponse {
     private Long id;
     private String name;
     private String slug;
+    private Long parentId;
+    private String parentName;
+    private Integer depth;
     private Integer displayOrder;
     private Boolean isVisible;
-    private String description;
 }
