@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,7 +28,7 @@ public class CartService {
     private final PermissionValidator permissionValidator;
 
     public CartInfoResponseDto getCartInfo(Long memberId) {
-        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+        Cart cart = cartRepository.findWithItemsAndProductInfoByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
 
         permissionValidator.validate(cart, cart.getMember());
@@ -70,5 +72,40 @@ public class CartService {
                 cart.addItem(newItem);
             }
         }
+    }
+
+    // 개별 장바구니 항목 삭제
+    @Transactional
+    public void deleteCartItem(Long memberId, Long cartItemId) {
+        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+
+        permissionValidator.validate(cart, cart.getMember());
+
+        CartItem target = cart.getCartItems().stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        cart.removeItem(target);  // 연관관계 편의 메서드 -> flush 시점에 orphanRemoval에 의해 DB delete
+    }
+
+    // 선택 상품 삭제
+    @Transactional
+    public void deleteSelectedCartItems(Long memberId, List<Long> cartItemIds) {
+        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+
+        permissionValidator.validate(cart, cart.getMember());
+
+        List<CartItem> targets = cart.getCartItems().stream()
+                .filter(item -> cartItemIds.contains(item.getId()))
+                .toList();
+
+        if(targets.isEmpty()) {
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+
+        cart.removeItems(targets);
     }
 }
