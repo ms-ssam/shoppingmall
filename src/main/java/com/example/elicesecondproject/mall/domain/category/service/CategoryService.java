@@ -59,8 +59,8 @@ public class CategoryService {
         // 4. 저장
         categoryRepository.save(category);
 
-        // 5. 경로 완성 (ID가 생성된 후 처리)
-        category.completePath();
+        // 5. 경로 완성 (ID가 생성된 후 처리) -> ✅path 삭제로 주석처리
+        //category.completePath();
 
         return categoryMapper.toResponse(category);
     }
@@ -71,6 +71,8 @@ public class CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
 
+        boolean oldVisibility = category.getIsVisible();
+
         // 1. 기본 정보 수정
         category.updateDetails(
                 request.getName(),
@@ -79,9 +81,14 @@ public class CategoryService {
                 request.getDisplayOrder()
         );
 
+        // [수정] 노출 상태 상위 카테고리 변경 시 하위 카테고리도 변경
+        if (oldVisibility != request.getIsVisible() && !category.getChildren().isEmpty()) {
+            updateChildrenVisibility(category, request.getIsVisible());
+        }
+
         // 2. 부모 카테고리 변경 감지 및 처리
         if (request.getParentId() != null) {
-            // 기존 부모 ID와 요청된 부모 ID가 다를 경우에만 로직 수행
+            // 기존 부모 ID와 요청된 부모 ID가 다를 경우에만 로직ㅁ 수행
             Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
 
             if (!Objects.equals(currentParentId, request.getParentId())) {
@@ -95,7 +102,9 @@ public class CategoryService {
 
                 // 부모 변경 및 경로 갱신
                 category.setParent(newParent);
-                category.completePath();
+
+                //✅path 삭제
+                //category.completePath();
 
                 // [핵심] 하위 카테고리들도 재귀적으로 경로 업데이트
                 updateChildrenPath(category);
@@ -106,7 +115,7 @@ public class CategoryService {
         return categoryMapper.toResponse(category);
     }
 
-    // 재귀적으로 자식들의 Path와 Depth를 갱신하는 메서드
+    // 재귀적으로 자식들의 Path(삭제)와 Depth를 갱신하는 메서드
     private void updateChildrenPath(Category parent) {
         List<Category> children = parent.getChildren();
         if (children == null || children.isEmpty()) {
@@ -116,7 +125,9 @@ public class CategoryService {
         for (Category child : children) {
             // 부모(parent)의 바뀐 path와 depth를 기반으로 자식 갱신
             child.setParent(parent);
-            child.completePath(); // path 문자열 재계산
+
+            //✅path 삭제
+            //child.completePath();
 
             // 손자, 증손자 등 하위로 계속 전파
             updateChildrenPath(child);
@@ -159,11 +170,55 @@ public class CategoryService {
     @Transactional
     public void toggleVisibility(Long categoryId) {
         Category category = getCategoryById(categoryId);
+        boolean newVisibility = !category.getIsVisible();
+
+        // 현재 카테고리 노출 상태 변경
         category.updateDetails(
                 null,
                 null,
-                !category.getIsVisible(),
+                newVisibility,
                 null
         );
+
+        // 하위 카테고리가 있으면 함께 변경
+        if (!category.getChildren().isEmpty()) {
+            updateChildrenVisibility(category, newVisibility);
+        }
     }
+
+    //  재귀적으로 하위 카테고리의 노출 상태 변경
+    private void updateChildrenVisibility(Category parent, boolean isVisible) {
+        List<Category> children = parent.getChildren();
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+
+        for (Category child : children) {
+            child.updateDetails(
+                    null,
+                    null,
+                    isVisible,
+                    null
+            );
+
+            // 손자, 증손자 등 하위로 계속 전파
+            if (!child.getChildren().isEmpty()) {
+                updateChildrenVisibility(child, isVisible);
+            }
+        }
+    }
+    //[추가] 관리자용 카테고리 조회(숨김 처리한 것도 조회)
+    public List<CategoryTreeResponse> getCategoryTreeForAdmin() {
+        List<Category> rootCategories = categoryRepository
+                .findByParentIsNullAndDeletedAtIsNull(); // isVisible 조건 제거
+
+        return rootCategories.stream()
+                .map(categoryMapper::toTreeResponse)
+                .sorted(Comparator.comparing(CategoryTreeResponse::getDisplayOrder))
+                .collect(Collectors.toList());
+    }
+
+    //
+
+
 }
