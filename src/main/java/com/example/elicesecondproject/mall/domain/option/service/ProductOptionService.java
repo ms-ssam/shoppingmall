@@ -52,7 +52,7 @@ public class ProductOptionService {
 
                 if (groupDto.getDetails() != null) {
                     groupDto.getDetails().forEach(detailDto -> {
-                        // SKU 중복 체크
+                        // ✅ 신규 생성: 전체 DB에서 SKU 중복 체크
                         if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                             throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                         }
@@ -84,7 +84,6 @@ public class ProductOptionService {
     }
 
     private void updateOptionDetails(ProductOptionGroup group, List<OptionDetailDto> requestDetails) {
-        // [수정] clear() 대신 softDelete 호출하여 논리 삭제 유지
         if (requestDetails == null || requestDetails.isEmpty()) {
             group.getDetails().forEach(OptionDetail::softDelete);
             return;
@@ -95,16 +94,13 @@ public class ProductOptionService {
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        // [수정] removeIf(물리 삭제) 제거 -> softDelete(논리 삭제) 적용
-        // 리스트에서 제거하면 orphanRemoval=true 설정 때문에 DB에서 DELETE 됨.
-        // 따라서 리스트에 남겨두고 상태만 변경해야 함.
         group.getDetails().stream()
                 .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
                 .forEach(OptionDetail::softDelete);
 
         for (OptionDetailDto detailDto : requestDetails) {
             if (detailDto.getId() == null || detailDto.getId() == 0) {
-                // [추가] 상세 옵션 추가 시에도 SKU 중복 체크 필수
+                // ✅ 신규 추가: 전체 DB에서 SKU 중복 체크
                 if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                     throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                 }
@@ -118,10 +114,18 @@ public class ProductOptionService {
                         .build();
                 group.addDetail(newDetail);
             } else {
+                // ✅ 기존 수정: 자기 자신을 제외하고 SKU 중복 체크
                 OptionDetail existingDetail = group.getDetails().stream()
                         .filter(d -> d.getId().equals(detailDto.getId()))
                         .findFirst()
                         .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+
+                // SKU가 변경되었을 때만 중복 체크 (자기 ID 제외)
+                if (!existingDetail.getSku().equals(detailDto.getSku())) {
+                    if (optionDetailRepository.existsBySkuAndIdNot(detailDto.getSku(), existingDetail.getId())) {
+                        throw new BusinessException(ErrorCode.DUPLICATE_SKU);
+                    }
+                }
 
                 existingDetail.update(
                         detailDto.getName(),
@@ -133,6 +137,7 @@ public class ProductOptionService {
             }
         }
     }
+
 
     public void decreaseStock(Long optionDetailId, int quantity) {
         OptionDetail optionDetail = optionDetailRepository.findById(optionDetailId)

@@ -84,4 +84,9 @@ public class AdminProductController {
         List<ProductImageDto> images = productService.getAllImages(productId);
         return ResponseEntity.ok(ApiResponse.success("이미지 목록 조회 성공", images));
     }
+
+
+
+
+
 }

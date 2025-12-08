@@ -59,6 +59,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">상품명</label>
                         <input type="text" id="productName"
+                               th:value="${product != null ? product.name : ''}"
                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
                                placeholder="상품명을 입력하세요">
                     </div>
@@ -69,7 +70,8 @@
                             <input type="text" id="categoryDisplay" readonly
                                    class="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-50"
                                    placeholder="카테고리를 선택하세요">
-                            <input type="hidden" id="categoryId">
+                            <input type="hidden" id="categoryId"
+                                   th:value="${product != null && product.category != null ? product.category.id : ''}">
                             <button type="button" onclick="openCategoryModal()"
                                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
                                 설정
@@ -81,24 +83,31 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">정가 (원)</label>
                             <input type="number" id="regularPrice"
+                                   th:value="${product != null ? product.price : ''}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
                                    placeholder="0" oninput="calculateSalePrice()">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">할인율 (%)</label>
                             <input type="number" id="discountRate" min="0" max="100"
+                                   th:value="${product != null ? product.discountRate : 0}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
                                    placeholder="0" oninput="calculateSalePrice()">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">판매가</label>
-                            <p id="salePriceDisplay" class="text-2xl font-bold text-teal-600 mt-1">0원</p>
+                            <p id="salePriceDisplay" class="text-2xl font-bold text-teal-600 mt-1">
+                                <span th:if="${product != null}"
+                                      th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">0원</span>
+                                <span th:unless="${product != null}">0원</span>
+                            </p>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">상품 설명</label>
                         <textarea id="productDescription" rows="4"
+                                  th:text="${product != null ? product.description : ''}"
                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
                                   placeholder="상품 설명을 입력하세요"></textarea>
                     </div>
@@ -107,9 +116,9 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
                         <select id="productStatus"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500">
-                            <option value="SELLING">판매중</option>
-                            <option value="SOLD_OUT">품절</option>
-                            <option value="STOP">판매중지</option>
+                            <option value="SELLING" th:selected="${product != null && product.status?.name() == 'SELLING'}">판매중</option>
+                            <option value="SOLD_OUT" th:selected="${product != null && product.status?.name() == 'SOLD_OUT'}">품절</option>
+                            <option value="STOP" th:selected="${product != null && product.status?.name() == 'STOP'}">판매중지</option>
                         </select>
                     </div>
                 </div>
@@ -123,7 +132,7 @@
                         class="w-full py-2 border border-dashed border-gray-300 rounded text-sm text-gray-600 hover:border-teal-500 hover:text-teal-600 transition mt-3">
                     + 색상 추가
                 </button>
-                <p class="text-xs text-gray-500 mt-2">⚠️ SKU는 [색상명]-[사이즈명]-[순번(3자리)] 규칙으로 자동 생성됩니다.</p>
+                <p class="text-xs text-gray-500 mt-2">⚠️ SKU는 [색상명]-[사이즈명] 규칙으로 자동 생성됩니다.</p>
             </div>
 
             <div class="flex justify-end gap-3">
@@ -131,9 +140,9 @@
                         class="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition">
                     취소
                 </button>
-                <button type="button" onclick="submitProduct()"
+                <button type="button" id="submitBtn" onclick="submitProduct()"
                         class="px-6 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
-                    상품 등록
+                    <span th:text="${product != null ? '상품 수정' : '상품 등록'}">상품 등록</span>
                 </button>
             </div>
         </div>
@@ -175,7 +184,102 @@
 
         // ⭐ Thymeleaf 데이터를 JavaScript 변수로 변환
         const categoryTreeData = /*[[${categoryTree}]]*/ [];
+        const productData = /*[[${product}]]*/ null;
+        const isEditMode = productData !== null;
+        const productId = isEditMode ? productData.id : null;
+
         console.log('카테고리 데이터:', categoryTreeData);
+        console.log('수정 모드:', isEditMode);
+        console.log('상품 데이터:', productData);
+
+        // ⭐ 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isEditMode) {
+                loadExistingProductData();
+
+                // 카테고리 이름 채우기
+                if (productData.category) {
+                    let categoryName = productData.category.name;
+                    if (productData.category.parentName) {
+                        categoryName = productData.category.parentName + ' > ' + categoryName;
+                    }
+                    document.getElementById('categoryDisplay').value = categoryName;
+                }
+            }
+            calculateSalePrice();
+        });
+
+        // ✅ 수정: 기존 상품 데이터 로드 (ID 포함)
+        // ⭐ 기존 상품 데이터 로드
+        function loadExistingProductData() {
+            console.log('=== 기존 상품 데이터 로드 시작 ===');
+            console.log('isEditMode:', isEditMode);
+            console.log('productData:', productData);
+
+            if (!productData) {
+                console.error('❌ productData가 없습니다!');
+                return;
+            }
+
+            if (!productData.optionGroups || productData.optionGroups.length === 0) {
+                console.warn('⚠️ optionGroups가 비어있습니다!');
+                return;
+            }
+
+            console.log('옵션 그룹 개수:', productData.optionGroups.length);
+
+            productData.optionGroups.forEach((group, groupIdx) => {
+                console.log(`\n--- 그룹 ${groupIdx} 처리 시작: ${group.name} ---`);
+
+                const currentColorIndex = colorVariantIndex;
+                addColorVariant();
+
+                // ✅ 즉시 색상 설정 (setTimeout 제거)
+                const colorInput = document.getElementById(`colorName${currentColorIndex}`);
+                if (colorInput) {
+                    colorInput.value = group.name || '';
+                    colorInput.dataset.groupId = group.id || '';
+                    console.log(`✅ 색상 설정 완료: ${group.name}, ID: ${group.id}`);
+                } else {
+                    console.error(`❌ colorName${currentColorIndex} 요소를 찾을 수 없음`);
+                }
+
+                // ✅ 각 사이즈 추가
+                if (group.details && group.details.length > 0) {
+                    console.log(`사이즈 개수: ${group.details.length}`);
+
+                    group.details.forEach((detail, detailIdx) => {
+                        console.log(`  사이즈 ${detailIdx}: ${detail.name}, SKU: ${detail.sku}`);
+
+                        addSizeVariant(currentColorIndex);
+
+                        const lastSizeIndex = sizeVariantIndexMap[currentColorIndex] - 1;
+                        const sizeDiv = document.getElementById(`size${currentColorIndex}_${lastSizeIndex}`);
+
+                        if (sizeDiv) {
+                            const sizeNameInput = sizeDiv.querySelector('.size-name');
+                            const skuInput = sizeDiv.querySelector('.sku-display');
+                            const stockInput = sizeDiv.querySelector('.size-stock');
+
+                            if (sizeNameInput) sizeNameInput.value = detail.name || '';
+                            if (stockInput) stockInput.value = detail.stockQuantity || 0;
+                            if (skuInput) skuInput.value = detail.sku || '';
+
+                            sizeDiv.dataset.detailId = detail.id || '';
+
+                            console.log(`  ✅ 사이즈 설정 완료: ${detail.name}`);
+                        } else {
+                            console.error(`  ❌ size${currentColorIndex}_${lastSizeIndex} 요소를 찾을 수 없음`);
+                        }
+                    });
+                } else {
+                    console.warn(`  ⚠️ 그룹 "${group.name}"에 details가 없습니다`);
+                }
+            });
+
+            console.log('=== 기존 상품 데이터 로드 완료 ===\n');
+        }
+
 
         // ==================== 파일 input 이벤트 핸들러 ====================
         document.getElementById('mainImageUpload').addEventListener('click', () => {
@@ -472,7 +576,7 @@
             document.getElementById(`size${colorIndex}_${sizeIndex}`).remove();
         }
 
-        // ⭐ SKU 자동 생성 함수 (3자리 순번)
+        // ✅ 수정: SKU 자동 생성 (순번 제거, 색상-사이즈만 사용)
         function updateSKU(colorIndex, sizeIndex) {
             const colorName = document.getElementById(`colorName${colorIndex}`).value.trim().toUpperCase();
             const sizeDiv = document.getElementById(`size${colorIndex}_${sizeIndex}`);
@@ -480,8 +584,8 @@
             const skuDisplay = sizeDiv.querySelector('.sku-display');
 
             if (colorName && sizeName) {
-                const seq = String(sizeIndex + 1).padStart(3, '0');
-                skuDisplay.value = `${colorName}-${sizeName}-${seq}`;
+                // ✅ 순번 제거: 색상-사이즈만 사용
+                skuDisplay.value = `${colorName}-${sizeName}`;
             } else {
                 skuDisplay.value = '';
             }
@@ -496,7 +600,7 @@
             });
         }
 
-        // ==================== 상품 등록 ====================
+        // ✅ 수정: 상품 등록/수정 (기존 ID 포함)
         function submitProduct() {
             const name = document.getElementById('productName').value.trim();
             const categoryId = document.getElementById('categoryId').value;
@@ -517,12 +621,12 @@
                 alert('정가를 입력하세요.');
                 return;
             }
-            if (!mainImage) {
+            if (!isEditMode && !mainImage) {
                 alert('대표 이미지를 업로드하세요.');
                 return;
             }
 
-            // 옵션 그룹 수집
+            // ✅ 옵션 그룹 수집 (ID 포함)
             const optionGroups = [];
             const colorDivs = document.querySelectorAll('[id^="colorVariant"]');
 
@@ -534,6 +638,9 @@
 
                 const colorName = colorNameInput.value.trim();
                 if (!colorName) return;
+
+                // ✅ 기존 그룹 ID 가져오기
+                const groupId = colorNameInput.dataset.groupId ? parseInt(colorNameInput.dataset.groupId) : null;
 
                 const details = [];
                 const sizeDivs = colorDiv.querySelectorAll(`[id^="size${colorIndex}_"]`);
@@ -550,8 +657,12 @@
                     const sku = skuInput.value.trim();
                     const stock = parseInt(stockInput.value) || 0;
 
+                    // ✅ 기존 옵션 ID 가져오기
+                    const detailId = sizeDiv.dataset.detailId ? parseInt(sizeDiv.dataset.detailId) : null;
+
                     if (sizeName && sku) {
                         details.push({
+                            id: detailId, // ✅ ID 추가 (수정 모드에서 필수)
                             name: sizeName,
                             sku: sku,
                             addPrice: 0,
@@ -563,6 +674,7 @@
 
                 if (details.length > 0) {
                     optionGroups.push({
+                        id: groupId, // ✅ ID 추가 (수정 모드에서 필수)
                         name: colorName,
                         displayOrder: optionGroups.length + 1,
                         details: details
@@ -578,7 +690,7 @@
             // FormData 생성
             const formData = new FormData();
 
-            const productData = {
+            const requestData = {
                 name: name,
                 price: regularPrice,
                 discountRate: discountRate,
@@ -586,10 +698,9 @@
                 categoryId: parseInt(categoryId),
                 status: status,
                 optionGroups: optionGroups
-                // images 필드 제거 (파일로 별도 전송)
             };
 
-            formData.append('data', new Blob([JSON.stringify(productData)], {type: 'application/json'}));
+            formData.append('data', new Blob([JSON.stringify(requestData)], {type: 'application/json'}));
 
             if (mainImage) {
                 formData.append('mainImage', mainImage);
@@ -601,19 +712,22 @@
                 formData.append('descImages', img);
             });
 
-            console.log('전송할 데이터:', productData);
+            console.log('전송할 데이터:', requestData);
 
-            fetch('/api/admin/products', {
-                method: 'POST',
+            const url = isEditMode ? `/api/admin/products/${productId}` : '/api/admin/products';
+            const method = isEditMode ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
                 body: formData
             })
                 .then(res => res.json())
                 .then(data => {
                     if(data.success) {
-                        alert("상품이 성공적으로 등록되었습니다.");
+                        alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
                         location.href = '/admin/products';
                     } else {
-                        alert("등록 실패: " + data.message);
+                        alert(isEditMode ? "수정 실패: " + data.message : "등록 실패: " + data.message);
                     }
                 })
                 .catch(err => {
@@ -621,8 +735,6 @@
                     alert("서버 오류가 발생했습니다.");
                 });
         }
-
-
 
         /*]]>*/
     </script>
