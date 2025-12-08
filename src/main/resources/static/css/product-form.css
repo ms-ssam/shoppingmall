@@ -1,0 +1,171 @@
+/* ==================== 상품 등록/수정 커스텀 스타일 ==================== */
+
+/* 드래그 오버 효과 */
+.drag-over {
+    border-color: #14b8a6 !important;
+    background-color: #f0fdfa;
+}
+
+/* 이미지 업로드 영역 */
+.image-upload-area {
+    transition: all 0.2s ease;
+}
+
+.image-upload-area:hover {
+    border-color: #14b8a6;
+    background-color: #f9fafb;
+}
+
+/* 이미지 프리뷰 애니메이션 */
+.image-preview-item {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 색상 옵션 카드 */
+.color-variant-card {
+    transition: box-shadow 0.2s ease;
+}
+
+.color-variant-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 순서 번호 뱃지 */
+.order-badge {
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sortable 드래그 중 스타일 */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #e0f2fe;
+}
+
+.sortable-drag {
+    opacity: 0.8;
+}
+
+/* 카테고리 모달 리스트 아이템 */
+.category-item {
+    transition: background-color 0.15s ease;
+}
+
+.category-item:hover {
+    background-color: #f3f4f6;
+}
+
+.category-item.selected {
+    background-color: #ccfbf1;
+}
+
+/* 가격 표시 */
+.price-display {
+    transition: color 0.2s ease;
+}
+
+/* 입력 필드 포커스 효과 강화 */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    ring-width: 2px;
+    ring-color: #14b8a6;
+}
+
+/* SKU 자동 생성 필드 */
+.sku-auto {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+/* 모달 애니메이션 */
+.modal-backdrop {
+    animation: backdropFadeIn 0.2s ease-out;
+}
+
+@keyframes backdropFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 버튼 호버 효과 */
+.btn-primary {
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 삭제 버튼 */
+.btn-delete {
+    transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+    transform: scale(1.05);
+}
+
+/* 이미지 썸네일 */
+.image-thumbnail {
+    transition: transform 0.2s ease;
+}
+
+.image-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* 스크롤바 커스터마이징 */
+.category-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.category-list::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.category-list::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}

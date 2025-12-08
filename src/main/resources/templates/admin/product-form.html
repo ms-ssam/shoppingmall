@@ -2,11 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       th:replace="~{fragments/admin-layout :: layout(~{::div})}">
+<head>
+    <!-- 상품 등록/수정 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/product-form.css}">
+    <!-- Sortable.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+</head>
 <body>
 
 <div class="w-full">
-
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <!-- ==================== 숨겨진 파일 input 추가 ==================== -->
     <input type="file" id="mainImageInput" accept="image/*" style="display: none;">
@@ -14,20 +18,20 @@
     <input type="file" id="descImageInput" accept="image/*" multiple style="display: none;">
 
     <div class="grid grid-cols-12 gap-6">
-        <!-- ==================== 좌측: 이미지 업로드 영역 (크기 축소) ==================== -->
+        <!-- ==================== 좌측: 이미지 업로드 영역 ==================== -->
         <div class="col-span-12 lg:col-span-5 space-y-4">
 
-            <!-- 대표 이미지 (크기 축소) -->
+            <!-- 대표 이미지 -->
             <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
                 <h4 class="text-sm font-semibold mb-3 text-gray-700">대표 이미지 (1장)</h4>
                 <div id="mainImageUpload"
-                     class="border-2 border-dashed border-gray-300 rounded p-6 text-center cursor-pointer hover:border-teal-500 transition h-32 flex items-center justify-center">
+                     class="image-upload-area border-2 border-dashed border-gray-300 rounded p-6 text-center cursor-pointer hover:border-teal-500 transition h-32 flex items-center justify-center">
                     <p class="text-gray-500 text-sm">클릭 또는 드래그하여 업로드</p>
                 </div>
                 <div id="mainImagePreview" class="mt-3"></div>
             </div>
 
-            <!-- 슬라이더 이미지 (크기 축소 + 순서 번호 표시) -->
+            <!-- 슬라이더 이미지 -->
             <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="text-sm font-semibold text-gray-700">슬라이더 이미지 (최대 4장)</h4>
@@ -40,7 +44,7 @@
                 </button>
             </div>
 
-            <!-- 상세 설명 이미지 (크기 축소) -->
+            <!-- 상세 설명 이미지 -->
             <div class="bg-white p-4 rounded shadow-sm border border-gray-200">
                 <h4 class="text-sm font-semibold mb-3 text-gray-700">상세 설명 이미지 (최대 10장)</h4>
                 <div id="descImageList" class="space-y-2 mb-3"></div>
@@ -96,7 +100,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">판매가</label>
-                            <p id="salePriceDisplay" class="text-2xl font-bold text-teal-600 mt-1">
+                            <p id="salePriceDisplay" class="price-display text-2xl font-bold text-teal-600 mt-1">
                                 <span th:if="${product != null}"
                                       th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">0원</span>
                                 <span th:unless="${product != null}">0원</span>
@@ -141,7 +145,7 @@
                     취소
                 </button>
                 <button type="button" id="submitBtn" onclick="submitProduct()"
-                        class="px-6 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
+                        class="btn-primary px-6 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
                     <span th:text="${product != null ? '상품 수정' : '상품 등록'}">상품 등록</span>
                 </button>
             </div>
@@ -150,7 +154,7 @@
 
     <!-- 카테고리 선택 모달 -->
     <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 modal-content">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800">카테고리 선택</h3>
             </div>
@@ -158,11 +162,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <h4 class="text-sm font-medium text-gray-700 mb-2">대분류</h4>
-                        <div id="parentCategoryList" class="border border-gray-300 rounded h-64 overflow-y-auto"></div>
+                        <div id="parentCategoryList" class="category-list border border-gray-300 rounded h-64 overflow-y-auto"></div>
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-gray-700 mb-2">소분류</h4>
-                        <div id="childCategoryList" class="border border-gray-300 rounded h-64 overflow-y-auto"></div>
+                        <div id="childCategoryList" class="category-list border border-gray-300 rounded h-64 overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -175,568 +179,23 @@
         </div>
     </div>
 
+    <!-- Thymeleaf 데이터 주입 및 JavaScript 초기화 -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        let mainImage = null;
-        let sliderImages = [];
-        let descImages = [];
-        let colorVariantIndex = 0;
-
-        // ⭐ Thymeleaf 데이터를 JavaScript 변수로 변환
+        // Thymeleaf에서 서버 데이터를 주입
         const categoryTreeData = /*[[${categoryTree}]]*/ [];
         const productData = /*[[${product}]]*/ null;
-        const isEditMode = productData !== null;
-        const productId = isEditMode ? productData.id : null;
-
-        console.log('카테고리 데이터:', categoryTreeData);
-        console.log('수정 모드:', isEditMode);
-        console.log('상품 데이터:', productData);
-
-        // ⭐ 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            if (isEditMode) {
-                loadExistingProductData();
-
-                // 카테고리 이름 채우기
-                if (productData.category) {
-                    let categoryName = productData.category.name;
-                    if (productData.category.parentName) {
-                        categoryName = productData.category.parentName + ' > ' + categoryName;
-                    }
-                    document.getElementById('categoryDisplay').value = categoryName;
-                }
-            }
-            calculateSalePrice();
-        });
-
-        // ✅ 수정: 기존 상품 데이터 로드 (ID 포함)
-        // ⭐ 기존 상품 데이터 로드
-        function loadExistingProductData() {
-            console.log('=== 기존 상품 데이터 로드 시작 ===');
-            console.log('isEditMode:', isEditMode);
-            console.log('productData:', productData);
-
-            if (!productData) {
-                console.error('❌ productData가 없습니다!');
-                return;
-            }
-
-            if (!productData.optionGroups || productData.optionGroups.length === 0) {
-                console.warn('⚠️ optionGroups가 비어있습니다!');
-                return;
-            }
-
-            console.log('옵션 그룹 개수:', productData.optionGroups.length);
-
-            productData.optionGroups.forEach((group, groupIdx) => {
-                console.log(`\n--- 그룹 ${groupIdx} 처리 시작: ${group.name} ---`);
-
-                const currentColorIndex = colorVariantIndex;
-                addColorVariant();
-
-                // ✅ 즉시 색상 설정 (setTimeout 제거)
-                const colorInput = document.getElementById(`colorName${currentColorIndex}`);
-                if (colorInput) {
-                    colorInput.value = group.name || '';
-                    colorInput.dataset.groupId = group.id || '';
-                    console.log(`✅ 색상 설정 완료: ${group.name}, ID: ${group.id}`);
-                } else {
-                    console.error(`❌ colorName${currentColorIndex} 요소를 찾을 수 없음`);
-                }
-
-                // ✅ 각 사이즈 추가
-                if (group.details && group.details.length > 0) {
-                    console.log(`사이즈 개수: ${group.details.length}`);
-
-                    group.details.forEach((detail, detailIdx) => {
-                        console.log(`  사이즈 ${detailIdx}: ${detail.name}, SKU: ${detail.sku}`);
-
-                        addSizeVariant(currentColorIndex);
-
-                        const lastSizeIndex = sizeVariantIndexMap[currentColorIndex] - 1;
-                        const sizeDiv = document.getElementById(`size${currentColorIndex}_${lastSizeIndex}`);
-
-                        if (sizeDiv) {
-                            const sizeNameInput = sizeDiv.querySelector('.size-name');
-                            const skuInput = sizeDiv.querySelector('.sku-display');
-                            const stockInput = sizeDiv.querySelector('.size-stock');
-
-                            if (sizeNameInput) sizeNameInput.value = detail.name || '';
-                            if (stockInput) stockInput.value = detail.stockQuantity || 0;
-                            if (skuInput) skuInput.value = detail.sku || '';
-
-                            sizeDiv.dataset.detailId = detail.id || '';
-
-                            console.log(`  ✅ 사이즈 설정 완료: ${detail.name}`);
-                        } else {
-                            console.error(`  ❌ size${currentColorIndex}_${lastSizeIndex} 요소를 찾을 수 없음`);
-                        }
-                    });
-                } else {
-                    console.warn(`  ⚠️ 그룹 "${group.name}"에 details가 없습니다`);
-                }
-            });
-
-            console.log('=== 기존 상품 데이터 로드 완료 ===\n');
-        }
-
-
-        // ==================== 파일 input 이벤트 핸들러 ====================
-        document.getElementById('mainImageUpload').addEventListener('click', () => {
-            document.getElementById('mainImageInput').click();
-        });
-
-        document.getElementById('mainImageInput').addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleMainImage(e.target.files[0]);
-            }
-        });
-
-        document.getElementById('addSliderImageBtn').addEventListener('click', () => {
-            if (sliderImages.length >= 4) {
-                alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
-                return;
-            }
-            document.getElementById('sliderImageInput').click();
-        });
-
-        document.getElementById('sliderImageInput').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                if (sliderImages.length < 4) {
-                    handleSliderImage(file);
-                }
-            });
-            e.target.value = '';
-        });
-
-        document.getElementById('addDescImageBtn').addEventListener('click', () => {
-            if (descImages.length >= 10) {
-                alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
-                return;
-            }
-            document.getElementById('descImageInput').click();
-        });
-
-        document.getElementById('descImageInput').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                if (descImages.length < 10) {
-                    handleDescImage(file);
-                }
-            });
-            e.target.value = '';
-        });
-
-        // ==================== 대표 이미지 처리 ====================
-        function handleMainImage(file) {
-            mainImage = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const preview = document.getElementById('mainImagePreview');
-                preview.innerHTML = `
-                    <div class="relative">
-                        <img src="${e.target.result}" class="w-full h-32 object-cover rounded">
-                        <button type="button" onclick="removeMainImage()"
-                                class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">
-                            삭제
-                        </button>
-                    </div>
-                `;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeMainImage() {
-            mainImage = null;
-            document.getElementById('mainImagePreview').innerHTML = '';
-            document.getElementById('mainImageInput').value = '';
-        }
-
-        const mainUploadArea = document.getElementById('mainImageUpload');
-
-        mainUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            mainUploadArea.classList.add('border-teal-500');
-        });
-
-        mainUploadArea.addEventListener('dragleave', () => {
-            mainUploadArea.classList.remove('border-teal-500');
-        });
-
-        mainUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            mainUploadArea.classList.remove('border-teal-500');
-            if (e.dataTransfer.files.length > 0) {
-                handleMainImage(e.dataTransfer.files[0]);
-            }
-        });
-
-        // ==================== 슬라이더 이미지 처리 (순서 번호 표시) ====================
-        function handleSliderImage(file) {
-            if (sliderImages.length >= 4) {
-                alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
-                return;
-            }
-
-            sliderImages.push(file);
-            renderSliderImages();
-        }
-
-        function removeSliderImage(index) {
-            sliderImages.splice(index, 1);
-            renderSliderImages();
-        }
-
-        function renderSliderImages() {
-            const listDiv = document.getElementById('sliderImageList');
-            listDiv.innerHTML = '';
-            sliderImages.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move';
-                    itemDiv.dataset.index = index;
-                    itemDiv.innerHTML = `
-                        <span class="flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${index + 1}</span>
-                        <img src="${e.target.result}" class="w-12 h-12 object-cover rounded">
-                        <span class="flex-1 text-sm text-gray-700 truncate">${file.name}</span>
-                        <button type="button" onclick="removeSliderImage(${index})"
-                                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
-                            삭제
-                        </button>
-                    `;
-                    listDiv.appendChild(itemDiv);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        new Sortable(document.getElementById('sliderImageList'), {
-            animation: 150,
-            onEnd: function(evt) {
-                const oldIndex = evt.oldIndex;
-                const newIndex = evt.newIndex;
-                const temp = sliderImages[oldIndex];
-                sliderImages.splice(oldIndex, 1);
-                sliderImages.splice(newIndex, 0, temp);
-                renderSliderImages();
-            }
-        });
-
-        // ==================== 상세 설명 이미지 처리 ====================
-        function handleDescImage(file) {
-            if (descImages.length >= 10) {
-                alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
-                return;
-            }
-
-            descImages.push(file);
-            renderDescImages();
-        }
-
-        function removeDescImage(index) {
-            descImages.splice(index, 1);
-            renderDescImages();
-        }
-
-        function renderDescImages() {
-            const listDiv = document.getElementById('descImageList');
-            listDiv.innerHTML = '';
-            descImages.forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50';
-                    itemDiv.innerHTML = `
-                        <img src="${e.target.result}" class="w-12 h-12 object-cover rounded">
-                        <span class="flex-1 text-sm text-gray-700 truncate">${file.name}</span>
-                        <button type="button" onclick="removeDescImage(${index})"
-                                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
-                            삭제
-                        </button>
-                    `;
-                    listDiv.appendChild(itemDiv);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // ==================== 카테고리 모달 ====================
-        function openCategoryModal() {
-            document.getElementById('categoryModal').classList.remove('hidden');
-            document.getElementById('categoryModal').classList.add('flex');
-            loadCategories();
-        }
-
-        function closeCategoryModal() {
-            document.getElementById('categoryModal').classList.add('hidden');
-            document.getElementById('categoryModal').classList.remove('flex');
-        }
-
-        function loadCategories() {
-            const parentList = document.getElementById('parentCategoryList');
-            parentList.innerHTML = '';
-
-            categoryTreeData.forEach(parent => {
-                const div = document.createElement('div');
-                div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200';
-                div.textContent = parent.name;
-                div.onclick = () => loadChildCategories(parent.id, parent.children, parent.name);
-                parentList.appendChild(div);
-            });
-        }
-
-        function loadChildCategories(parentId, children, parentName) {
-            const childList = document.getElementById('childCategoryList');
-            childList.innerHTML = '';
-
-            children.forEach(child => {
-                const div = document.createElement('div');
-                div.className = 'p-3 hover:bg-teal-100 cursor-pointer border-b border-gray-200';
-                div.textContent = child.name;
-                div.onclick = () => selectCategory(child.id, `${parentName} > ${child.name}`);
-                childList.appendChild(div);
-            });
-        }
-
-        function selectCategory(categoryId, fullPath) {
-            document.getElementById('categoryId').value = categoryId;
-            document.getElementById('categoryDisplay').value = fullPath;
-            closeCategoryModal();
-        }
-
-        // ==================== 가격 자동 계산 ====================
-        function calculateSalePrice() {
-            const regular = parseFloat(document.getElementById('regularPrice').value) || 0;
-            const discount = parseFloat(document.getElementById('discountRate').value) || 0;
-            const salePrice = Math.floor(regular * (1 - discount / 100));
-            document.getElementById('salePriceDisplay').textContent = salePrice.toLocaleString() + '원';
-        }
-
-        // ==================== 색상 옵션 관리 ====================
-        function addColorVariant() {
-            const index = colorVariantIndex++;
-            const container = document.getElementById('colorVariantList');
-            const variantDiv = document.createElement('div');
-            variantDiv.className = 'border border-gray-200 rounded p-4 bg-gray-50';
-            variantDiv.id = `colorVariant${index}`;
-            variantDiv.innerHTML = `
-                <div class="flex items-center justify-between mb-3">
-                    <input type="text" id="colorName${index}" placeholder="색상명 (예: 블랙)"
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500 mr-2"
-                           oninput="updateAllSkus(${index})">
-                    <button type="button" onclick="removeColorVariant(${index})"
-                            class="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600">
-                        삭제
-                    </button>
-                </div>
-                <div id="sizeList${index}" class="space-y-2"></div>
-                <button type="button" onclick="addSizeVariant(${index})"
-                        class="w-full py-2 border border-dashed border-gray-300 rounded text-sm text-gray-600 hover:border-teal-500 hover:text-teal-600 transition mt-2">
-                    + 사이즈 추가
-                </button>
-            `;
-            container.appendChild(variantDiv);
-        }
-
-        function removeColorVariant(colorIndex) {
-            document.getElementById(`colorVariant${colorIndex}`).remove();
-        }
-
-        let sizeVariantIndexMap = {};
-
-        function addSizeVariant(colorIndex) {
-            if (!sizeVariantIndexMap[colorIndex]) {
-                sizeVariantIndexMap[colorIndex] = 0;
-            }
-            const sizeIndex = sizeVariantIndexMap[colorIndex]++;
-            const sizeList = document.getElementById(`sizeList${colorIndex}`);
-            const sizeDiv = document.createElement('div');
-            sizeDiv.className = 'grid grid-cols-12 gap-2 items-center';
-            sizeDiv.id = `size${colorIndex}_${sizeIndex}`;
-            sizeDiv.innerHTML = `
-                <input type="text" placeholder="사이즈 (예: M)"
-                       class="size-name col-span-3 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500"
-                       oninput="updateSKU(${colorIndex}, ${sizeIndex})">
-                <input type="text" readonly
-                       class="sku-display col-span-4 px-2 py-1 border border-gray-200 bg-gray-100 rounded text-sm text-gray-600"
-                       placeholder="SKU (자동생성)">
-                <input type="number" placeholder="재고"
-                       class="size-stock col-span-3 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500">
-                <button type="button" onclick="removeSizeVariant(${colorIndex}, ${sizeIndex})"
-                        class="col-span-2 px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400">
-                    삭제
-                </button>
-            `;
-            sizeList.appendChild(sizeDiv);
-        }
-
-        function removeSizeVariant(colorIndex, sizeIndex) {
-            document.getElementById(`size${colorIndex}_${sizeIndex}`).remove();
-        }
-
-        // ✅ 수정: SKU 자동 생성 (순번 제거, 색상-사이즈만 사용)
-        function updateSKU(colorIndex, sizeIndex) {
-            const colorName = document.getElementById(`colorName${colorIndex}`).value.trim().toUpperCase();
-            const sizeDiv = document.getElementById(`size${colorIndex}_${sizeIndex}`);
-            const sizeName = sizeDiv.querySelector('.size-name').value.trim().toUpperCase();
-            const skuDisplay = sizeDiv.querySelector('.sku-display');
-
-            if (colorName && sizeName) {
-                // ✅ 순번 제거: 색상-사이즈만 사용
-                skuDisplay.value = `${colorName}-${sizeName}`;
-            } else {
-                skuDisplay.value = '';
-            }
-        }
-
-        function updateAllSkus(colorIndex) {
-            const sizeList = document.getElementById(`sizeList${colorIndex}`);
-            const sizeDivs = sizeList.querySelectorAll('[id^="size' + colorIndex + '_"]');
-            sizeDivs.forEach((div) => {
-                const sizeIndex = parseInt(div.id.split('_')[1]);
-                updateSKU(colorIndex, sizeIndex);
-            });
-        }
-
-        // ✅ 수정: 상품 등록/수정 (기존 ID 포함)
-        function submitProduct() {
-            const name = document.getElementById('productName').value.trim();
-            const categoryId = document.getElementById('categoryId').value;
-            const regularPrice = parseFloat(document.getElementById('regularPrice').value);
-            const discountRate = parseFloat(document.getElementById('discountRate').value) || 0;
-            const description = document.getElementById('productDescription').value.trim();
-            const status = document.getElementById('productStatus').value;
-
-            if (!name) {
-                alert('상품명을 입력하세요.');
-                return;
-            }
-            if (!categoryId) {
-                alert('카테고리를 선택하세요.');
-                return;
-            }
-            if (!regularPrice || regularPrice <= 0) {
-                alert('정가를 입력하세요.');
-                return;
-            }
-            if (!isEditMode && !mainImage) {
-                alert('대표 이미지를 업로드하세요.');
-                return;
-            }
-
-            // ✅ 옵션 그룹 수집 (ID 포함)
-            const optionGroups = [];
-            const colorDivs = document.querySelectorAll('[id^="colorVariant"]');
-
-            colorDivs.forEach((colorDiv) => {
-                const colorIndex = colorDiv.id.replace('colorVariant', '');
-                const colorNameInput = document.getElementById(`colorName${colorIndex}`);
-
-                if (!colorNameInput) return;
-
-                const colorName = colorNameInput.value.trim();
-                if (!colorName) return;
-
-                // ✅ 기존 그룹 ID 가져오기
-                const groupId = colorNameInput.dataset.groupId ? parseInt(colorNameInput.dataset.groupId) : null;
-
-                const details = [];
-                const sizeDivs = colorDiv.querySelectorAll(`[id^="size${colorIndex}_"]`);
-
-                let displayOrder = 1;
-                sizeDivs.forEach((sizeDiv) => {
-                    const sizeNameInput = sizeDiv.querySelector('.size-name');
-                    const skuInput = sizeDiv.querySelector('.sku-display');
-                    const stockInput = sizeDiv.querySelector('.size-stock');
-
-                    if (!sizeNameInput || !skuInput || !stockInput) return;
-
-                    const sizeName = sizeNameInput.value.trim();
-                    const sku = skuInput.value.trim();
-                    const stock = parseInt(stockInput.value) || 0;
-
-                    // ✅ 기존 옵션 ID 가져오기
-                    const detailId = sizeDiv.dataset.detailId ? parseInt(sizeDiv.dataset.detailId) : null;
-
-                    if (sizeName && sku) {
-                        details.push({
-                            id: detailId, // ✅ ID 추가 (수정 모드에서 필수)
-                            name: sizeName,
-                            sku: sku,
-                            addPrice: 0,
-                            stockQuantity: stock,
-                            displayOrder: displayOrder++
-                        });
-                    }
-                });
-
-                if (details.length > 0) {
-                    optionGroups.push({
-                        id: groupId, // ✅ ID 추가 (수정 모드에서 필수)
-                        name: colorName,
-                        displayOrder: optionGroups.length + 1,
-                        details: details
-                    });
-                }
-            });
-
-            if (optionGroups.length === 0) {
-                alert('최소 1개 이상의 색상/사이즈 옵션을 추가하세요.');
-                return;
-            }
-
-            // FormData 생성
-            const formData = new FormData();
-
-            const requestData = {
-                name: name,
-                price: regularPrice,
-                discountRate: discountRate,
-                description: description,
-                categoryId: parseInt(categoryId),
-                status: status,
-                optionGroups: optionGroups
-            };
-
-            formData.append('data', new Blob([JSON.stringify(requestData)], {type: 'application/json'}));
-
-            if (mainImage) {
-                formData.append('mainImage', mainImage);
-            }
-            sliderImages.forEach(img => {
-                formData.append('sliderImages', img);
-            });
-            descImages.forEach(img => {
-                formData.append('descImages', img);
-            });
-
-            console.log('전송할 데이터:', requestData);
-
-            const url = isEditMode ? `/api/admin/products/${productId}` : '/api/admin/products';
-            const method = isEditMode ? 'PUT' : 'POST';
-
-            fetch(url, {
-                method: method,
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
-                        location.href = '/admin/products';
-                    } else {
-                        alert(isEditMode ? "수정 실패: " + data.message : "등록 실패: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("서버 오류가 발생했습니다.");
-                });
-        }
-
         /*]]>*/
+    </script>
+
+    <!-- 상품 등록/수정 전용 JavaScript -->
+    <script th:src="@{/js/product-form.js}"></script>
+
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeProductForm(categoryTreeData, productData);
+        });
     </script>
 
 </div>
