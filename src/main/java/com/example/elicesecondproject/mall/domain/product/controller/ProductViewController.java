@@ -1,5 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
+import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRequest;
+import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.category.dto.CategoryTreeResponse;
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
@@ -9,6 +11,7 @@ import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +19,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class ProductViewController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final ReviewService reviewService;
+    private final CartService cartService;
 
     /**
      * 상품 목록 페이지 (전체 / 카테고리 / 검색 통합)
@@ -103,5 +106,25 @@ public class ProductViewController {
         Page<ReviewResponse> reviews = reviewService.getReviewsByProduct(productId, pageable);
         model.addAttribute("reviews", reviews);
         return "product/detail";
+    }
+
+    // 장바구니에 상품 추가
+    @PostMapping("/{productId}/cart")
+    public String addCartItem(@PathVariable Long productId,
+                              @AuthenticationPrincipal MemberDetail memberDetail,
+                              @Valid @ModelAttribute AddCartItemRequest request,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("cartError", "장바구니 추가 정보가 올바르지 않습니다.");
+            // 보고있던 상품 상세페이지로
+            return "redirect:/products/" + productId;
+        }
+
+        cartService.addItemToCart(memberDetail.getMember().getId(), request);
+
+        redirectAttributes.addFlashAttribute("cartSuccess", "장바구니에 상품이 추가되었습니다.");
+        return "redirect:/products/" + productId;
     }
 }
