@@ -95,9 +95,6 @@ public class ProductOptionService {
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        // [수정] removeIf(물리 삭제) 제거 -> softDelete(논리 삭제) 적용
-        // 리스트에서 제거하면 orphanRemoval=true 설정 때문에 DB에서 DELETE 됨.
-        // 따라서 리스트에 남겨두고 상태만 변경해야 함.
         group.getDetails().stream()
                 .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
                 .forEach(OptionDetail::softDelete);
@@ -123,6 +120,13 @@ public class ProductOptionService {
                         .findFirst()
                         .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
 
+                // SKU가 변경되었을 때만 중복 체크 (자기 ID 제외)
+                if (!existingDetail.getSku().equals(detailDto.getSku())) {
+                    if (optionDetailRepository.existsBySkuAndIdNot(detailDto.getSku(), existingDetail.getId())) {
+                        throw new BusinessException(ErrorCode.DUPLICATE_SKU);
+                    }
+                }
+
                 existingDetail.update(
                         detailDto.getName(),
                         detailDto.getSku(),
@@ -133,6 +137,7 @@ public class ProductOptionService {
             }
         }
     }
+
 
     public void decreaseStock(Long optionDetailId, int quantity) {
         OptionDetail optionDetail = optionDetailRepository.findById(optionDetailId)

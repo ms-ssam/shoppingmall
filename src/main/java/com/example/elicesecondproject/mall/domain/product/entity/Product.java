@@ -204,6 +204,10 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     public void updateCategory(Category category){
         this.category = category;
     }
+    // 상태 변경
+    public void updateStatus(ProductStatus status) {
+        this.status = status;
+    }
 
     //재고 합계 재계산 + 자동 품절 처리
     public void recalculateTotalStock() {

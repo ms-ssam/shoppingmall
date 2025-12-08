@@ -1,10 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.product.dto.CreateProductRequest;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
-import com.example.elicesecondproject.mall.domain.product.dto.UpdateProductRequest;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
@@ -84,4 +81,34 @@ public class AdminProductController {
         List<ProductImageDto> images = productService.getAllImages(productId);
         return ResponseEntity.ok(ApiResponse.success("이미지 목록 조회 성공", images));
     }
+
+    // 다건 삭제
+    @DeleteMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> bulkDeleteProducts(
+            @AuthenticationPrincipal MemberDetail principal,
+            @RequestBody @Valid BulkDeleteRequest request
+    ) {
+        permissionValidator.validateAdminOnly(principal.getMember());
+        productService.bulkDeleteProducts(request.getProductIds());
+        return ResponseEntity.ok(ApiResponse.success(
+                request.getProductIds().size() + "개 상품이 삭제되었습니다.", null
+        ));
+    }
+
+    // 다건 상태 변경
+    @PatchMapping("/bulk/status")
+    public ResponseEntity<ApiResponse<Void>> bulkUpdateStatus(
+            @AuthenticationPrincipal MemberDetail principal,
+            @RequestBody @Valid BulkStatusUpdateRequest request
+    ) {
+        permissionValidator.validateAdminOnly(principal.getMember());
+        productService.bulkUpdateStatus(request.getProductIds(), request.getStatus());
+        return ResponseEntity.ok(ApiResponse.success(
+                request.getProductIds().size() + "개 상품의 상태가 변경되었습니다.", null
+        ));
+    }
+
+
+
+
 }

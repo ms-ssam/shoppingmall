@@ -41,7 +41,5 @@ public class UpdateProductRequest {
     @NotEmpty(message = "최소 1개 이상의 옵션 그룹이 필요합니다.")
     private List<ProductOptionGroupDto> optionGroups;
 
-    @Valid
-    @NotEmpty(message = "최소 1개 이상의 이미지가 필요합니다.")
     private List<ProductImageDto> images;
 }

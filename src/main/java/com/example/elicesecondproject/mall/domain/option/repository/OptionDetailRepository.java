@@ -7,4 +7,7 @@ public interface OptionDetailRepository extends JpaRepository<OptionDetail, Long
 
     // SKU 중복 체크
     boolean existsBySku(String sku);
+
+    boolean existsBySkuAndIdNot(String sku, Long id);
+
 }

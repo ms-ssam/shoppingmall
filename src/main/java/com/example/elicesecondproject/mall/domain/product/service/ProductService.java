@@ -328,6 +328,44 @@ public class ProductService {
         return trimmed;
     }
 
+    //[추가] 다건 삭제
+    @Transactional
+    public void bulkDeleteProducts(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        List<Product> products = productRepository.findAllById(productIds);
+
+        if (products.isEmpty()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 각 상품마다 delete() 호출 (status = STOP, soft delete)
+        products.forEach(Product::delete);
+    }
+
+    //[추가] 상품 여러 개 동시 상태 변경
+    @Transactional
+    public void bulkUpdateStatus(List<Long> productIds, ProductStatus status) {
+        if (productIds == null || productIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        if (status == null) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        List<Product> products = productRepository.findAllById(productIds);
+
+        if (products.isEmpty()) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        // 각 상품 상태 변경
+        products.forEach(product -> product.updateStatus(status));
+    }
+
     // DTL-F-12 : 찜 상태 조회 -> 사용자의 찜 상태를 조회한다.
     /*
         사용자에게 상품들 보여주는 화면에서 이 기능 메서드가 true 반환하는지 false 반환하는지에 따라 뷰에서 하트 비울지 채울지 결정하는 용도
