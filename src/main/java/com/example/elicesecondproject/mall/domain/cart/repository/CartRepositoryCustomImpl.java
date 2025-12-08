@@ -18,7 +18,7 @@ public class CartRepositoryCustomImpl implements CartRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<Cart> findWithItemsByMemberId(Long memberId) {  // TODO: 성능 최적화 필요한지 확인하기 -> @Table 이용해서 index 걸기
+    public Optional<Cart> findWithItemsAndProductInfoByMemberId(Long memberId) {  // TODO: 성능 최적화 필요한지 확인하기 -> @Table 이용해서 index 걸기
         QCart cart = QCart.cart;
         QCartItem cartItem = QCartItem.cartItem;
         QOptionDetail optionDetail = QOptionDetail.optionDetail;
@@ -35,6 +35,21 @@ public class CartRepositoryCustomImpl implements CartRepositoryCustom {
                 .where(
                         cart.member.id.eq(memberId)  // 조건 추가 가능
                 )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public Optional<Cart> findWithItemsByMemberId(Long memberId) {
+        QCart cart = QCart.cart;
+        QCartItem cartItem = QCartItem.cartItem;
+
+        Cart result = queryFactory
+                .selectFrom(cart)
+                .distinct()
+                .leftJoin(cart.cartItems, cartItem).fetchJoin()
+                .where(cart.member.id.eq(memberId))
                 .fetchOne();
 
         return Optional.ofNullable(result);
