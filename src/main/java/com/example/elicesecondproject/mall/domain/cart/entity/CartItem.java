@@ -40,7 +40,8 @@ public class CartItem extends BaseEntity {
         this.cart = cart;
     }
 
-    public void updateQuantity(int quantity) {
+    public void updateOption(OptionDetail productOptionDetail, int quantity) {
+        this.productOptionDetail = productOptionDetail;
         this.quantity = quantity;
     }
 

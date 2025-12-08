@@ -1,9 +1,8 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
-import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
-import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
-import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
 import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRequest;
+import com.example.elicesecondproject.mall.domain.cart.dto.request.CartItemOptionModifyRequest;
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
@@ -13,9 +12,9 @@ import com.example.elicesecondproject.mall.domain.option.dto.ProductOptionGroupI
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGroup;
 import com.example.elicesecondproject.mall.domain.option.mapper.OptionMapper;
-import com.example.elicesecondproject.mall.domain.product.entity.Product;
-import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
+import com.example.elicesecondproject.mall.domain.option.repository.ProductOptionGroupRepository;
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
@@ -32,7 +31,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final OptionDetailRepository optionalDetailRepository;
-    private final CartItemRepository cartItemRepository;
+    private final ProductOptionGroupRepository productOptionGroupRepository;
     private final PermissionValidator permissionValidator;
     private final OptionMapper optionMapper;
 
@@ -58,15 +57,11 @@ public class CartService {
 
         // 3. 상품의 전체 옵션 그룹 목록 변환 (N번 반복)
         List<ProductOptionGroupIdNameResponse> optionGroupResponses =
-                product.getProductOptionGroups().stream()
-                        .map(optionMapper::toProductOptionGroupIdNameResponse)
-                        .toList();
+                optionMapper.toOptionGroupIdNameList(product.getProductOptionGroups());
 
         // 4. 상품의 전체 옵션 상세 목록 변환 (N번 반복)
         List<OptionDetailIdNameResponse> optionDetailResponses =
-                selectedGroup.getOptionDetails().stream()
-                        .map(optionMapper::toOptionDetailIdNameResponse)
-                        .toList();
+                optionMapper.toOptionDetailIdNameList(selectedGroup.getDetails());
 
         // 5. 응답 조립
         return CartItemEditPopupResponse.builder()
@@ -78,23 +73,36 @@ public class CartService {
                 .build();
     }
 
-    //TODO: 폼 완성 후 다시 진행
-    public void updateCartItem(Long cartItemId, int quantity){
-        updateCartItemQuantity(cartItemId, quantity);
+    public List<OptionDetailIdNameResponse> getOptionDetailsByGroup(Long groupId) {
+        ProductOptionGroup productOptionGroup = productOptionGroupRepository.findWithDetailsById(groupId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_COLOR_NOT_FOUND));
+
+        return optionMapper.toOptionDetailIdNameList(productOptionGroup.getDetails());
     }
 
-    //TODO: 폼 완성 후 다시 진행
-    public void updateCartItemQuantity(Long cartItemId, int quantity) {
+    @Transactional
+    public void updateCartItemOption(Long cartItemId, CartItemOptionModifyRequest request){
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
 
-        if(cartItem.getProductOptionDetail().getStockQuantity() < quantity){
-            return;
+        OptionDetail newOptionDetail = optionalDetailRepository.findById(request.getOptionDetailId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+
+        OptionDetail currentOptionDetail = cartItem.getProductOptionDetail();
+
+        if (!newOptionDetail.getProductOptionGroup().getProduct().equals(
+                currentOptionDetail.getProductOptionGroup().getProduct())) {
+            throw new BusinessException(ErrorCode.CART_ITEM_PRODUCT_MISMATCH);
         }
 
-        cartItem.updateQuantity(quantity);
-    }
+        int updatedQuantity = request.getUpdatedQuantity();
 
+        if(newOptionDetail.getStockQuantity() < updatedQuantity){
+            throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
+        }
+
+        cartItem.updateOption(newOptionDetail, request.getUpdatedQuantity());
+    }
 
     // 카트에 아이템 추가(카트아이템 생성)
     @Transactional

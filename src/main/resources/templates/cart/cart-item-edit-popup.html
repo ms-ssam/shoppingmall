@@ -156,7 +156,10 @@
         <!-- 수정 폼 -->
         <form class="cart-edit-form"
               th:action="@{'/cart/' + ${cartItemId} + '/option'}"
-              method="post">
+              method="post"
+              onsubmit="return validateCartEditForm()">
+
+            <input type="hidden" name="_method" value="put">
 
             <!-- 색상 / 사이즈 -->
             <div class="cart-edit-row">
@@ -164,7 +167,9 @@
                 <div class="cart-edit-field">
                     <span class="cart-edit-label">색상</span>
                     <select class="cart-edit-select"
+                            id="cartOptionGroupSelect"
                             name="productOptionGroupId">
+                        <option value="">색상을 선택하세요</option>
                         <option th:each="group : ${cartItem.optionGroups}"
                                 th:value="${group.id}"
                                 th:text="${group.name}"
@@ -177,7 +182,9 @@
                 <div class="cart-edit-field">
                     <span class="cart-edit-label">사이즈</span>
                     <select class="cart-edit-select"
+                            id="cartOptionDetailSelect"
                             name="optionDetailId">
+                        <option value="">사이즈를 선택하세요</option>
                         <option th:each="detail : ${cartItem.optionDetails}"
                                 th:value="${detail.id}"
                                 th:text="${detail.name}"
@@ -197,7 +204,7 @@
                                 onclick="changeCartQty(-1)">−</button>
                         <input type="number"
                                class="cart-edit-qty-input"
-                               name="quantity"
+                               name="updatedQuantity"
                                min="1"
                                th:value="${cartItem.selectedQuantity}"
                                id="cartEditQtyInput">
@@ -221,6 +228,7 @@
 </div>
 
 <script th:inline="javascript">
+    // 수량 증감
     function changeCartQty(delta) {
         const input = document.getElementById('cartEditQtyInput');
         let value = parseInt(input.value || '1', 10);
@@ -229,18 +237,108 @@
         input.value = value;
     }
 
-    // 실제 프로젝트의 모달 닫기 방식에 맞게 바꿔 써
+    (function () {
+        const groupSelect  = document.getElementById('cartOptionGroupSelect');   // 색상
+        const detailSelect = document.getElementById('cartOptionDetailSelect'); // 사이즈
+
+        if (!groupSelect || !detailSelect) return;
+
+        // "사이즈를 선택하세요"로 초기화
+        function resetOptionDetails() {
+            detailSelect.innerHTML = '';
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = '사이즈를 선택하세요';
+            detailSelect.appendChild(defaultOpt);
+        }
+
+        // 비동기 결과 렌더링
+        function renderOptionDetails(details) {
+            resetOptionDetails();
+            details.forEach(function (detail) {
+                const opt = document.createElement('option');
+                opt.value = detail.id;
+                opt.textContent = detail.name;
+                detailSelect.appendChild(opt);
+            });
+        }
+
+        groupSelect.addEventListener('change', function () {
+            const groupId = this.value;
+
+            // 색상 바꾸면 무조건 초기화
+            resetOptionDetails();
+
+            if (!groupId) return;
+
+            fetch('/api/cart/groups/' + groupId + '/details', {   // 여기 경로
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('옵션 디테일 조회 실패');
+                    return response.json();
+                })
+                .then(function (data) {
+                    renderOptionDetails(data);
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    alert('옵션 정보를 불러오지 못했습니다.');
+                });
+        });
+    })();
+
     function closeCartEditPopup() {
-        // 예시 1) 단순히 팝업 요소 제거
         const overlay = document.querySelector('.cart-edit-overlay');
         if (overlay) {
             overlay.remove();
         }
+    }
 
-        // 예시 2) 만약 부모에서 show/hide로 관리하면
-        // window.parent.closeCartEditPopup && window.parent.closeCartEditPopup();
+    function validateCartEditForm() {
+        const groupSelect  = document.getElementById('cartOptionGroupSelect');   // 색상
+        const detailSelect = document.getElementById('cartOptionDetailSelect'); // 사이즈
+        const qtyInput     = document.getElementById('cartEditQtyInput');
+
+        // 색상 필수라면
+        if (!groupSelect.value) {
+            alert('색상을 선택해주세요.');
+            groupSelect.focus();
+            return false;
+        }
+
+        // 사이즈 필수
+        if (!detailSelect.value) {
+            alert('사이즈를 선택해주세요.');
+            detailSelect.focus();
+            return false;
+        }
+
+        // 수량 체크
+        const raw = qtyInput.value;
+
+        if (!raw) {
+            alert('수량을 선택해주세요.');
+            qtyInput.focus();
+            return false;
+        }
+
+        const value = parseInt(raw, 10);
+
+        if (isNaN(value) || value < 1) {
+            alert('수량은 1개 이상이어야 합니다.');
+            qtyInput.focus();
+            return false;
+        }
+
+        // 여기까지 통과하면 서버로 전송
+        return true;
     }
 </script>
-
+<script th:if="${errorMessage}" th:inline="javascript">
+    alert([[${errorMessage}]]);
+</script>
 </body>
 </html>
