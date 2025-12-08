@@ -307,9 +307,13 @@
         .delete-btn {
             border: none;
             background: none;
-            cursor: not-allowed; /* 미구현 */
+            cursor: pointer;
             font-size: 18px;
             color: #9ca3af;
+        }
+
+        .delete-btn:hover {
+            color: #ef4444;
         }
 
         /* ===========================
@@ -397,7 +401,6 @@
              th:if="${cartInfo.totalCount == 0}">
         <div class="empty-cart-inner">
             <div class="empty-cart-icon">
-                <!-- 간단한 아이콘 (SVG/폰트로 대체해도 됨) -->
                 <span class="icon-cart">🛒</span>
             </div>
             <p class="empty-cart-main-text">장바구니가 비었습니다</p>
@@ -422,116 +425,130 @@
                     <span th:text="'(' + ${cartInfo.totalCount} + ')'">(0)</span>
                 </h2>
 
-                <div class="cart-items-list">
-                    <div class="cart-item-card"
-                         th:each="item : ${cartInfo.cartItems}"
-                         th:data-cart-item-id="${item.cartItemId}"
-                         th:data-subtotal="${item.subtotalPrice}">
+                <!-- ✅ 선택 삭제 & 단건 삭제용 form -->
+                <form th:action="@{/cart/items}" method="post" id="cartForm">
+                    <input type="hidden" name="_method" value="delete">
 
-                        <!-- 체크박스 -->
-                        <div class="cart-item-select">
-                            <input type="checkbox"
-                                   class="cart-item-checkbox"
-                                   checked="checked"
-                                   th:disabled="${item.optionDetailInfo.soldOut}">
-                        </div>
+                    <div class="cart-items-list">
+                        <div class="cart-item-card"
+                             th:each="item : ${cartInfo.cartItems}"
+                             th:data-cart-item-id="${item.cartItemId}"
+                             th:data-subtotal="${item.subtotalPrice}">
 
-                        <!-- 상품 썸네일 -->
-                        <div class="cart-item-thumbnail">
-                            <img th:src="${item.productInfo.thumbnailUrl}"
-                                 alt="상품 썸네일">
-                        </div>
-
-                        <!-- 중앙: 상품/옵션/가격 정보 -->
-                        <div class="cart-item-info">
-                            <!-- 상품명 -->
-                            <div class="product-name"
-                                 th:text="${item.productInfo.name}">
-                                상품명
+                            <!-- 체크박스 -->
+                            <div class="cart-item-select">
+                                <input type="checkbox"
+                                       class="cart-item-checkbox"
+                                       name="cartItemIds"
+                                       th:value="${item.cartItemId}"
+                                       checked="checked"
+                                       th:disabled="${item.optionDetailInfo.soldOut}">
                             </div>
 
-                            <!-- 옵션 정보 -->
-                            <div class="product-option">
-                                <span th:text="'색상/옵션: '
-                                        + ${item.productOptionGroupInfo.name}
-                                        + ' / '
-                                        + ${item.optionDetailInfo.name}">
-                                    옵션 정보
-                                </span>
-
-                                <!-- 품절 뱃지 -->
-                                <span class="badge-soldout"
-                                      th:if="${item.optionDetailInfo.soldOut}">
-                                    품절
-                                </span>
+                            <!-- 상품 썸네일 -->
+                            <div class="cart-item-thumbnail">
+                                <img th:src="${item.productInfo.thumbnailUrl}"
+                                     alt="상품 썸네일">
                             </div>
 
-                            <!-- 가격 정보 -->
-                            <div class="price-block">
-                                <div class="original-price"
-                                     th:text="${#numbers.formatInteger(item.productInfo.price, 0, 'COMMA')} + '원'">
-                                    45,000원
+                            <!-- 중앙: 상품/옵션/가격 정보 -->
+                            <div class="cart-item-info">
+                                <!-- 상품명 -->
+                                <div class="product-name"
+                                     th:text="${item.productInfo.name}">
+                                    상품명
                                 </div>
 
-                                <div class="discount-rate"
-                                     th:if="${item.productInfo.discountRate > 0}"
-                                     th:text="${item.productInfo.discountRate} + '% 할인'">
-                                    15% 할인
-                                </div>
+                                <!-- 옵션 정보 -->
+                                <div class="product-option">
+                                    <span th:text="'색상/옵션: '
+                                            + ${item.productOptionGroupInfo.name}
+                                            + ' / '
+                                            + ${item.optionDetailInfo.name}">
+                                        옵션 정보
+                                    </span>
 
-                                <div class="option-price">
-                                    옵션 적용가:
-                                    <span th:text="${#numbers.formatInteger(item.optionDetailInfo.optionAppliedUnitPrice, 0, 'COMMA')} + '원'">
-                                        38,250원
+                                    <!-- 품절 뱃지 -->
+                                    <span class="badge-soldout"
+                                          th:if="${item.optionDetailInfo.soldOut}">
+                                        품절
                                     </span>
                                 </div>
 
-                                <div class="final-price">
-                                    최종 가격:
-                                    <span th:text="${#numbers.formatInteger(item.optionDetailInfo.saleUnitPrice, 0, 'COMMA')} + '원'">
-                                        38,250원
-                                    </span>
+                                <!-- 가격 정보 -->
+                                <div class="price-block">
+                                    <div class="original-price"
+                                         th:text="${#numbers.formatInteger(item.productInfo.price, 0, 'COMMA')} + '원'">
+                                        45,000원
+                                    </div>
+
+                                    <div class="discount-rate"
+                                         th:if="${item.productInfo.discountRate > 0}"
+                                         th:text="${item.productInfo.discountRate} + '% 할인'">
+                                        15% 할인
+                                    </div>
+
+                                    <div class="option-price">
+                                        옵션 적용가:
+                                        <span th:text="${#numbers.formatInteger(item.optionDetailInfo.optionAppliedUnitPrice, 0, 'COMMA')} + '원'">
+                                            38,250원
+                                        </span>
+                                    </div>
+
+                                    <div class="final-price">
+                                        최종 가격:
+                                        <span th:text="${#numbers.formatInteger(item.optionDetailInfo.saleUnitPrice, 0, 'COMMA')} + '원'">
+                                            38,250원
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- 옵션 변경 버튼 -->
+                                <div class="option-edit">
+                                    <button type="button"
+                                            class="btn-outline cart-option-edit-btn"
+                                            th:data-cart-item-id="${item.cartItemId}">
+                                        옵션 변경하기
+                                    </button>
                                 </div>
                             </div>
 
-                            <!-- 옵션 변경 버튼 -->
-                            <div class="option-edit">
-                                <button type="button"
-                                        class="btn-outline cart-option-edit-btn"
-                                        th:data-cart-item-id="${item.cartItemId}">
-                                    옵션 변경하기
+                            <!-- 오른쪽: 수량/소계/삭제 -->
+                            <div class="cart-item-right">
+                                <!-- 수량 표시 (읽기 전용) -->
+                                <div class="quantity-display">
+                                    수량:
+                                    <span th:text="${item.quantity}">1</span>개
+                                </div>
+
+                                <!-- 소계 -->
+                                <div class="item-subtotal">
+                                    소계:
+                                    <span th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
+                                        76,500원
+                                    </span>
+                                </div>
+
+                                <!-- 단건 삭제 버튼 -->
+                                <button type="submit"
+                                        class="delete-btn"
+                                        th:formaction="@{/cart/items/{cartItemId}(cartItemId=${item.cartItemId})}"
+                                        formmethod="post"
+                                        title="장바구니에서 삭제">
+                                    🗑
                                 </button>
                             </div>
-                        </div>
 
-                        <!-- 오른쪽: 수량/소계/삭제 -->
-                        <div class="cart-item-right">
-                            <!-- 수량 표시 (읽기 전용) -->
-                            <div class="quantity-display">
-                                수량:
-                                <span th:text="${item.quantity}">1</span>개
-                            </div>
+                        </div> <!-- /cart-item-card -->
+                    </div> <!-- /cart-items-list -->
 
-                            <!-- 소계 -->
-                            <div class="item-subtotal">
-                                소계:
-                                <span th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
-                                    76,500원
-                                </span>
-                            </div>
-
-                            <!-- 삭제 버튼 -->
-                            <button type="button"
-                                    class="delete-btn"
-                                    th:data-cart-item-id="${item.cartItemId}"
-                                    disabled
-                                    title="아직 개발되지 않은 기능입니다.">
-                                🗑
-                            </button>
-                        </div>
-
-                    </div> <!-- /cart-item-card -->
-                </div> <!-- /cart-items-list -->
+                    <!-- 선택 상품 삭제 버튼 -->
+                    <div style="margin-top: 16px;">
+                        <button type="submit" class="btn-outline">
+                            선택 상품 삭제
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <!-- 오른쪽: 주문 요약 -->
@@ -666,7 +683,6 @@
      3) 팝업 내부 기능 (색상/사이즈, 수량)
      =========================== -->
 <script th:inline="javascript">
-
     // 수량 버튼
     function changeCartQty(delta) {
         const input = document.getElementById('cartEditQtyInput');
@@ -758,8 +774,12 @@
 
 
 <!-- ===========================
-     4) 서버에서 errorMessage 내려온 경우 alert
+     4) 서버에서 message / errorMessage 내려온 경우 alert
      =========================== -->
+<script th:if="${message}" th:inline="javascript">
+    alert([[${message}]]);
+</script>
+
 <script th:if="${errorMessage}" th:inline="javascript">
     alert([[${errorMessage}]]);
 </script>
