@@ -11,10 +11,13 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-// QueryDSL 설정이랑 BaseTimeEntity 필요
+@Table(
+        name = "carts",
+        indexes = {
+                @Index(name = "idx_cart_member_id", columnList = "member_id", unique = true)
+        })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "carts")
 @Entity
 public class Cart extends BaseEntity implements Ownable {
     @Id
