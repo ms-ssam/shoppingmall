@@ -1,11 +1,12 @@
 package com.example.elicesecondproject.mall.domain.product.dto;
 
-import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -27,4 +28,7 @@ public class ProductSummaryDto {
     private Integer totalStock;
     //찜 여부 추가
     private boolean liked;
+
+    private String categoryName;
+    private LocalDateTime createdAt;
 }

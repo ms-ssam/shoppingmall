@@ -91,9 +91,9 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             case REVIEW_COUNT -> product.reviewCount.desc();
             case WISHLIST_COUNT -> product.wishListCount.desc();
             case RATING -> product.averageRating.desc();
-            // [추가] 재고순 정렬 (필요하다면)
-            // case STOCK_HIGH -> product.totalStock.desc();
-            // case STOCK_LOW -> product.totalStock.asc();
+
+             case STOCK_HIGH -> product.totalStock.desc();
+             case STOCK_LOW -> product.totalStock.asc();
             default -> product.createdAt.desc();
         };
     }
@@ -142,7 +142,10 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 product.reviewCount,
                 product.wishListCount,
                 product.totalStock,
-                isLikedExpr);
+                isLikedExpr,
+                product.category.name,
+                product.createdAt
+        );
     }
 
     private Expression<Integer> calculateSalePrice() {

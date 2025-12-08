@@ -5,30 +5,73 @@
 <body>
 
 <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <!-- 헤더 -->
     <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-bold">상품 관리</h3>
-        <a th:href="@{/admin/products/new}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-bold">
+        <a th:href="@{/admin/products/new}"
+           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-bold">
             + 상품 등록
         </a>
     </div>
 
-    <div class="flex gap-2 mb-6">
-        <input type="text" id="searchInput" placeholder="상품명, 상품코드 검색" class="border border-gray-300 rounded px-3 py-2 text-sm flex-1" th:value="${param.keyword}">
-        <select id="sortSelect" class="border border-gray-300 rounded px-3 py-2 text-sm min-w-[120px]" onchange="searchProducts()">
-            <option value="LATEST">최신순</option>
-            <option value="STOCK_HIGH">재고 많은순</option>
-            <option value="STOCK_LOW">재고 적은순</option>
-            <option value="PRICE_HIGH">가격 높은순</option>
-            <option value="PRICE_LOW">가격 낮은순</option>
-        </select>
-        <button onclick="searchProducts()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">필터</button>
+    <!-- 검색 -->
+    <div class="mb-3">
+        <div class="flex gap-2">
+            <input type="text"
+                   id="searchInput"
+                   placeholder="상품명, 상품코드 검색"
+                   class="border border-gray-300 rounded px-3 py-2 text-sm flex-1"
+                   th:value="${keyword}">
+            <button id="searchBtn"
+                    class="bg-gray-800 text-white px-6 py-2 rounded text-sm hover:bg-gray-700 font-medium">
+                🔍 검색
+            </button>
+        </div>
     </div>
 
+    <!-- 정렬 -->
+    <div class="mb-4">
+        <select id="sortSelect"
+                class="border border-gray-300 rounded px-3 py-2 text-sm w-40">
+            <option value="LATEST" th:selected="${sortType == 'LATEST'}">최신순</option>
+            <option value="STOCK_HIGH" th:selected="${sortType == 'STOCK_HIGH'}">재고 많은순</option>
+            <option value="STOCK_LOW" th:selected="${sortType == 'STOCK_LOW'}">재고 적은순</option>
+            <option value="PRICE_HIGH" th:selected="${sortType == 'PRICE_HIGH'}">가격 높은순</option>
+            <option value="PRICE_LOW" th:selected="${sortType == 'PRICE_LOW'}">가격 낮은순</option>
+        </select>
+    </div>
+
+    <!-- 일괄 작업 툴바 -->
+    <div class="bg-blue-50 border border-blue-200 rounded px-4 py-3 mb-4 flex items-center gap-3">
+        <span class="text-sm font-semibold text-gray-700">일괄 작업:</span>
+        <button id="bulkDeleteBtn"
+                class="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700">
+            선택 삭제
+        </button>
+        <select id="bulkStatusSelect"
+                class="border border-gray-300 rounded px-2 py-1.5 text-sm bg-white">
+            <option value="">상태 선택</option>
+            <option value="SELLING">판매중</option>
+            <option value="SOLD_OUT">품절</option>
+            <option value="STOP">판매중지</option>
+        </select>
+        <button id="bulkStatusBtn"
+                class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">
+            상태 변경
+        </button>
+        <span class="ml-auto text-sm text-gray-600">
+            <span id="selectedCount">0</span>개 선택
+        </span>
+    </div>
+
+    <!-- 테이블 -->
     <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
-                <th class="px-4 py-3 w-10"><input type="checkbox"></th>
+                <th class="px-4 py-3 w-10">
+                    <input type="checkbox" id="selectAll">
+                </th>
                 <th class="px-4 py-3">상품명</th>
                 <th class="px-4 py-3">카테고리</th>
                 <th class="px-4 py-3">가격</th>
@@ -42,40 +85,99 @@
             </thead>
             <tbody>
             <tr class="bg-white border-b hover:bg-gray-50" th:each="p : ${products.content}">
-                <td class="px-4 py-3"><input type="checkbox"></td>
-                <td class="px-4 py-3 font-medium text-gray-900">
-                    <a th:href="@{/products/{id}(id=${p.id})}" target="_blank" class="hover:underline hover:text-blue-600" th:text="${p.name}">상품명</a>
-                </td>
-                <td class="px-4 py-3">의류 > 상의</td> <td class="px-4 py-3" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'"></td>
-                <td class="px-4 py-3 text-red-500" th:text="${p.discountRate} + '%'"></td>
-                <td class="px-4 py-3 font-bold" th:text="${#numbers.formatInteger(p.salePrice, 0, 'COMMA')} + '원'"></td>
                 <td class="px-4 py-3">
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
-                                  th:if="${p.status.name() == 'SELLING'}">판매중</span>
+                    <input type="checkbox" class="product-checkbox" th:value="${p.id}">
+                </td>
+                <td class="px-4 py-3 font-medium text-gray-900">
+                    <a th:href="@{/products/{id}(id=${p.id})}" target="_blank"
+                       class="hover:underline hover:text-blue-600" th:text="${p.name}">상품명</a>
+                </td>
+                <td class="px-4 py-3" th:text="${p.categoryName} ?: '-'">카테고리</td>
+                <td class="px-4 py-3" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'">89,000원</td>
+                <td class="px-4 py-3 text-red-500" th:text="${p.discountRate} + '%'">20%</td>
+                <td class="px-4 py-3 font-bold" th:text="${#numbers.formatInteger(p.salePrice, 0, 'COMMA')} + '원'">71,200원</td>
+                <td class="px-4 py-3">
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded"
+                          th:if="${p.status.name() == 'SELLING'}">판매중</span>
                     <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded"
                           th:if="${p.status.name() == 'SOLD_OUT'}">품절</span>
                     <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded"
                           th:if="${p.status.name() == 'STOP'}">판매중지</span>
                 </td>
                 <td class="px-4 py-3" th:text="${p.totalStock}">100</td>
-                <td class="px-4 py-3">2025.12.06</td>
+                <td class="px-4 py-3" th:text="${#temporals.format(p.createdAt, 'yyyy.MM.dd')}">2025.12.08</td>
                 <td class="px-4 py-3 text-center">
-                    <a th:href="@{/admin/products/{id}/edit(id=${p.id})}" class="text-blue-600 hover:underline mr-2"><i class="bi bi-pencil-square"></i></a>
-                    <button class="text-red-600 hover:underline"><i class="bi bi-trash"></i></button>
+                    <a th:href="@{/admin/products/{id}/edit(id=${p.id})}" class="text-blue-600 hover:underline mr-2">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <button class="delete-btn text-red-600 hover:underline" th:data-id="${p.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
+    <!-- 페이지네이션 -->
+    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+        <div class="flex flex-1 justify-between sm:hidden">
+            <a th:href="@{/admin/products(page=${products.number - 1}, keyword=${keyword}, sortType=${sortType})}"
+               th:classappend="${products.first} ? 'pointer-events-none opacity-50' : ''"
+               class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                이전
+            </a>
+            <a th:href="@{/admin/products(page=${products.number + 1}, keyword=${keyword}, sortType=${sortType})}"
+               th:classappend="${products.last} ? 'pointer-events-none opacity-50' : ''"
+               class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                다음
+            </a>
+        </div>
+
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    전체 <span class="font-medium" th:text="${products.totalElements}">50</span>개 중
+                    <span class="font-medium" th:text="${products.number * products.size + 1}">1</span>
+                    -
+                    <span class="font-medium" th:text="${products.number * products.size + products.numberOfElements}">20</span>
+                    표시
+                </p>
+            </div>
+
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                    <a th:href="@{/admin/products(page=${products.number - 1}, keyword=${keyword}, sortType=${sortType})}"
+                       th:classappend="${products.first} ? 'pointer-events-none opacity-50' : ''"
+                       class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+
+                    <th:block th:with="startPage=${products.number - 2 < 0 ? 0 : products.number - 2}, endPage=${products.number + 2 >= products.totalPages ? products.totalPages - 1 : products.number + 2}">
+                        <a th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                           th:href="@{/admin/products(page=${i}, keyword=${keyword}, sortType=${sortType})}"
+                           th:text="${i + 1}"
+                           th:classappend="${i == products.number} ? 'z-10 bg-blue-600 text-white' : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'"
+                           class="relative inline-flex items-center px-4 py-2 text-sm font-semibold">1</a>
+                    </th:block>
+
+                    <a th:href="@{/admin/products(page=${products.number + 1}, keyword=${keyword}, sortType=${sortType})}"
+                       th:classappend="${products.last} ? 'pointer-events-none opacity-50' : ''"
+                       class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ 외부 JavaScript 파일 로드 (CSRF div 제거) -->
+    <script th:src="@{/js/product-manage.js}"></script>
 </div>
 
-<script>
-    function searchProducts() {
-        const keyword = document.getElementById('searchInput').value;
-        const sort = document.getElementById('sortSelect').value;
-        location.href = `/admin/products?keyword=${keyword}&sortType=${sort}`;
-    }
-</script>
 </body>
 </html>

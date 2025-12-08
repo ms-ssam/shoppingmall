@@ -1,10 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.product.dto.CreateProductRequest;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
-import com.example.elicesecondproject.mall.domain.product.dto.UpdateProductRequest;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
@@ -85,6 +82,39 @@ public class AdminProductController {
         return ResponseEntity.ok(ApiResponse.success("이미지 목록 조회 성공", images));
     }
 
+// AdminProductController.java 파일 끝부분에 추가 (기존 getAllImages() 아래)
+
+    /**
+     * [관리자] 상품 일괄 삭제
+     * DELETE /api/admin/products/bulk
+     */
+    @DeleteMapping("/bulk")
+    public ResponseEntity<ApiResponse<Void>> bulkDeleteProducts(
+            @AuthenticationPrincipal MemberDetail principal,
+            @RequestBody @Valid BulkDeleteRequest request
+    ) {
+        permissionValidator.validateAdminOnly(principal.getMember());
+        productService.bulkDeleteProducts(request.getProductIds());
+        return ResponseEntity.ok(ApiResponse.success(
+                request.getProductIds().size() + "개 상품이 삭제되었습니다.", null
+        ));
+    }
+
+    /**
+     * [관리자] 상품 상태 일괄 변경
+     * PATCH /api/admin/products/bulk/status
+     */
+    @PatchMapping("/bulk/status")
+    public ResponseEntity<ApiResponse<Void>> bulkUpdateStatus(
+            @AuthenticationPrincipal MemberDetail principal,
+            @RequestBody @Valid BulkStatusUpdateRequest request
+    ) {
+        permissionValidator.validateAdminOnly(principal.getMember());
+        productService.bulkUpdateStatus(request.getProductIds(), request.getStatus());
+        return ResponseEntity.ok(ApiResponse.success(
+                request.getProductIds().size() + "개 상품의 상태가 변경되었습니다.", null
+        ));
+    }
 
 
 
