@@ -42,25 +42,22 @@ public class AdminProductViewController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductSummaryDto> products;
 
-        // 검색어가 있으면 검색, 없으면 전체 조회
+        // ✅ 이 부분을 수정했는지 확인
         if (keyword != null && !keyword.isBlank()) {
-            products = productService.searchProducts(keyword, sortType, pageable);
+            products = productService.searchProductsForAdmin(keyword, sortType, pageable); // ✅ ForAdmin 추가
         } else {
-            // 관리자용 전체 조회 (일단 기존 메서드 재사용, 추후 관리자 전용 메서드로 분리 가능)
-            // 관리자는 본인 ID와 상관없이 모든 상품을 관리하므로 memberId는 null 처리
-            products = productService.getAllProducts(pageable, null, sortType);
+            products = productService.getAllProductsForAdmin(pageable, sortType); // ✅ ForAdmin 추가
         }
 
         model.addAttribute("products", products);
         model.addAttribute("pageTitle", "상품 관리");
-        model.addAttribute("menu", "product"); // 사이드바 활성화용
-
-        // 검색 상태 유지를 위해 모델에 담음
+        model.addAttribute("menu", "product");
         model.addAttribute("keyword", keyword);
         model.addAttribute("sortType", sortType);
 
         return "admin/product-manage";
     }
+
 
     /**
      * [관리자] 상품 등록 페이지

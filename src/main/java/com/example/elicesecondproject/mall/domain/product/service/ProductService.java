@@ -113,6 +113,21 @@ public class ProductService {
 
 
 
+    // ✅ 관리자용 - 전체 상품 조회 (STOP 포함) - 추가!
+    public Page<ProductSummaryDto> getAllProductsForAdmin(Pageable pageable, ProductSortType sortType) {
+        ProductSortType finalSortType = sortType != null ? sortType : ProductSortType.LATEST;
+        return productRepository.findAllProductsForAdmin(pageable, finalSortType);
+    }
+
+
+
+    // ✅ 관리자용 - 검색 (STOP 포함) - 추가!
+    public Page<ProductSummaryDto> searchProductsForAdmin(String keyword, ProductSortType sortType, Pageable pageable) {
+        String trimmed = validateAndNormalizeKeyword(keyword);
+        sortType = sortType != null ? sortType : ProductSortType.LATEST;
+        return productRepository.searchProductsForAdmin(trimmed, sortType, pageable);
+    }
+
     /*//PROD-REG-F-10 상품 등록
     @Transactional
     public ProductDetailResponse createProduct(CreateProductRequest request) {
