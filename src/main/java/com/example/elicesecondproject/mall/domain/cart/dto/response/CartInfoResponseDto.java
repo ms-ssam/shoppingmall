@@ -28,7 +28,7 @@ public class CartInfoResponseDto {
 
 //        int totalPrice = items.stream()
 //                .mapToInt(item -> item.getSubtotalPrice())
-//                .sum();  // 여기 로직이 문제?
+//                .sum();
 
         int totalCount = items.size();
 

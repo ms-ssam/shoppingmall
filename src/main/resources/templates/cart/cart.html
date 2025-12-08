@@ -292,32 +292,10 @@
         color: #4b5563;
     }
 
-    .quantity-control {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border-radius: 999px;
-        border: 1px solid #e5e7eb;
-        padding: 4px 8px;
-        background-color: #f9fafb;
-    }
-
-    .qty-btn {
-        width: 22px;
-        height: 22px;
-        border-radius: 999px;
-        border: none;
-        background-color: transparent;
-        font-size: 16px;
-        cursor: not-allowed; /* 아직 미구현이라 disabled 느낌 */
-        color: #9ca3af;
-    }
-
-    .qty-value {
-        min-width: 18px;
-        text-align: center;
-        font-weight: 600;
-        color: #111827;
+    .quantity-display {
+        font-size: 13px;
+        color: #4b5563;
+        align-self: flex-start;
     }
 
     .item-subtotal span {
@@ -527,14 +505,10 @@
 
                         <!-- 오른쪽: 수량/소계/삭제 -->
                         <div class="cart-item-right">
-                            <!-- 수량 조절 -->
-                            <div class="quantity-control">
-                                <button type="button" class="qty-btn" disabled>-</button>
-                                <span class="qty-value"
-                                      th:text="${item.quantity}">
-                                    1
-                                </span>
-                                <button type="button" class="qty-btn" disabled>+</button>
+                            <!-- 수량 표시 (읽기 전용) -->
+                            <div class="quantity-display">
+                                수량:
+                                <span th:text="${item.quantity}">1</span>개
                             </div>
 
                             <!-- 소계 -->
