@@ -82,14 +82,36 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         }
     }
 
-    // 키워드 검색: 상품명 + 고객명
+    // 키워드 검색: 주문번호 + 상품명 + 고객명
     private BooleanExpression containsKeyword(String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return null;
         }
 
-        return orderItem.productName.containsIgnoreCase(keyword)
-                .or(order.ordererName.containsIgnoreCase(keyword));
+        String trimmed = keyword.trim();
+
+        // 1) 상품명 / 고객명 부분 검색
+        BooleanExpression expr =
+                orderItem.productName.containsIgnoreCase(trimmed)
+                        .or(order.ordererName.containsIgnoreCase(trimmed));
+
+        // 2) 주문번호 검색 (예: "1", "ORD-1", "ord-1", "ORD-0001" 등)
+        String normalized = trimmed.toUpperCase();
+
+
+        // 숫자만 추출 (혹시 중간에 다른 문자가 껴도 대비)
+        normalized = normalized.replaceAll("[^0-9]", "");
+
+        if (StringUtils.hasText(normalized)) {
+            try {
+                Long orderId = Long.valueOf(normalized);
+                expr = expr.or(order.id.eq(orderId));
+            } catch (NumberFormatException ignored) {
+                // 숫자로 변환 안 되면 그냥 무시
+            }
+        }
+
+        return expr;
     }
 
     // 기간 필터: orderDate(LocalDateTime) 기준

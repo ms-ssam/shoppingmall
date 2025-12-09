@@ -15,8 +15,4 @@ public class OrderInfoResponse {
     private int totalPaymentFee;
     private LocalDateTime orderDate;
     private OrderStatus orderStatus;
-
-
-    //------------
-
 }
