@@ -5,6 +5,8 @@
     <title>주문서</title>
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/order-sheet-complete.css}">
+    <!--  다음 우편번호 스크립트 -->
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
 <!-- 공통 헤더 -->
@@ -40,17 +42,25 @@
                 <div class="form-row">
                     <label>우편번호</label>
                     <div class="inline-group">
-                        <input type="text" name="zipCode">
-                        <button type="button" class="btn btn-secondary">우편번호 찾기</button>
+                        <!-- ✅ id/name/readonly 설정 -->
+                        <input type="text" id="zipCode" name="zipCode" readonly>
+                        <!-- ✅ 버튼 클릭 시 주소 검색 팝업 -->
+                        <button type="button"
+                                class="btn btn-secondary"
+                                onclick="execDaumPostcode()">
+                            우편번호 찾기
+                        </button>
                     </div>
                 </div>
                 <div class="form-row">
                     <label>주소</label>
-                    <input type="text" name="address1">
+                    <!-- ✅ id 추가 + readonly -->
+                    <input type="text" id="address1" name="address1" readonly>
                 </div>
                 <div class="form-row">
                     <label>상세 주소</label>
-                    <input type="text" name="address2">
+                    <!-- ✅ id 추가 -->
+                    <input type="text" id="address2" name="address2">
                 </div>
                 <div class="form-row">
                     <label>배송 메모</label>
@@ -118,7 +128,6 @@
         <!-- 결제 요약 / 결제수단 -->
         <section class="order-bottom-layout">
             <!-- 결제수단 -->
-            <!-- 결제수단 -->
             <section class="order-section-card payment-method-card">
                 <header class="order-section-header">
                     <h2 class="order-section-title">결제 수단</h2>
@@ -140,7 +149,6 @@
                     </div>
                 </div>
             </section>
-
 
             <!-- 결제 금액 요약 -->
             <section class="order-section-card payment-summary-card">
@@ -197,5 +205,30 @@
         </section>
     </form>
 </main>
+
+<!-- ✅ 주소 검색 JS -->
+<script>
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                // 1. 우편번호
+                document.getElementById('zipCode').value = data.zonecode;
+
+                // 2. 기본 주소 (도로명 / 지번)
+                let addr = '';
+                if (data.userSelectedType === 'R') { // 도로명
+                    addr = data.roadAddress;
+                } else {                            // 지번
+                    addr = data.jibunAddress;
+                }
+                document.getElementById('address1').value = addr;
+
+                // 3. 상세 주소로 포커스 이동
+                document.getElementById('address2').focus();
+            }
+        }).open();
+    }
+</script>
+
 </body>
 </html>
