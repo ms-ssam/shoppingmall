@@ -77,6 +77,7 @@ public class AdminProductViewController {
 
         model.addAttribute("product", product);
         model.addAttribute("categoryTree", categoryTree);
+        model.addAttribute("images", product.getImages());
         model.addAttribute("pageTitle", "상품 수정");
         model.addAttribute("menu", "product");
 
