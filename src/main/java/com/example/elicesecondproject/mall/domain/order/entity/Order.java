@@ -47,7 +47,7 @@ public class Order extends SoftDeletableBaseEntity implements Ownable {
     private LocalDateTime orderDate;    // 주문 날짜
 
     @Embedded
-    private DeliveryInfo  deliveryInfo;  // 배송 정보
+    private DeliveryInfo deliveryInfo;  // 배송 정보
 
     private int totalPrice;             // 상품 총액
     private int deliveryFee;            // 배송비

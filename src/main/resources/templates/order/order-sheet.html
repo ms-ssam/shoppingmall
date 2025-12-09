@@ -23,34 +23,6 @@
                th:value="${_csrf.token}">
         -->
 
-        <!-- 주문자 정보 -->
-        <section class="order-section-card">
-            <header class="order-section-header">
-                <h2 class="order-section-title">주문자 정보</h2>
-            </header>
-            <div class="order-section-body">
-                <div class="form-row">
-                    <label>이름</label>
-                    <!-- 표시만 하는 값이라 name 제거 -->
-                    <input type="text"
-                           th:value="${orderSheet.orderer.name}"
-                           readonly>
-                </div>
-                <div class="form-row">
-                    <label>이메일</label>
-                    <input type="email"
-                           th:value="${orderSheet.orderer.email}"
-                           readonly>
-                </div>
-                <div class="form-row">
-                    <label>연락처</label>
-                    <input type="text"
-                           th:value="${orderSheet.orderer.phoneNumber}"
-                           readonly>
-                </div>
-            </div>
-        </section>
-
         <!-- 배송지 정보 (주문서에서 입력) -->
         <section class="order-section-card">
             <header class="order-section-header">
