@@ -6,6 +6,9 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMem
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
+import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
+import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
@@ -31,6 +34,7 @@ import java.time.LocalDate;
 public class MypageViewController {
     private final MemberService memberService;
     private final ReviewService reviewService;
+    private final OrderService orderService;
 
     @GetMapping
     public String mypagePage(@AuthenticationPrincipal MemberDetail principal,
@@ -228,5 +232,16 @@ public class MypageViewController {
         redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
         // 로그아웃으로 보내기
         return "redirect:/logout";
+    }
+
+    @GetMapping("/orders")
+    public String getMyOrders(@ModelAttribute UserOrderSearchCondition condition,
+                              @AuthenticationPrincipal MemberDetail principal,
+                              Pageable pageable,
+                              Model model
+    ) {
+        Page<UserOrderInfoResponse> responses = orderService.getMyOrders(condition, principal.getMember().getId(), pageable);
+        model.addAttribute("orders", responses);
+        return "mypage/mypage-orders";
     }
 }

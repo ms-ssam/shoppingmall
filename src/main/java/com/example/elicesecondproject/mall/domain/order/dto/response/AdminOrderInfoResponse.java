@@ -8,15 +8,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class OrderInfoResponse {
+public class AdminOrderInfoResponse {
     private Long id;
     private String ordererName;
     private String mainProductName;
     private int totalPaymentFee;
     private LocalDateTime orderDate;
     private OrderStatus orderStatus;
-
-
-    //------------
-
 }
