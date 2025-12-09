@@ -71,6 +71,9 @@
             </div>
 
             <div class="price-area">
+                <span class="discount-badge"
+                      th:if="${product.discountRate > 0}"
+                      th:text="${product.discountRate} + '%'">10%</span>
                 <span class="price"
                       th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">0원</span>
                 <span class="origin"
@@ -80,7 +83,6 @@
 
             <ul class="info-list">
                 <li th:text="${product.description}">상품 설명</li>
-                <li>무료 배송 (50,000원 이상 구매 시)</li>
             </ul>
 
                 <!-- 옵션 선택 -->
@@ -112,19 +114,26 @@
                 </div>
 
                 <!-- 장바구니 / 구매 버튼 -->
-                <div class="btn-row">
-                    <!-- 장바구니 폼 -->
-                    <form th:action="@{|/products/${product.id}/cart|}" method="post" id="cartForm">
-                        <!-- 장바구니 hidden 필드 -->
-                        <div id="cart-hidden-fields"></div>
-                        <button type="submit" class="btn btn-cart">장바구니</button>
-                    </form>
-                    <!--  구매하기 폼: 장바구니에 담고 바로 장바구니로 이동 -->
-                    <form th:action="@{|/products/${product.id}/purchase|}" method="post" id="buyNowForm">
-                        <div id="buy-hidden-fields"></div>
-                        <button type="submit" class="btn btn-buy">구매하기</button>
-                    </form>
-                </div>
+            <div class="btn-row">
+                <!--  품절 상태일 때만 보이는 품절 버튼 -->
+                <button type="button" class="btn btn-soldout" id="soldoutBtn" style="display: none;">
+                    품절
+                </button>
+
+                <!--  정상 상태일 때 보이는 버튼들 -->
+                <!-- 장바구니 폼 -->
+                <form th:action="@{|/products/${product.id}/cart|}" method="post" id="cartForm" class="btn-form">
+                    <!-- 장바구니 hidden 필드 -->
+                    <div id="cart-hidden-fields"></div>
+                    <button type="submit" class="btn btn-cart">장바구니</button>
+                </form>
+
+                <!-- 구매하기 폼: 장바구니에 담고 바로 장바구니로 이동 -->
+                <form th:action="@{|/products/${product.id}/purchase|}" method="post" id="buyNowForm" class="btn-form">
+                    <div id="buy-hidden-fields"></div>
+                    <button type="submit" class="btn btn-buy">구매하기</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -201,9 +210,7 @@
             </div>
         </div>
     </div>
-    <!-- ✅ 구매 후기 리스트 영역 끝 -->
 
-    <!-- ✅ 상품 문의 영역 (상품문의 탭) -->
     <div id="tab-qna" class="qna-section tab-content">
         <div class="review-header">
             <div class="review-title">상품문의</div>
@@ -236,6 +243,11 @@
     /*<![CDATA[*/
     window.optionGroups = /*[[${product.optionGroups}]]*/ [];
     window.basePrice = /*[[${product.salePrice}]]*/ 0;
+
+    window.productData = {
+        status: /*[[${product.status}]]*/ 'SELLING',
+        totalStock: /*[[${product.totalStock}]]*/ 0
+    };
     /*]]>*/
 </script>
 
