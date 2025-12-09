@@ -4,6 +4,8 @@ import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderInfoResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderDetailResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
@@ -33,6 +35,13 @@ public class AdminOrderService {
     public Page<AdminOrderInfoResponse> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
         Page<Order> orders = orderRepository.searchOrders(condition, pageable);
         return orders.map(orderMapper::toAdminOrderInfoResponse);
+    }
+
+    public AdminOrderDetailResponse getOrderDetail(Long orderId) {
+        Order order = orderRepository.findWithItemsById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        return AdminOrderDetailResponse.of(order);
     }
 
     @Transactional

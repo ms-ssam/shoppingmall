@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepositoryCustom {
@@ -94,6 +95,17 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     // ====== 공통 필터들 ======
 
+    @Override
+    public Optional<Order> findWithItemsById(Long orderId) {
+        Order result = queryFactory
+                .selectFrom(order)
+                .leftJoin(order.orderItems, orderItem).fetchJoin()
+                .where(order.id.eq(orderId))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
     // 주문 상태 필터 (String -> Enum 매핑)
     private BooleanExpression eqStatus(String status) {
         if (!StringUtils.hasText(status)) {
@@ -114,8 +126,30 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
             return null;
         }
 
-        return orderItem.productName.containsIgnoreCase(keyword)
-                .or(order.ordererName.containsIgnoreCase(keyword));
+        String trimmed = keyword.trim();
+
+        // 1) 상품명 / 고객명 부분 검색
+        BooleanExpression expr =
+                orderItem.productName.containsIgnoreCase(trimmed)
+                        .or(order.ordererName.containsIgnoreCase(trimmed));
+
+        // 2) 주문번호 검색 (예: "1", "ORD-1", "ord-1", "ORD-0001" 등)
+        String normalized = trimmed.toUpperCase();
+
+
+        // 숫자만 추출 (혹시 중간에 다른 문자가 껴도 대비)
+        normalized = normalized.replaceAll("[^0-9]", "");
+
+        if (StringUtils.hasText(normalized)) {
+            try {
+                Long orderId = Long.valueOf(normalized);
+                expr = expr.or(order.id.eq(orderId));
+            } catch (NumberFormatException ignored) {
+                // 숫자로 변환 안 되면 그냥 무시
+            }
+        }
+
+        return expr;
     }
 
     // [마이페이지용] 키워드 검색: 상품명만

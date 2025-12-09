@@ -28,11 +28,20 @@
                    placeholder="주문번호, 상품명, 고객명 검색"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"/>
 
+            <!-- 검색 버튼 -->
             <button type="submit"
                     class="px-5 py-2 rounded-md bg-gray-900 text-white text-sm font-semibold flex items-center gap-1">
                 <span>검색</span>
             </button>
+
+            <!-- 초기화 버튼 -->
+            <button type="button"
+                    id="order-reset-btn"
+                    class="px-5 py-2 rounded-md border border-gray-300 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100">
+                초기화
+            </button>
         </div>
+
 
         <!-- 정렬/상태/기간 필터 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -44,14 +53,14 @@
                         class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
                     <option value="">전체</option>
 
-                    <option value="PENDING"          th:selected="${searchCondition.orderStatus} == 'PENDING'">결제대기</option>
-                    <option value="FAILED"           th:selected="${searchCondition.orderStatus} == 'FAILED'">결제실패</option>
-                    <option value="PAID"             th:selected="${searchCondition.orderStatus} == 'PAID'">결제완료</option>
+                    <option value="PENDING"          th:selected="${searchCondition.orderStatus} == 'PENDING'">결제 대기</option>
+                    <option value="FAILED"           th:selected="${searchCondition.orderStatus} == 'FAILED'">결제 실패</option>
+                    <option value="PAID"             th:selected="${searchCondition.orderStatus} == 'PAID'">결제 완료</option>
                     <option value="PREPARING"        th:selected="${searchCondition.orderStatus} == 'PREPARING'">상품 준비중</option>
-                    <option value="DELIVERING"       th:selected="${searchCondition.orderStatus} == 'DELIVERING'">배송중</option>
-                    <option value="DELIVERED"        th:selected="${searchCondition.orderStatus} == 'DELIVERED'">배송완료</option>
-                    <option value="CANCEL_REQUESTED" th:selected="${searchCondition.orderStatus} == 'CANCEL_REQUESTED'">취소요청</option>
-                    <option value="CANCELED"         th:selected="${searchCondition.orderStatus} == 'CANCELED'">취소완료</option>
+                    <option value="DELIVERING"       th:selected="${searchCondition.orderStatus} == 'DELIVERING'">배송 진행</option>
+                    <option value="DELIVERED"        th:selected="${searchCondition.orderStatus} == 'DELIVERED'">배송 완료</option>
+                    <option value="CANCEL_REQUESTED" th:selected="${searchCondition.orderStatus} == 'CANCEL_REQUESTED'">취소 요청</option>
+                    <option value="CANCELED"         th:selected="${searchCondition.orderStatus} == 'CANCELED'">취소 승인</option>
                 </select>
             </div>
 
@@ -141,7 +150,7 @@
                 <!-- 주문번호: 아직 필드가 없다면 id로 대체 -->
                 <td class="px-4 py-3 align-middle">
                     <span class="text-blue-600 font-semibold"
-                          th:text="|ORD-${order.id}|">ORD-1</span>
+                          th:text="${order.id}">ORD</span>
                 </td>
 
                 <!-- 고객명 -->
@@ -171,47 +180,48 @@
                 <!-- 상태 + 상태 변경 폼 -->
                 <td class="px-4 py-3 align-middle">
                     <!-- 현재 상태 배지 -->
+                    <!-- 현재 상태 배지 -->
                     <div class="mb-2">
-                        <span th:switch="${order.orderStatus}">
+                        <span th:switch="${order.orderStatus.name()}">
 
                             <span th:case="'PENDING'"
                                   class="inline-flex px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-semibold">
-                                결제대기
+                                결제 대기
                             </span>
 
                             <span th:case="'FAILED'"
                                   class="inline-flex px-2 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold">
-                                결제실패
+                                결제 실패
                             </span>
 
                             <span th:case="'PAID'"
                                   class="inline-flex px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
-                                결제완료
+                                결제 완료
                             </span>
 
                             <span th:case="'PREPARING'"
                                   class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">
-                                준비중
+                                상품 준비중
                             </span>
 
                             <span th:case="'DELIVERING'"
                                   class="inline-flex px-2 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold">
-                                배송중
+                                배송 진행
                             </span>
 
                             <span th:case="'DELIVERED'"
                                   class="inline-flex px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                                배송완료
+                                배송 완료
                             </span>
 
                             <span th:case="'CANCEL_REQUESTED'"
                                   class="inline-flex px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold">
-                                취소요청
+                                취소 요청
                             </span>
 
                             <span th:case="'CANCELED'"
                                   class="inline-flex px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
-                                취소완료
+                                취소 승인
                             </span>
 
                             <span th:case="*"
@@ -221,6 +231,7 @@
 
                         </span>
                     </div>
+
 
                     <!-- 개별 상태 변경 폼 -->
                     <form th:action="@{|/admin/orders/${order.id}|}"
@@ -233,36 +244,36 @@
                         <select name="status"
                                 class="border border-gray-300 rounded px-2 py-1 text-xs">
                             <option value="PENDING"
-                                    th:selected="${order.orderStatus} == 'PENDING'">
-                                결제대기
+                                    th:selected="${order.orderStatus.name() == 'PENDING'}">
+                                결제 대기
                             </option>
                             <option value="FAILED"
-                                    th:selected="${order.orderStatus} == 'FAILED'">
-                                결제실패
+                                    th:selected="${order.orderStatus.name() == 'FAILED'}">
+                                결제 실패
                             </option>
                             <option value="PAID"
-                                    th:selected="${order.orderStatus} == 'PAID'">
-                                결제완료
+                                    th:selected="${order.orderStatus.name() == 'PAID'}">
+                                결제 완료
                             </option>
                             <option value="PREPARING"
-                                    th:selected="${order.orderStatus} == 'PREPARING'">
+                                    th:selected="${order.orderStatus.name() == 'PREPARING'}">
                                 상품 준비중
                             </option>
                             <option value="DELIVERING"
-                                    th:selected="${order.orderStatus} == 'DELIVERING'">
-                                배송중
+                                    th:selected="${order.orderStatus.name() == 'DELIVERING'}">
+                                배송 진행
                             </option>
                             <option value="DELIVERED"
-                                    th:selected="${order.orderStatus} == 'DELIVERED'">
-                                배송완료
+                                    th:selected="${order.orderStatus.name() == 'DELIVERED'}">
+                                배송 완료
                             </option>
                             <option value="CANCEL_REQUESTED"
-                                    th:selected="${order.orderStatus} == 'CANCEL_REQUESTED'">
-                                취소요청
+                                    th:selected="${order.orderStatus.name() == 'CANCEL_REQUESTED'}">
+                                취소 요청
                             </option>
                             <option value="CANCELED"
-                                    th:selected="${order.orderStatus} == 'CANCELED'">
-                                취소완료
+                                    th:selected="${order.orderStatus.name() == 'CANCELED'}">
+                                취소 승인
                             </option>
                         </select>
 
@@ -277,7 +288,7 @@
                 <td class="px-4 py-3 align-middle text-center">
                     <a th:href="@{|/admin/orders/${order.id}|}"
                        class="px-3 py-1 border border-gray-300 rounded text-xs text-gray-700 hover:bg-gray-100">
-                        상세보기
+                        상세 보기
                     </a>
                 </td>
             </tr>
@@ -353,7 +364,6 @@
             const endDate   = document.getElementById("endDate");
 
             if (startDate && endDate) {
-                // 초기 로드 시 한 번 정합성 맞추기
                 function initRange() {
                     if (startDate.value) {
                         endDate.min = startDate.value;
@@ -363,28 +373,20 @@
                     }
                 }
 
-                // 시작일 변경 시: 종료일이 더 과거면 종료일을 시작일로 맞춘다
                 startDate.addEventListener("change", function () {
                     if (!startDate.value) {
                         endDate.removeAttribute("min");
                         return;
                     }
-
-                    // 종료일의 최소 선택 가능 날짜를 시작일로 고정
                     endDate.min = startDate.value;
-
-                    // 이미 선택된 종료일이 더 과거면, 시작일로 되돌림
                     if (endDate.value && endDate.value < startDate.value) {
                         endDate.value = startDate.value;
                     }
                 });
 
-                // 종료일 변경 시: 시작일보다 과거로 가려고 하면 다시 되돌려버림
                 endDate.addEventListener("change", function () {
                     if (!endDate.value || !startDate.value) return;
-
                     if (endDate.value < startDate.value) {
-                        // 종료일을 다시 시작일로 강제
                         endDate.value = startDate.value;
                     }
                 });
@@ -399,7 +401,6 @@
             const orderCheckboxes = document.querySelectorAll(".order-checkbox");
 
             if (masterCheckbox && orderCheckboxes.length > 0) {
-                // 마스터 체크박스 클릭 시: 모두 체크 / 해제
                 masterCheckbox.addEventListener("change", function () {
                     const checked = masterCheckbox.checked;
                     orderCheckboxes.forEach(cb => {
@@ -407,7 +408,6 @@
                     });
                 });
 
-                // 개별 체크박스 변경 시: 모두 체크되면 마스터도 체크, 아니면 해제
                 orderCheckboxes.forEach(cb => {
                     cb.addEventListener("change", function () {
                         if (!cb.checked) {
@@ -420,7 +420,9 @@
                 });
             }
 
+            // =========================
             // 일괄 상태 변경
+            // =========================
             const bulkBtn    = document.getElementById("bulk-status-btn");
             const bulkSelect = document.getElementById("bulk-status-select");
 
@@ -439,24 +441,21 @@
                     }
 
                     const form = document.createElement("form");
-                    form.method = "post";                     // 실제 HTTP는 POST
-                    form.action = "/admin/orders/selected";   // 컨트롤러 매핑과 동일
+                    form.method = "post";
+                    form.action = "/admin/orders/selected";
 
-                    // PUT 매핑용 hidden 필드
                     const methodInput = document.createElement("input");
                     methodInput.type  = "hidden";
                     methodInput.name  = "_method";
                     methodInput.value = "put";
                     form.appendChild(methodInput);
 
-                    // 상태 값
                     const statusInput = document.createElement("input");
                     statusInput.type = "hidden";
                     statusInput.name = "status";
                     statusInput.value = status;
                     form.appendChild(statusInput);
 
-                    // 선택된 주문 ID들
                     checked.forEach(cb => {
                         const idInput = document.createElement("input");
                         idInput.type = "hidden";
@@ -469,6 +468,20 @@
                     form.submit();
                 });
             }
+
+            // =========================
+            // 검색 조건 초기화 버튼
+            // =========================
+            const resetBtn = document.getElementById("order-reset-btn");
+            if (resetBtn) {
+                resetBtn.addEventListener("click", function () {
+                    // 모든 검색 조건 제거한 상태로 진입
+                    window.location.href = "/admin/orders";
+                    // Thymeleaf 쓸 거면:
+                    // window.location.href = /*[[@{/admin/orders}]]*/ "/admin/orders";
+                });
+            }
+
         })();
     </script>
 </div>

@@ -65,6 +65,8 @@ public class Order extends BaseEntity implements Ownable {
 
         Order order = new Order();
 
+        order.memberId = member.getId();
+
         order.ordererName = member.getName();
         order.ordererPhoneNumber = member.getPhone();
         order.ordererEmail = member.getEmail();
