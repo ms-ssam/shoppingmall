@@ -51,7 +51,6 @@ public class ProductOptionService {
                         .build();
 
                 if (groupDto.getDetails() != null) {
-                    // 🔥 displayOrder 중복 방지
                     normalizeDisplayOrders(groupDto.getDetails());
 
                     groupDto.getDetails().forEach(detailDto -> {
@@ -99,7 +98,6 @@ public class ProductOptionService {
                 .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
                 .forEach(OptionDetail::softDelete);
 
-        // 🔥 displayOrder 중복 방지
         normalizeDisplayOrders(requestDetails);
 
         for (OptionDetailDto detailDto : requestDetails) {

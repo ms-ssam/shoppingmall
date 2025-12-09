@@ -353,4 +353,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const buyNowForm = document.getElementById('buyNowForm');
+    const cartHidden = document.getElementById('cart-hidden-fields');
+    const buyHidden = document.getElementById('buy-hidden-fields');
+
+    if (!buyNowForm || !cartHidden || !buyHidden) {
+        return;
+    }
+
+    // 구매하기 폼 제출 시, 장바구니 폼의 hidden 필드를 그대로 복사
+    buyNowForm.addEventListener('submit', function () {
+        buyHidden.innerHTML = cartHidden.innerHTML;
+    });
 });
