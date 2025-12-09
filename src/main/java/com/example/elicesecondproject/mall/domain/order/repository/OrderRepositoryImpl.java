@@ -1,6 +1,5 @@
 package com.example.elicesecondproject.mall.domain.order.repository;
 
-import com.example.elicesecondproject.mall.domain.member.entity.QMember;
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
@@ -27,7 +26,6 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     private final QOrder order = QOrder.order;
     private final QOrderItem orderItem = QOrderItem.orderItem;
-    private final QMember member = QMember.member;
 
     @Override
     public Page<Order> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
@@ -69,10 +67,6 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
         return Optional.ofNullable(result);
     }
-
-    /* ===============================
-        BooleanExpression helpers
-       =============================== */
 
     // 주문 상태 필터 (String -> Enum 매핑)
     private BooleanExpression eqStatus(String status) {

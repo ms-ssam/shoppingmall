@@ -2,7 +2,7 @@ package com.example.elicesecondproject.mall.domain.order.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.common.Ownable;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Order extends SoftDeletableBaseEntity implements Ownable {
+public class Order extends BaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,7 +47,7 @@ public class Order extends SoftDeletableBaseEntity implements Ownable {
     private LocalDateTime orderDate;    // 주문 날짜
 
     @Embedded
-    private DeliveryInfo  deliveryInfo;  // 배송 정보
+    private DeliveryInfo deliveryInfo;  // 배송 정보
 
     private int totalPrice;             // 상품 총액
     private int deliveryFee;            // 배송비
@@ -55,13 +55,22 @@ public class Order extends SoftDeletableBaseEntity implements Ownable {
 
     private String mainProductName; // 대표 상품 이름 예) "반팔 외 3개"
 
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
     // === 정적 팩토리 메서드 ===
     public static Order create(Member member,
                                DeliveryInfo deliveryInfo,
                                List<OrderItem> orderItems) {
 
         Order order = new Order();
-        // order.member = member; 여기 method param member로 주문자 관련 필드 초기화하는 코드로 고치기
+
+        order.memberId = member.getId();
+
+        order.ordererName = member.getName();
+        order.ordererPhoneNumber = member.getPhone();
+        order.ordererEmail = member.getEmail();
+
         order.deliveryInfo = deliveryInfo;
 
         order.orderStatus = OrderStatus.PENDING;

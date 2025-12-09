@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문서</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/order-sheet-complete.css}">
+</head>
+<body>
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
+<main class="order-sheet-container">
+    <h1 class="order-sheet-title">주문서</h1>
+
+    <!-- 전체 주문 폼 -->
+    <form th:action="@{/orders}" method="post" class="order-form">
+
+        <!-- (선택) CSRF -->
+        <!--
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+        -->
+
+        <!-- 배송지 정보 (주문서에서 입력) -->
+        <section class="order-section-card">
+            <header class="order-section-header">
+                <h2 class="order-section-title">배송지 정보</h2>
+            </header>
+            <div class="order-section-body">
+                <div class="form-row">
+                    <label>수령인</label>
+                    <input type="text" name="receiverName">
+                </div>
+                <div class="form-row">
+                    <label>연락처</label>
+                    <input type="text" name="receiverPhone">
+                </div>
+                <div class="form-row">
+                    <label>우편번호</label>
+                    <div class="inline-group">
+                        <input type="text" name="zipCode">
+                        <button type="button" class="btn btn-secondary">우편번호 찾기</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>주소</label>
+                    <input type="text" name="address1">
+                </div>
+                <div class="form-row">
+                    <label>상세 주소</label>
+                    <input type="text" name="address2">
+                </div>
+                <div class="form-row">
+                    <label>배송 메모</label>
+                    <textarea name="deliveryMemo"
+                              placeholder="배송 시 요청사항을 입력해 주세요."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- 주문 상품 정보 -->
+        <section class="order-section-card">
+            <header class="order-section-header">
+                <h2 class="order-section-title">주문 상품</h2>
+            </header>
+            <div class="order-section-body">
+                <table class="order-items-table">
+                    <thead>
+                    <tr>
+                        <th>상품정보</th>
+                        <th>옵션</th>
+                        <th>수량</th>
+                        <th>상품금액</th>
+                        <th>합계</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${orderSheet.items}">
+                        <td class="item-info">
+                            <!-- 썸네일 -->
+                            <img th:src="${item.thumbnailUrl}"
+                                 alt="상품 이미지"
+                                 class="item-thumb">
+
+                            <!-- 상품명만 -->
+                            <div class="item-text">
+                                <div class="item-name"
+                                     th:text="${item.productName}">상품명</div>
+                            </div>
+                        </td>
+
+                        <!-- 옵션은 여기만 -->
+                        <td th:text="${item.optionGroupName + ' / ' + item.optionDetailName}">
+                            옵션명
+                        </td>
+
+                        <td th:text="${item.quantity}">1</td>
+
+                        <td th:text="${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')} + '원'">
+                            10,000원
+                        </td>
+
+                        <td th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
+                            10,000원
+                        </td>
+
+                        <input type="hidden"
+                               name="cartItemIds"
+                               th:value="${item.cartItemId}">
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 결제 요약 / 결제수단 -->
+        <section class="order-bottom-layout">
+            <!-- 결제수단 -->
+            <!-- 결제수단 -->
+            <section class="order-section-card payment-method-card">
+                <header class="order-section-header">
+                    <h2 class="order-section-title">결제 수단</h2>
+                </header>
+                <div class="order-section-body">
+                    <div class="payment-method-list">
+                        <label class="radio-row">
+                            <input type="radio" value="CARD" checked disabled>
+                            <span>신용/체크카드</span>
+                        </label>
+                        <label class="radio-row">
+                            <input type="radio" value="VBANK" disabled>
+                            <span>가상계좌</span>
+                        </label>
+                        <label class="radio-row">
+                            <input type="radio" value="TRANSFER" disabled>
+                            <span>계좌이체</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 결제 금액 요약 -->
+            <section class="order-section-card payment-summary-card">
+                <header class="order-section-header">
+                    <h2 class="order-section-title">최종 결제 금액</h2>
+                </header>
+                <div class="order-section-body">
+                    <dl class="price-row">
+                        <dt>상품 합계</dt>
+                        <!-- OrderSheetResponse.totalPrice -->
+                        <dd th:text="${#numbers.formatInteger(orderSheet.totalPrice, 0, 'COMMA')} + '원'">
+                            30,000원
+                        </dd>
+                    </dl>
+                    <dl class="price-row">
+                        <dt>배송비</dt>
+                        <!-- OrderSheetResponse.deliveryFee -->
+                        <dd th:text="${#numbers.formatInteger(orderSheet.deliveryFee, 0, 'COMMA')} + '원'">
+                            3,000원
+                        </dd>
+                    </dl>
+                    <dl class="price-row total">
+                        <dt>총 결제 금액</dt>
+                        <!-- OrderSheetResponse.finalPaymentAmount -->
+                        <dd th:text="${#numbers.formatInteger(orderSheet.finalPaymentAmount, 0, 'COMMA')} + '원'">
+                            33,000원
+                        </dd>
+                    </dl>
+
+                    <div class="agreement-row">
+                        <label>
+                            <input type="checkbox" name="agreeTerms">
+                            주문 상품 정보 및 결제 대행 서비스 이용 약관에 모두 동의합니다.
+                        </label>
+                    </div>
+
+                    <div class="order-actions">
+                        <!-- 장바구니 이동 버튼 -->
+                        <button type="button"
+                                class="btn btn-secondary btn-block"
+                                onclick="location.href='/cart'">
+                            장바구니로 돌아가기
+                        </button>
+
+                        <!-- 주문 생성 -->
+                        <button type="submit"
+                                class="btn btn-primary btn-block">
+                            결제하기
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+        </section>
+    </form>
+</main>
+</body>
+</html>
