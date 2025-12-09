@@ -1,0 +1,205 @@
+/* 전체 카드 박스 */
+.myorder-container {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px 32px 32px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.03);
+    border: 1px solid #f5f5f5;
+}
+
+/* 제목 */
+.myorder-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 28px;
+}
+
+/* 검색 폼 */
+.myorder-search-form {
+    margin-bottom: 24px;
+}
+
+.myorder-search-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* 라벨 + 인풋 세트 */
+.myorder-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.myorder-field label {
+    font-size: 13px;
+    color: #555;
+}
+
+.myorder-input {
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #111;
+    box-sizing: border-box;
+}
+
+.myorder-date-input {
+    width: 170px;
+}
+
+/* 버튼 그룹 */
+.myorder-btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.myorder-btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.myorder-btn.primary {
+    background-color: #2a6ef2;
+    color: #fff;
+}
+
+.myorder-btn.secondary {
+    background-color: #f1f1f1;
+    color: #444;
+}
+
+/* 리스트 영역 */
+.myorder-list {
+    margin-top: 8px;
+}
+
+/* 빈 상태 */
+.myorder-empty {
+    padding: 48px 0;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+}
+
+/* 테이블 (주문 있을 때) */
+.myorder-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.myorder-table th {
+    text-align: left;
+    padding: 10px 6px;
+    border-bottom: 2px solid #e5e5e5;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.myorder-table td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+/* 상태 배지 공통 */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* 상태별 색상 */
+.status-pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.status-failed {
+    background-color: #FEE2E2;
+    color: #B91C1C;
+}
+
+.status-paid {
+    background-color: #DBEAFE;
+    color: #1D4ED8;
+}
+
+.status-preparing {
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+.status-delivering {
+    background-color: #EDE9FE;
+    color: #6D28D9;
+}
+
+.status-delivered {
+    background-color: #DCFCE7;
+    color: #15803D;
+}
+
+.status-cancel-requested {
+    background-color: #FFEDD5;
+    color: #C2410C;
+}
+
+.status-canceled {
+    background-color: #FECACA;
+    color: #B91C1C;
+}
+
+.status-etc {
+    background-color: #E5E7EB;
+    color: #4B5563;
+}
+
+/* 상세보기 버튼 */
+.myorder-detail-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.myorder-detail-btn:hover {
+    background-color: #f5f5f5;
+}
+
+/* 페이지네이션 */
+.myorder-pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.myorder-pagination a {
+    display: inline-block;
+    padding: 6px 10px;
+    margin: 0 3px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1px solid transparent;
+}
+
+.myorder-pagination a.active {
+    border-color: #222;
+    font-weight: 600;
+}

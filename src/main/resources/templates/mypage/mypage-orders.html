@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 내역</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-orders.css}">
+</head>
+<body>
+
+<!-- 헤더 -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+
+    <!-- 사이드바 -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="mypage-content">
+
+        <!-- 카드 전체 박스 -->
+        <div class="myorder-container">
+
+            <!-- 상단 제목 -->
+            <h2 class="myorder-title">내 주문 내역</h2>
+
+            <!-- 검색 영역 -->
+            <form th:action="@{/mypage/orders}" method="get" class="myorder-search-form">
+                <div class="myorder-search-row">
+
+                    <!-- 상품명 -->
+                    <div class="myorder-field">
+                        <label for="orderKeyword">상품명</label>
+                        <input type="text"
+                               id="orderKeyword"
+                               name="orderKeyword"
+                               th:value="${condition.orderKeyword}"
+                               class="myorder-input"
+                               placeholder="상품명 검색">
+                    </div>
+
+                    <!-- 시작일 -->
+                    <div class="myorder-field">
+                        <label for="startDate">시작일</label>
+                        <input type="date"
+                               id="startDate"
+                               name="startDate"
+                               th:value="${condition.startDate}"
+                               class="myorder-input myorder-date-input">
+                    </div>
+
+                    <!-- 종료일 -->
+                    <div class="myorder-field">
+                        <label for="endDate">종료일</label>
+                        <input type="date"
+                               id="endDate"
+                               name="endDate"
+                               th:value="${condition.endDate}"
+                               class="myorder-input myorder-date-input">
+                    </div>
+
+                    <!-- 버튼 영역 -->
+                    <div class="myorder-btn-group">
+                        <button type="submit" class="myorder-btn primary">검색</button>
+                        <a th:href="@{/mypage/orders}" class="myorder-btn secondary">초기화</a>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 주문 리스트 -->
+            <div class="myorder-list">
+
+                <!-- 주문이 없는 경우 -->
+                <div th:if="${orders.empty}" class="myorder-empty">
+                    아직 주문 내역이 없습니다.
+                </div>
+
+                <!-- 주문이 있는 경우 -->
+                <div th:if="${!orders.empty}">
+                    <table class="myorder-table">
+                        <thead>
+                        <tr>
+                            <th>주문번호</th>
+                            <th>상품</th>
+                            <th>주문일</th>
+                            <th>결제금액</th>
+                            <th>상태</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${orders.content}">
+                            <td th:text="${order.id}"></td>
+                            <td th:text="${order.mainProductName}"></td>
+                            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'"></td>
+                            <td>
+                                <span th:switch="${order.orderStatus.name()}">
+
+                                    <span th:case="'PENDING'"  class="status-badge status-pending">결제 대기</span>
+                                    <span th:case="'FAILED'"   class="status-badge status-failed">결제 실패</span>
+                                    <span th:case="'PAID'"     class="status-badge status-paid">결제 완료</span>
+                                    <span th:case="'PREPARING'" class="status-badge status-preparing">상품 준비중</span>
+                                    <span th:case="'DELIVERING'" class="status-badge status-delivering">배송 진행</span>
+                                    <span th:case="'DELIVERED'"  class="status-badge status-delivered">배송 완료</span>
+                                    <span th:case="'CANCEL_REQUESTED'" class="status-badge status-cancel-requested">취소 요청</span>
+                                    <span th:case="'CANCELED'" class="status-badge status-canceled">취소 승인</span>
+
+                                    <!-- 혹시 모를 기타 상태 -->
+                                    <span th:case="*" class="status-badge status-etc">기타</span>
+
+                                </span>
+                            </td>
+                            <td>
+                                <a th:href="@{'/mypage/orders/' + ${order.id}}"
+                                   class="myorder-detail-btn">
+                                    상세보기
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div class="myorder-pagination" th:if="${orders.totalPages > 1}">
+                <a th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
+                   th:href="@{/mypage/orders(page=${i},
+                                orderKeyword=${condition.orderKeyword},
+                                startDate=${condition.startDate},
+                                endDate=${condition.endDate})}"
+                   th:text="${i + 1}"
+                   th:classappend="${orders.number == i} ? 'active'">
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 시작일이 종료일보다 뒤로 못 가게 하는 스크립트 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startInput = document.getElementById('startDate');
+        const endInput = document.getElementById('endDate');
+
+        if (!startInput || !endInput) return;
+
+        function syncDateConstraints() {
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+
+            // 시작일 선택 시 → 종료일 최소값 갱신
+            if (startVal) {
+                endInput.min = startVal;
+
+                if (endVal && endVal < startVal) {
+                    endInput.value = startVal;
+                }
+            } else {
+                endInput.min = '';
+            }
+
+            // 종료일 선택 시 → 시작일 최대값 갱신
+            if (endVal) {
+                startInput.max = endVal;
+
+                if (startVal && startVal > endVal) {
+                    startInput.value = endVal;
+                }
+            } else {
+                startInput.max = '';
+            }
+        }
+
+        startInput.addEventListener('change', syncDateConstraints);
+        endInput.addEventListener('change', syncDateConstraints);
+
+        // 서버에서 값이 채워져 있을 수도 있으니 최초 1번 실행
+        syncDateConstraints();
+    });
+</script>
+
+</body>
+</html>

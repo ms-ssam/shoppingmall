@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.order.controller;
 
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderDetailResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.OrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.service.AdminOrderService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class AdminOrderViewController {
                             Pageable pageable,
                             Model model
     ) {
-        Page<OrderInfoResponse> responses = adminOrderService.searchOrders(searchCondition, pageable);
+        Page<AdminOrderInfoResponse> responses = adminOrderService.searchOrders(searchCondition, pageable);
 
         model.addAttribute("orders", responses);
         model.addAttribute("searchCondition", searchCondition);

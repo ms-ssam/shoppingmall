@@ -3,8 +3,8 @@ package com.example.elicesecondproject.mall.domain.order.service;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderDetailResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.OrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
@@ -31,9 +31,9 @@ public class AdminOrderService {
     private final OptionDetailRepository optionDetailRepository;
     private final OrderMapper orderMapper;
 
-    public Page<OrderInfoResponse> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
-        Page<Order> responses = orderRepository.searchOrders(condition, pageable);
-        return responses.map(orderMapper::toOrderInfoResponse);
+    public Page<AdminOrderInfoResponse> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
+        Page<Order> orders = orderRepository.searchOrders(condition, pageable);
+        return orders.map(orderMapper::toAdminOrderInfoResponse);
     }
 
     public AdminOrderDetailResponse getOrderDetail(Long orderId) {

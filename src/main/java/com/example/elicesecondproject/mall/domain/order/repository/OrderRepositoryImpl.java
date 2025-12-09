@@ -1,6 +1,7 @@
 package com.example.elicesecondproject.mall.domain.order.repository;
 
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.entity.QOrder;
@@ -57,6 +58,43 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
     }
 
+    /**
+     * 마이페이지 - 나의 주문 목록 조회
+     */
+    @Override
+    public Page<Order> searchMyOrders(UserOrderSearchCondition condition,
+                                      Long memberId,
+                                      Pageable pageable) {
+
+        List<Order> contents = queryFactory
+                .selectDistinct(order)
+                .from(order)
+                .leftJoin(order.orderItems, orderItem)
+                .where(
+                        order.memberId.eq(memberId),                         // 내 주문만
+                        containsKeywordForUser(condition.getOrderKeyword()),     // 상품명 키워드
+                        betweenOrderDate(condition.getStartDate(), condition.getEndDate())
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(order.id.desc())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(order.countDistinct())
+                .from(order)
+                .leftJoin(order.orderItems, orderItem)
+                .where(
+                        order.memberId.eq(memberId),
+                        containsKeywordForUser(condition.getOrderKeyword()),
+                        betweenOrderDate(condition.getStartDate(), condition.getEndDate())
+                );
+
+        return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
+    }
+
+    // ====== 공통 필터들 ======
+
     @Override
     public Optional<Order> findWithItemsById(Long orderId) {
         Order result = queryFactory
@@ -82,7 +120,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         }
     }
 
-    // 키워드 검색: 주문번호 + 상품명 + 고객명
+    // [관리자용] 키워드 검색: 상품명 + 고객명
     private BooleanExpression containsKeyword(String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return null;
@@ -112,6 +150,16 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         }
 
         return expr;
+    }
+
+    // [마이페이지용] 키워드 검색: 상품명만
+    private BooleanExpression containsKeywordForUser(String orderKeyword) {
+        if (!StringUtils.hasText(orderKeyword)) {
+            return null;
+        }
+
+        // 필요하면 주문번호 등 추가 가능
+        return orderItem.productName.containsIgnoreCase(orderKeyword);
     }
 
     // 기간 필터: orderDate(LocalDateTime) 기준

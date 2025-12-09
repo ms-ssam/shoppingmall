@@ -1,7 +1,9 @@
 <!-- fragments/mypage-sidebar.html -->
 <aside th:fragment="mypageSidebar" class="mypage-sidebar">
 
-    <div class="sidebar-title">MYPAGE</div>
+    <div class="sidebar-title">
+        <a th:href="@{/mypage}">MYPAGE</a>
+    </div>
 
     <section class="sidebar-section">
         <div class="sidebar-section-title">계정 관리</div>

@@ -6,15 +6,20 @@ import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
+import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
+import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +27,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderService {
     private final CartItemRepository cartItemRepository;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
 
     /**
      * 장바구니 → 주문서 진입
@@ -33,7 +40,6 @@ public class OrderService {
      * - 본인 장바구니 것만 조회
      * - 주문서에 뿌릴 DTO + 금액/배송비 계산
      */
-    @Transactional(readOnly = true)
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {
 
         // 1) 선택된 장바구니 항목 조회 (본인 것만)
@@ -105,6 +111,15 @@ public class OrderService {
         cartItemRepository.deleteAll(cartItems);  // FIXME: 이렇게 삭제하면 장바구니의 cartItems에도 수정사항이 반영되나? 안 되지 않나? ++totalCount 반영 X
 
         return order.getId();
+    }
+
+    public Page<UserOrderInfoResponse> getMyOrders(UserOrderSearchCondition condition,
+                                                   Long memberId,
+                                                   Pageable pageable
+    ){
+
+        Page<Order> orders = orderRepository.searchMyOrders(condition, memberId, pageable);
+        return orders.map(orderMapper::toUserOrderInfoResponse);
     }
 
     @Transactional(readOnly = true)

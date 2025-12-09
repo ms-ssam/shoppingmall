@@ -6,6 +6,9 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMem
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
+import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
+import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
@@ -31,15 +34,16 @@ import java.time.LocalDate;
 public class MypageViewController {
     private final MemberService memberService;
     private final ReviewService reviewService;
+    private final OrderService orderService;
 
     @GetMapping
     public String mypagePage(@AuthenticationPrincipal MemberDetail principal,
                              Model model
-    ){
+    ) {
         Long memberId = principal.getMember().getId();
         MemberProfileResponse response = memberService.getMyProfile(memberId);
 
-        model.addAttribute("member",response);
+        model.addAttribute("member", response);
 
         return "mypage/mypage-index";
     }
@@ -47,11 +51,11 @@ public class MypageViewController {
     @GetMapping("/profile")
     public String getProfile(@AuthenticationPrincipal MemberDetail principal,
                              Model model
-    ){
+    ) {
         Long memberId = principal.getMember().getId();
         MemberProfileResponse response = memberService.getMyProfile(memberId);
 
-        model.addAttribute("member",response);
+        model.addAttribute("member", response);
 
         return "mypage/mypage-profile";
     }
@@ -102,10 +106,10 @@ public class MypageViewController {
                               @RequestParam(required = false) LocalDate endDate,
                               Pageable pageable,
                               Model model
-    ){
+    ) {
         Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), startDate, endDate, pageable);
 
-        model.addAttribute("reviews",reviews);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
@@ -228,5 +232,19 @@ public class MypageViewController {
         redirectAttributes.addFlashAttribute("message", "회원 탈퇴가 완료되었습니다.");
         // 로그아웃으로 보내기
         return "redirect:/logout";
+    }
+
+    @GetMapping("/orders")
+    public String getMyOrders(@ModelAttribute UserOrderSearchCondition condition,
+                              @AuthenticationPrincipal MemberDetail principal,
+                              Pageable pageable,
+                              Model model
+    ) {
+        Page<UserOrderInfoResponse> responses =
+                orderService.getMyOrders(condition, principal.getMember().getId(), pageable);
+
+        model.addAttribute("orders", responses);
+        model.addAttribute("condition", condition);
+        return "mypage/mypage-orders";
     }
 }
