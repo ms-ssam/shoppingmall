@@ -2,7 +2,7 @@ package com.example.elicesecondproject.mall.domain.order.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.common.Ownable;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Order extends SoftDeletableBaseEntity implements Ownable {
+public class Order extends BaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -55,6 +55,9 @@ public class Order extends SoftDeletableBaseEntity implements Ownable {
 
     private String mainProductName; // 대표 상품 이름 예) "반팔 외 3개"
 
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
     // === 정적 팩토리 메서드 ===
     public static Order create(Member member,
                                DeliveryInfo deliveryInfo,
