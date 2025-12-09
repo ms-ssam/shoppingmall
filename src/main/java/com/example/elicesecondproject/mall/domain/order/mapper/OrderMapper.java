@@ -8,6 +8,6 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderMapper {
-    AdminOrderInfoResponse toOrderInfoResponse(Order order);
+    AdminOrderInfoResponse toAdminOrderInfoResponse(Order order);
     UserOrderInfoResponse toUserOrderInfoResponse(Order order);
 }

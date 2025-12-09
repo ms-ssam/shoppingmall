@@ -39,11 +39,11 @@ public class MypageViewController {
     @GetMapping
     public String mypagePage(@AuthenticationPrincipal MemberDetail principal,
                              Model model
-    ){
+    ) {
         Long memberId = principal.getMember().getId();
         MemberProfileResponse response = memberService.getMyProfile(memberId);
 
-        model.addAttribute("member",response);
+        model.addAttribute("member", response);
 
         return "mypage/mypage-index";
     }
@@ -51,11 +51,11 @@ public class MypageViewController {
     @GetMapping("/profile")
     public String getProfile(@AuthenticationPrincipal MemberDetail principal,
                              Model model
-    ){
+    ) {
         Long memberId = principal.getMember().getId();
         MemberProfileResponse response = memberService.getMyProfile(memberId);
 
-        model.addAttribute("member",response);
+        model.addAttribute("member", response);
 
         return "mypage/mypage-profile";
     }
@@ -106,10 +106,10 @@ public class MypageViewController {
                               @RequestParam(required = false) LocalDate endDate,
                               Pageable pageable,
                               Model model
-    ){
+    ) {
         Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), startDate, endDate, pageable);
 
-        model.addAttribute("reviews",reviews);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
@@ -240,8 +240,11 @@ public class MypageViewController {
                               Pageable pageable,
                               Model model
     ) {
-        Page<UserOrderInfoResponse> responses = orderService.getMyOrders(condition, principal.getMember().getId(), pageable);
+        Page<UserOrderInfoResponse> responses =
+                orderService.getMyOrders(condition, principal.getMember().getId(), pageable);
+
         model.addAttribute("orders", responses);
+        model.addAttribute("condition", condition);
         return "mypage/mypage-orders";
     }
 }

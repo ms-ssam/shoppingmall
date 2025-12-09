@@ -31,8 +31,8 @@ public class AdminOrderService {
     private final OrderMapper orderMapper;
 
     public Page<AdminOrderInfoResponse> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
-        Page<Order> responses = orderRepository.searchOrders(condition, pageable);
-        return responses.map(orderMapper::toOrderInfoResponse);
+        Page<Order> orders = orderRepository.searchOrders(condition, pageable);
+        return orders.map(orderMapper::toAdminOrderInfoResponse);
     }
 
     @Transactional
