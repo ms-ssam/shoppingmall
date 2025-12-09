@@ -24,6 +24,8 @@ public enum ErrorCode {
     SEARCH_KEYWORD_REQUIRED(HttpStatus.BAD_REQUEST, "SRH001", "검색어를 입력해주세요."),
     SEARCH_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "SRH002", "검색어는 최소 2자 이상 입력해야 합니다."),
 
+    INVALID_ORDER_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "OD002", "허용되지 않은 주문 상태 변경입니다."),
+
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "A003", "아이디 또는 비밀번호가 올바르지 않습니다."),
@@ -46,6 +48,7 @@ public enum ErrorCode {
     OPTION_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT002", "해당 사이즈 옵션을 찾을 수 없습니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMG003", "해당 이미지를 찾을 수 없습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV001", "해당 리뷰를 찾을 수 없습니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD001", "해당 주문을 찾을 수 없습니다."),
 
     // 409 Conflict
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "C003", "이미 존재하는 데이터입니다."),

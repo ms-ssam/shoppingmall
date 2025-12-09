@@ -1,7 +1,6 @@
 package com.example.elicesecondproject.mall.domain.order.entity;
 
-import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,18 +15,25 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Order extends SoftDeletableBaseEntity {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: 코치님한테 물어보기 -> 주문자(회원) 식별자?
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
-
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
+
+    @Column(nullable = false)
+    private Long memberId;
+
+    @Column(nullable = false)
+    private String ordererName;
+
+    @Column(nullable = false)
+    private String ordererPhoneNumber;
+
+    @Column(nullable = false)
+    private String ordererEmail;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -46,4 +52,8 @@ public class Order extends SoftDeletableBaseEntity {
     private int totalPaymentFee;        // 총 결제 금액
 
     private String mainProductName; // 대표 상품 이름 예) 반팔 외 3개
+
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }
