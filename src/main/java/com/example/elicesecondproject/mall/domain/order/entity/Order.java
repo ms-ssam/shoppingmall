@@ -44,4 +44,6 @@ public class Order extends SoftDeletableBaseEntity {
     private int totalPrice;             // 상품 총액
     private int deliveryFee;            // 배송비
     private int totalPaymentFee;        // 총 결제 금액
+
+    private String mainProductName; // 대표 상품 이름 예) 반팔 외 3개
 }
