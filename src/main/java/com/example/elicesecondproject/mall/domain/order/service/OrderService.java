@@ -8,6 +8,7 @@ import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateR
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrdererInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
@@ -57,8 +58,14 @@ public class OrderService {
         // 4) 배송비 (규칙은 Order 쪽 메서드가 가진다고 가정)
         int deliveryFee = Order.calculateShippingFee(totalPrice);
 
+        // 주문자 정보
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        OrdererInfoResponse orderer = OrdererInfoResponse.from(member);
+
         // 5) 화면용 합계 DTO 반환
-        return new OrderSheetResponse(items, deliveryFee);
+        return new OrderSheetResponse(orderer, items, deliveryFee);
     }
 
     /**

@@ -61,7 +61,11 @@ public class Order extends SoftDeletableBaseEntity implements Ownable {
                                List<OrderItem> orderItems) {
 
         Order order = new Order();
-        // order.member = member; 여기 method param member로 주문자 관련 필드 초기화하는 코드로 고치기
+
+        order.ordererName = member.getName();
+        order.ordererPhoneNumber = member.getPhone();
+        order.ordererEmail = member.getEmail();
+
         order.deliveryInfo = deliveryInfo;
 
         order.orderStatus = OrderStatus.PENDING;
