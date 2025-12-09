@@ -26,6 +26,11 @@ public enum ErrorCode {
 
     INVALID_ORDER_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "OD002", "허용되지 않은 주문 상태 변경입니다."),
 
+    ORDER_CART_ITEMS_EMPTY(HttpStatus.BAD_REQUEST, "OD003", "선택한 장바구니 상품이 존재하지 않습니다."),
+    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORD004", "해당 주문에 접근할 권한이 없습니다."),
+
+    ORDER_PAYMENT_FAILED(HttpStatus.BAD_REQUEST, "ORD005", "결제 처리에 실패했습니다."),
+
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "A003", "아이디 또는 비밀번호가 올바르지 않습니다."),

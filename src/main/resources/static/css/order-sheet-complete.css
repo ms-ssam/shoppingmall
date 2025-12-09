@@ -1,0 +1,351 @@
+/* ======================================
+   공통 레이아웃 (주문서 / 주문완료 공통)
+   ====================================== */
+
+.order-sheet-container,
+.order-complete-container {
+    max-width: 960px;
+    margin: 40px auto 80px;
+    padding: 0 16px;
+}
+
+/* ======================================
+   카드 공통
+   ====================================== */
+
+.order-section-card,
+.order-complete-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #eee;
+    padding: 24px 28px;
+}
+
+/* 주문서 제목 */
+
+.order-sheet-title {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 24px;
+}
+
+/* 주문완료 헤더 */
+
+.order-complete-header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 20px;
+}
+
+.order-complete-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.order-complete-subtitle {
+    font-size: 13px;
+    color: #666;
+}
+
+/* 공통 섹션 (주문완료용) */
+
+.order-info-section,
+.order-main-product-section,
+.order-delivery-section {
+    margin-bottom: 24px;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* ======================================
+   주문서 - 전체 폼 레이아웃
+   ====================================== */
+
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-section-header {
+    margin-bottom: 16px;
+}
+
+.order-section-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.order-section-body {
+    font-size: 14px;
+}
+
+/* 폼 레이아웃 (주문서 배송지/주문자) */
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.form-row label {
+    font-size: 13px;
+    color: #555;
+}
+
+.form-row input,
+.form-row textarea {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+.form-row input:read-only {
+    background-color: #f8f8f8;
+}
+
+.form-row textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* 우편번호 + 버튼 */
+.inline-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* ======================================
+   주문 상품 테이블 (주문서 + 주문완료 공통)
+   ====================================== */
+
+.order-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.order-items-table thead th {
+    text-align: left;
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    color: #666;
+}
+
+.order-items-table tbody td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #f3f3f3;
+    vertical-align: middle;
+}
+
+.order-items-table .item-info .item-name {
+    font-weight: 500;
+}
+
+/* (필요하면 썸네일/텍스트 레이아웃도 여기에 추가 가능)
+.item-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.item-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+*/
+
+/* ======================================
+   주문서 하단 레이아웃 (결제수단 + 요약)
+   ====================================== */
+
+.order-bottom-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+}
+
+.payment-method-card,
+.payment-summary-card {
+    height: 100%;
+}
+
+/* 결제 수단 */
+
+.payment-method-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+/* 금액 요약 */
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.price-row.total {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.agreement-row {
+    margin-top: 16px;
+    font-size: 13px;
+}
+
+/* ======================================
+   주문완료 - 정보 리스트 (dl/dt/dd)
+   ====================================== */
+
+.order-info-list {
+    margin: 0;
+    padding: 0;
+}
+
+.order-info-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+.order-info-row dt {
+    width: 110px;
+    flex-shrink: 0;
+    color: #666;
+}
+
+.order-info-row dd {
+    margin: 0;
+    color: #222;
+    word-break: keep-all;
+}
+
+/* 대표 상품명 (주문완료에서만 사용 시 여전히 유지 가능) */
+
+.main-product-name {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    background-color: #fafafa;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+}
+
+/* ======================================
+   버튼 (공통)
+   ====================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+.btn-primary:hover {
+    background-color: #333;
+    border-color: #333;
+}
+
+.btn-secondary {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #eaeaea;
+}
+
+/* 주문서 하단 버튼 정렬 */
+
+.order-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 주문완료 버튼 정렬 */
+
+.order-complete-actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* ======================================
+   반응형
+   ====================================== */
+
+@media (max-width: 900px) {
+    .order-bottom-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-complete-card {
+        padding: 24px 20px;
+    }
+
+    .order-info-row {
+        flex-direction: column;
+    }
+
+    .order-info-row dt {
+        margin-bottom: 2px;
+    }
+
+    .order-complete-actions {
+        flex-direction: column-reversed;
+        align-items: stretch;
+    }
+
+    .order-complete-actions .btn {
+        width: 100%;
+    }
+}

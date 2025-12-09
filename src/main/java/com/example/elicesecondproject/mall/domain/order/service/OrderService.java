@@ -41,7 +41,7 @@ public class OrderService {
                 .findAllByIdInAndCartMemberId(request.getCartItemIds(), memberId);
 
         if (selectedCartItems.isEmpty()) {
-            //throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
         }
 
         // 2) 화면용 DTO로 변환
@@ -70,18 +70,18 @@ public class OrderService {
      * - 배송정보 + cartItemIds 기반으로 Order/OrderItem 한 번에 생성
      */
     @Transactional
-    public Long placeOrder(Long memberId, OrderCreateRequest request) {
+    public Long createOrder(Long memberId, OrderCreateRequest request) {
 
         // 1) 회원 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 2) cartItem 재조회 (보안상 memberId 함께 체크)
+        // 2) 장바구니 항목 조회 (회원 검증 포함해서 보안상 안전하게)
         List<CartItem> cartItems = cartItemRepository
                 .findAllByIdInAndCartMemberId(request.getCartItemIds(), memberId);
 
         if (cartItems.isEmpty()) {
-            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
         }
 
         // 3) CartItem → OrderItem 스냅샷 변환
@@ -90,14 +90,14 @@ public class OrderService {
                 .toList();
 
         // 4) 배송정보 생성
-        DeliveryInfo deliveryInfo = DeliveryInfo.of(
-                request.getReceiverName(),
-                request.getReceiverPhone(),
-                request.getReceiverAddress()
-        );
+        DeliveryInfo deliveryInfo = request.toDeliveryInfo();
 
         // 5) Order 한 번에 생성 (총액/배송비/대표상품명은 Order 내부에서 계산)
         Order order = Order.create(member, deliveryInfo, orderItems);
+
+        // TODO : 결제 구현 후 수정.
+        // 지금은 "즉시 결제 완료"
+        order.markAsPaid();
 
         orderRepository.save(order);
 
@@ -105,5 +105,17 @@ public class OrderService {
         cartItemRepository.deleteAll(cartItems);
 
         return order.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Order getOrderForMember(Long orderId, Long memberId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (!order.getOwnerId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        return order;
     }
 }
