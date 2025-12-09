@@ -2,7 +2,6 @@ package com.example.elicesecondproject.mall.domain.order.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.common.Ownable;
-import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -54,7 +53,7 @@ public class Order extends BaseEntity implements Ownable {
     private int deliveryFee;            // 배송비
     private int totalPaymentFee;        // 총 결제 금액
 
-    private String mainProductName; // 대표 상품 이름 예) 반팔 외 3개
+    private String mainProductName; // 대표 상품 이름 예) "반팔 외 3개"
 
     public void updateOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
