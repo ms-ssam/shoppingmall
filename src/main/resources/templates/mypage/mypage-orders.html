@@ -33,11 +33,11 @@
 
                     <!-- 상품명 -->
                     <div class="myorder-field">
-                        <label for="keyword">상품명</label>
+                        <label for="orderKeyword">상품명</label>
                         <input type="text"
-                               id="keyword"
-                               name="keyword"
-                               th:value="${condition.keyword}"
+                               id="orderKeyword"
+                               name="orderKeyword"
+                               th:value="${condition.orderKeyword}"
                                class="myorder-input"
                                placeholder="상품명 검색">
                     </div>
@@ -97,7 +97,23 @@
                             <td th:text="${order.mainProductName}"></td>
                             <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'"></td>
-                            <td th:text="${order.orderStatus}"></td>
+                            <td>
+                                <span th:switch="${order.orderStatus.name()}">
+
+                                    <span th:case="'PENDING'"  class="status-badge status-pending">결제 대기</span>
+                                    <span th:case="'FAILED'"   class="status-badge status-failed">결제 실패</span>
+                                    <span th:case="'PAID'"     class="status-badge status-paid">결제 완료</span>
+                                    <span th:case="'PREPARING'" class="status-badge status-preparing">상품 준비중</span>
+                                    <span th:case="'DELIVERING'" class="status-badge status-delivering">배송 진행</span>
+                                    <span th:case="'DELIVERED'"  class="status-badge status-delivered">배송 완료</span>
+                                    <span th:case="'CANCEL_REQUESTED'" class="status-badge status-cancel-requested">취소 요청</span>
+                                    <span th:case="'CANCELED'" class="status-badge status-canceled">취소 승인</span>
+
+                                    <!-- 혹시 모를 기타 상태 -->
+                                    <span th:case="*" class="status-badge status-etc">기타</span>
+
+                                </span>
+                            </td>
                             <td>
                                 <a th:href="@{'/mypage/orders/' + ${order.id}}"
                                    class="myorder-detail-btn">
@@ -115,7 +131,7 @@
             <div class="myorder-pagination" th:if="${orders.totalPages > 1}">
                 <a th:each="i : ${#numbers.sequence(0, orders.totalPages - 1)}"
                    th:href="@{/mypage/orders(page=${i},
-                                keyword=${condition.keyword},
+                                orderKeyword=${condition.orderKeyword},
                                 startDate=${condition.startDate},
                                 endDate=${condition.endDate})}"
                    th:text="${i + 1}"

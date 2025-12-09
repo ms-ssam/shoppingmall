@@ -72,7 +72,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .leftJoin(order.orderItems, orderItem)
                 .where(
                         order.memberId.eq(memberId),                         // 내 주문만
-                        containsKeywordForUser(condition.getKeyword()),     // 상품명 키워드
+                        containsKeywordForUser(condition.getOrderKeyword()),     // 상품명 키워드
                         betweenOrderDate(condition.getStartDate(), condition.getEndDate())
                 )
                 .offset(pageable.getOffset())
@@ -86,7 +86,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .leftJoin(order.orderItems, orderItem)
                 .where(
                         order.memberId.eq(memberId),
-                        containsKeywordForUser(condition.getKeyword()),
+                        containsKeywordForUser(condition.getOrderKeyword()),
                         betweenOrderDate(condition.getStartDate(), condition.getEndDate())
                 );
 
@@ -153,13 +153,13 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
     }
 
     // [마이페이지용] 키워드 검색: 상품명만
-    private BooleanExpression containsKeywordForUser(String keyword) {
-        if (!StringUtils.hasText(keyword)) {
+    private BooleanExpression containsKeywordForUser(String orderKeyword) {
+        if (!StringUtils.hasText(orderKeyword)) {
             return null;
         }
 
         // 필요하면 주문번호 등 추가 가능
-        return orderItem.productName.containsIgnoreCase(keyword);
+        return orderItem.productName.containsIgnoreCase(orderKeyword);
     }
 
     // 기간 필터: orderDate(LocalDateTime) 기준

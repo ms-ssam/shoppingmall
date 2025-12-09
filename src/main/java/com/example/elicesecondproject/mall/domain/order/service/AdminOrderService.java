@@ -5,7 +5,6 @@ import com.example.elicesecondproject.mall.domain.option.repository.OptionDetail
 import com.example.elicesecondproject.mall.domain.order.dto.request.AdminOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.AdminOrderDetailResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.OrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;

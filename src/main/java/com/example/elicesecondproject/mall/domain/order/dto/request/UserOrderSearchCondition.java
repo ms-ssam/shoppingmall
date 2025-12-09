@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 public class UserOrderSearchCondition {
     // 키워드 검색(상품명)
-    private String keyword;
+    private String orderKeyword;
 
     // 시작일 (orderDate 기준)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
