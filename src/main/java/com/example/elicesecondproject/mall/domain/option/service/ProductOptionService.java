@@ -11,10 +11,12 @@ import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
-@Transactional // 부모 트랜잭션에 참여
+@Transactional
 public class ProductOptionService {
 
     private final OptionDetailRepository optionDetailRepository;
@@ -24,7 +26,6 @@ public class ProductOptionService {
     }
 
     public void updateOptionGroups(Product product, List<ProductOptionGroupDto> requestGroups) {
-        // [수정] clear()는 orphanRemoval에 의해 물리 삭제를 유발하므로 softDelete로 변경
         if (requestGroups == null || requestGroups.isEmpty()) {
             product.getOptionGroups().forEach(ProductOptionGroup::softDelete);
             return;
@@ -36,7 +37,6 @@ public class ProductOptionService {
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        // 리스트에서 제거하지 않고 softDelete 호출 (물리 삭제 방지)
         product.getOptionGroups().stream()
                 .filter(group -> group.getId() != null && !requestIds.contains(group.getId()))
                 .forEach(ProductOptionGroup::softDelete);
@@ -51,6 +51,8 @@ public class ProductOptionService {
                         .build();
 
                 if (groupDto.getDetails() != null) {
+                    normalizeDisplayOrders(groupDto.getDetails());
+
                     groupDto.getDetails().forEach(detailDto -> {
                         // SKU 중복 체크
                         if (optionDetailRepository.existsBySku(detailDto.getSku())) {
@@ -76,15 +78,12 @@ public class ProductOptionService {
                         .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_COLOR_NOT_FOUND));
 
                 existingGroup.update(groupDto.getName(), groupDto.getDisplayOrder());
-
-                // 상세 옵션 동기화 호출
                 updateOptionDetails(existingGroup, groupDto.getDetails());
             }
         }
     }
 
     private void updateOptionDetails(ProductOptionGroup group, List<OptionDetailDto> requestDetails) {
-        // [수정] clear() 대신 softDelete 호출하여 논리 삭제 유지
         if (requestDetails == null || requestDetails.isEmpty()) {
             group.getDetails().forEach(OptionDetail::softDelete);
             return;
@@ -99,9 +98,10 @@ public class ProductOptionService {
                 .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
                 .forEach(OptionDetail::softDelete);
 
+        normalizeDisplayOrders(requestDetails);
+
         for (OptionDetailDto detailDto : requestDetails) {
             if (detailDto.getId() == null || detailDto.getId() == 0) {
-                // [추가] 상세 옵션 추가 시에도 SKU 중복 체크 필수
                 if (optionDetailRepository.existsBySku(detailDto.getSku())) {
                     throw new BusinessException(ErrorCode.DUPLICATE_SKU);
                 }
@@ -120,7 +120,6 @@ public class ProductOptionService {
                         .findFirst()
                         .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
 
-                // SKU가 변경되었을 때만 중복 체크 (자기 ID 제외)
                 if (!existingDetail.getSku().equals(detailDto.getSku())) {
                     if (optionDetailRepository.existsBySkuAndIdNot(detailDto.getSku(), existingDetail.getId())) {
                         throw new BusinessException(ErrorCode.DUPLICATE_SKU);
@@ -138,15 +137,39 @@ public class ProductOptionService {
         }
     }
 
+     // [추가] displayOrder 중복 제거 및 자동 조정
+    private void normalizeDisplayOrders(List<OptionDetailDto> details) {
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+
+        Set<Integer> usedOrders = new HashSet<>();
+        int nextOrder = 1;
+
+        for (OptionDetailDto detail : details) {
+            // displayOrder가 null이거나 중복된 경우
+            if (detail.getDisplayOrder() == null || usedOrders.contains(detail.getDisplayOrder())) {
+                // 사용 가능한 다음 순서 찾기
+                while (usedOrders.contains(nextOrder)) {
+                    nextOrder++;
+                }
+                detail.setDisplayOrder(nextOrder);
+            }
+
+            usedOrders.add(detail.getDisplayOrder());
+
+            // 다음 순서 업데이트
+            if (detail.getDisplayOrder() >= nextOrder) {
+                nextOrder = detail.getDisplayOrder() + 1;
+            }
+        }
+    }
 
     public void decreaseStock(Long optionDetailId, int quantity) {
         OptionDetail optionDetail = optionDetailRepository.findById(optionDetailId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
 
-        // 1. 옵션 재고 차감
         optionDetail.removeStock(quantity);
-
-        // 2. 상품(Product) 총 재고 재계산 (트랜잭션 내에서 한 번만 호출)
         Product product = optionDetail.getProductOptionGroup().getProduct();
         product.recalculateTotalStock();
     }
