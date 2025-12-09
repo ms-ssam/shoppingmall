@@ -131,18 +131,34 @@
                 <div class="flex justify-between">
                     <span class="text-gray-500">수령인</span>
                     <span class="font-semibold"
-                          th:text="${orderDetail.deliveryInfo.receiverName}">김블랑</span>
+                          th:text="${orderDetail.deliveryInfo.receiverName}">김민성</span>
                 </div>
+
                 <div class="flex justify-between">
                     <span class="text-gray-500">연락처</span>
-                    <span th:text="${orderDetail.deliveryInfo.receiverPhone}">010-0000-0000</span>
+                    <span th:text="${orderDetail.deliveryInfo.receiverPhone}">010-1234-5678</span>
                 </div>
+
                 <div class="flex flex-col">
                     <span class="text-gray-500 mb-1">주소</span>
+                    <!-- (우편번호) 기본주소 -->
                     <span class="text-sm text-gray-800"
-                          th:text="${orderDetail.deliveryInfo.receiverAddress}">
-                        서울시 강남구 테헤란로 123, 4층 401호
-                    </span>
+                          th:text="|(${orderDetail.deliveryInfo.zipCode}) ${orderDetail.deliveryInfo.address1}|">
+                (37491) 미국 캘리포니아
+            </span>
+                    <!-- 상세주소 -->
+                    <span class="text-sm text-gray-800"
+                          th:text="${orderDetail.deliveryInfo.address2}">
+                왕하아파트 901호
+            </span>
+                </div>
+
+                <div class="flex flex-col" th:if="${orderDetail.deliveryInfo.memo} != null and ${orderDetail.deliveryInfo.memo} != ''">
+                    <span class="text-gray-500 mb-1">배송 메모</span>
+                    <span class="text-sm text-gray-800"
+                          th:text="${orderDetail.deliveryInfo.memo}">
+                문 앞에 두고 가주세요
+            </span>
                 </div>
             </div>
 
@@ -171,7 +187,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:if="${#lists.isEmpty(orderDetail.items)}">
+                <tr th:if="${orderDetail.items == null or #lists.isEmpty(orderDetail.items)}">
                     <td colspan="6" class="px-4 py-6 text-center text-gray-500">
                         주문된 상품이 없습니다.
                     </td>
@@ -183,15 +199,15 @@
                         <div class="font-semibold" th:text="${item.productName}">상품명</div>
                     </td>
                     <td class="px-4 py-3 align-middle text-sm text-gray-600">
-                        <span th:text="${item.productOptionGroupName}">사이즈</span>
-                        <span th:text="| / ${item.optionDetailName}|">(L)</span>
+                        <span th:text="${item.productOptionGroupName}">색상</span>
+                        <span th:text="| / ${item.optionDetailName}|">(사이즈)</span>
                     </td>
                     <td class="px-4 py-3 align-middle text-sm text-gray-500">
                         <span th:text="${item.productId}">1</span>
                     </td>
                     <td class="px-4 py-3 align-middle text-right">
                         <span th:text="${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')} + '원'">
-                            89,900원
+                            21,600원
                         </span>
                     </td>
                     <td class="px-4 py-3 align-middle text-center">
@@ -199,7 +215,7 @@
                     </td>
                     <td class="px-4 py-3 align-middle text-right">
                         <span th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
-                            89,900원
+                            21,600원
                         </span>
                     </td>
                 </tr>

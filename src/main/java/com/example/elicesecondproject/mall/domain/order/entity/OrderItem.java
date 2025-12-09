@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "order_items")
 @Entity
 public class OrderItem {
     @Id

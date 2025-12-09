@@ -62,6 +62,7 @@ public class Cart extends BaseEntity implements Ownable {
     public void removeItem(CartItem item) {  // 장바구니에서 장바구니 항목 삭제
         cartItems.remove(item);
         item.setCart(null);  // casecade + orphanRemoval 때문에 flush 시점에 DB에서 삭제됨
+        totalCount--;
     }
 
     public void setMember(Member member) {
