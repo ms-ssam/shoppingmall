@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepositoryCustom {
@@ -34,13 +35,11 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         List<Order> contents = queryFactory
                 .selectDistinct(order)
                 .from(order)
-                .leftJoin(order.member, member).fetchJoin()
                 .leftJoin(order.orderItems, orderItem)
                 .where(
                         eqStatus(condition.getOrderStatus()),
                         containsKeyword(condition.getKeyword()),
-                        betweenOrderDate(condition.getStartDate(), condition.getEndDate()),
-                        isNotDeleted() // SoftDeletableBaseEntity 사용 시
+                        betweenOrderDate(condition.getStartDate(), condition.getEndDate())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -50,20 +49,25 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         JPAQuery<Long> countQuery = queryFactory
                 .select(order.countDistinct())
                 .from(order)
-                .leftJoin(order.member, member)
                 .leftJoin(order.orderItems, orderItem)
                 .where(
                         eqStatus(condition.getOrderStatus()),
                         containsKeyword(condition.getKeyword()),
-                        betweenOrderDate(condition.getStartDate(), condition.getEndDate()),
-                        isNotDeleted()
+                        betweenOrderDate(condition.getStartDate(), condition.getEndDate())
                 );
 
-        // PageableExecutionUtils를 쓰면 count 쿼리를 최적화해서 덜 날릴 수 있음
         return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
-        // 단순하게 쓰고 싶으면 아래도 가능
-        // long total = countQuery.fetchOne();
-        // return new PageImpl<>(contents, pageable, total);
+    }
+
+    @Override
+    public Optional<Order> findWithItemsById(Long orderId) {
+        Order result = queryFactory
+                .selectFrom(order)
+                .leftJoin(order.orderItems, orderItem).fetchJoin()
+                .where(order.id.eq(orderId))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     /* ===============================
@@ -79,21 +83,19 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
             OrderStatus enumStatus = OrderStatus.valueOf(status);
             return order.orderStatus.eq(enumStatus);
         } catch (IllegalArgumentException e) {
-            // 잘못된 status 값이 온 경우: 필터 적용 안 함 or 항상 false
+            // 잘못된 status 값이 온 경우: 필터 적용 안 함
             return null;
         }
     }
 
-    // 키워드 검색: 상품명 + 고객명 (주문번호 필드는 엔티티에 생기면 여기 추가)
+    // 키워드 검색: 상품명 + 고객명
     private BooleanExpression containsKeyword(String keyword) {
         if (!StringUtils.hasText(keyword)) {
             return null;
         }
 
         return orderItem.productName.containsIgnoreCase(keyword)
-                .or(member.name.containsIgnoreCase(keyword));
-        // 주문번호 필드를 나중에 Order에 추가하면 예:
-        // .or(order.orderNumber.containsIgnoreCase(keyword))
+                .or(order.ordererName.containsIgnoreCase(keyword));
     }
 
     // 기간 필터: orderDate(LocalDateTime) 기준
@@ -120,11 +122,5 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         } else {
             return order.orderDate.lt(endDt);
         }
-    }
-
-    // Soft 삭제 컬럼(deletedAt) 필터 (SoftDeletableBaseEntity 기준)
-    private BooleanExpression isNotDeleted() {
-        // SoftDeletableBaseEntity에 deletedAt 필드가 있다고 가정
-        return order.deletedAt.isNull();
     }
 }

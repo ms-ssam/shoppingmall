@@ -7,8 +7,6 @@ import lombok.*;
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class DeliveryInfo {
 
     @Column(nullable = false)

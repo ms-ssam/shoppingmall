@@ -46,6 +46,7 @@ public enum ErrorCode {
     OPTION_SIZE_NOT_FOUND(HttpStatus.NOT_FOUND, "OPT002", "해당 사이즈 옵션을 찾을 수 없습니다."),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMG003", "해당 이미지를 찾을 수 없습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV001", "해당 리뷰를 찾을 수 없습니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD001", "해당 주문을 찾을 수 없습니다."),
 
     // 409 Conflict
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "C003", "이미 존재하는 데이터입니다."),
