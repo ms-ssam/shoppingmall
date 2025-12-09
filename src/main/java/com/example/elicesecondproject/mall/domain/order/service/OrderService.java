@@ -102,7 +102,7 @@ public class OrderService {
         orderRepository.save(order);
 
         // 6) 주문에 사용된 장바구니 항목 삭제
-        cartItemRepository.deleteAll(cartItems);
+        cartItemRepository.deleteAll(cartItems);  // FIXME: 이렇게 삭제하면 장바구니의 cartItems에도 수정사항이 반영되나? 안 되지 않나? ++totalCount 반영 X
 
         return order.getId();
     }

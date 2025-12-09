@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepositoryCustom {
@@ -54,6 +55,17 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<Order> findWithItemsById(Long orderId) {
+        Order result = queryFactory
+                .selectFrom(order)
+                .leftJoin(order.orderItems, orderItem).fetchJoin()
+                .where(order.id.eq(orderId))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     // 주문 상태 필터 (String -> Enum 매핑)
