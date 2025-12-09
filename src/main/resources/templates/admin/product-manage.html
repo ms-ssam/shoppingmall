@@ -17,11 +17,15 @@
     <!-- 검색 -->
     <div class="mb-3">
         <div class="flex gap-2">
-            <input type="text"
-                   id="searchInput"
-                   placeholder="상품명, 상품코드 검색"
-                   class="border border-gray-300 rounded px-3 py-2 text-sm flex-1"
-                   th:value="${keyword}">
+            <div class="flex-1">
+                <input type="text"
+                       id="searchInput"
+                       placeholder="상품명, 상품코드 검색 (최소 2개 단어)"
+                       class="border border-gray-300 rounded px-3 py-2 text-sm w-full"
+                       th:value="${keyword}">
+                <!-- ✅ 에러 메시지 표시 영역 추가 -->
+                <p id="searchError" class="text-red-500 text-xs mt-1 hidden"></p>
+            </div>
             <button id="searchBtn"
                     class="bg-gray-800 text-white px-6 py-2 rounded text-sm hover:bg-gray-700 font-medium">
                 🔍 검색

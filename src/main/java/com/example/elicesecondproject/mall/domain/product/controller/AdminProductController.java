@@ -37,7 +37,6 @@ public class AdminProductController {
     ) {
         permissionValidator.validateAdminOnly(principal.getMember());
 
-        // [변경] 호출 메서드 변경 (createProduct -> createProductWithFiles)
         ProductDetailResponse response = productService.createProductWithFiles(request, mainImage, sliderImages, descImages);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("상품 등록 성공", response));

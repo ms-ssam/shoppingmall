@@ -27,10 +27,7 @@ public class AdminProductViewController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    /**
-     * [관리자] 상품 목록 페이지
-     * URL: /admin/products?page=0&keyword=...
-     */
+
     @GetMapping
     public String productManage(
             @RequestParam(required = false) String keyword,
@@ -42,30 +39,23 @@ public class AdminProductViewController {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductSummaryDto> products;
 
-        // 검색어가 있으면 검색, 없으면 전체 조회
         if (keyword != null && !keyword.isBlank()) {
-            products = productService.searchProducts(keyword, sortType, pageable);
+            products = productService.searchProductsForAdmin(keyword, sortType, pageable);
         } else {
-            // 관리자용 전체 조회 (일단 기존 메서드 재사용, 추후 관리자 전용 메서드로 분리 가능)
-            // 관리자는 본인 ID와 상관없이 모든 상품을 관리하므로 memberId는 null 처리
-            products = productService.getAllProducts(pageable, null, sortType);
+            products = productService.getAllProductsForAdmin(pageable, sortType);
         }
 
         model.addAttribute("products", products);
         model.addAttribute("pageTitle", "상품 관리");
-        model.addAttribute("menu", "product"); // 사이드바 활성화용
-
-        // 검색 상태 유지를 위해 모델에 담음
+        model.addAttribute("menu", "product");
         model.addAttribute("keyword", keyword);
         model.addAttribute("sortType", sortType);
 
         return "admin/product-manage";
     }
 
-    /**
-     * [관리자] 상품 등록 페이지
-     * URL: /admin/products/new
-     */
+
+
     @GetMapping("/new")
     public String createProductForm(Model model) {
         // 카테고리 선택 모달을 위해 트리 정보 필요
@@ -78,10 +68,7 @@ public class AdminProductViewController {
         return "admin/product-form";
     }
 
-    /**
-     * [관리자] 상품 수정 페이지
-     * URL: /admin/products/{id}/edit
-     */
+
     @GetMapping("/{id}/edit")
     public String updateProductForm(@PathVariable Long id, Model model) {
         // 기존 상품 정보 조회

@@ -3,6 +3,7 @@ package com.example.elicesecondproject.mall.domain.product.repository;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.entity.ImageType;
+import com.example.elicesecondproject.mall.domain.product.entity.ProductStatus;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -33,6 +34,26 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     private static final String SALE_PRICE_ALIAS = "salePrice";
 
     private final JPAQueryFactory queryFactory;
+
+
+    // [추가] 관리자용 - 전체 상품 조회 (STOP 포함)
+    @Override
+    public Page<ProductSummaryDto> findAllProductsForAdmin(Pageable pageable, ProductSortType sortType) {
+        BooleanExpression whereClause = productNotDeletedForAdmin(); // ✅ 관리자용 조건
+        List<ProductSummaryDto> content = fetchProducts(whereClause, sortType, pageable, null);
+        Long total = countProducts(whereClause);
+        return new PageImpl<>(content, pageable, total != null ? total : 0L);
+    }
+
+    // [추가] 관리자용 - 검색 (STOP 포함)
+    @Override
+    public Page<ProductSummaryDto> searchProductsForAdmin(String keyword, ProductSortType sortType, Pageable pageable) {
+        BooleanExpression whereClause = productNotDeletedForAdmin().and(keywordCondition(keyword));
+        List<ProductSummaryDto> content = fetchProducts(whereClause, sortType, pageable, null);
+        Long total = countProducts(whereClause);
+        return new PageImpl<>(content, pageable, total == null ? 0 : total);
+    }
+
 
     @Override
     public Page<ProductSummaryDto> findProductsByCategory(
@@ -169,8 +190,10 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression productNotDeleted() {
-        return product.deletedAt.isNull();
+        return product.deletedAt.isNull()
+                .and(product.status.ne(ProductStatus.STOP));  // STOP 상태 제외
     }
+
 
     private BooleanExpression categoryCondition(Long categoryId, Boolean includeSubCategories) {
         if (categoryId == null) return null;
@@ -185,6 +208,13 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 .where(category.id.eq(product.category.id), category.parent.id.eq(parentCategoryId))
                 .exists();
     }
+    // ✅ 관리자용 (STOP 포함)
+    private BooleanExpression productNotDeletedForAdmin() {
+        return product.deletedAt.isNull();
+    }
+
+
+
 }/*
         // 2차 정렬로 id DESC 한 번 더 넣어주면 정렬 안정적
         return switch (sortType) {
