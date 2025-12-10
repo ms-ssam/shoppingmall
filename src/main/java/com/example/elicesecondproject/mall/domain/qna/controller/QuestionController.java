@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class QuestionController {
     private QuestionService questionService;
 
-    @GetMapping
-    public String getQuestionForm(@PathVariable Long productId,
-                                  @AuthenticationPrincipal MemberDetail principal,
-                                  Model model
-    ) {
-
-    }
+//    @GetMapping
+//    public String getQuestionForm(@PathVariable Long productId,
+//                                  @AuthenticationPrincipal MemberDetail principal,
+//                                  Model model
+//    ) {
+//
+//    }
 }

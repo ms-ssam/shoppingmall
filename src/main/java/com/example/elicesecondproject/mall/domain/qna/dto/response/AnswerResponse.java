@@ -11,10 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 public class AnswerResponse {
 
-    private Long id;
-    private QuestionResponse questionResponse;
-    private MemberProfileResponse memberProfileResponse;
-    private String content;
+
 
 
 

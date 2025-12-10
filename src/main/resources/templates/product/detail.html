@@ -29,7 +29,8 @@
                             <div class="swiper-slide"
                                  th:if="${img.imageType.name() == 'MAIN' or img.imageType.name() == 'SLIDER'}">
                                 <img th:src="${img.imageUrl}" alt="Product Image"
-                                     onerror="this.src='https://via.placeholder.com/600x720?text=No+Image'">
+                                     onerror="this.onerror=null; this.src='/images/default.jpg';">
+
                             </div>
                         </th:block>
                     </div>
@@ -45,7 +46,7 @@
                             <div class="swiper-slide"
                                  th:if="${img.imageType.name() == 'MAIN' or img.imageType.name() == 'SLIDER'}">
                                 <img th:src="${img.imageUrl}" alt="Thumb"
-                                     onerror="this.src='https://via.placeholder.com/100x120?text=No'">
+                                     onerror="this.onerror=null; this.src='/images/default.jpg';">
                             </div>
                         </th:block>
                     </div>
@@ -152,7 +153,8 @@
             <th:block th:each="img : ${product.images}">
                 <div class="desc-img-item" th:if="${img.imageType.name() == 'DESCRIPTION'}">
                     <img th:src="${img.imageUrl}" class="desc-img" alt="Detail Info"
-                         onerror="this.src='https://via.placeholder.com/860x1000?text=Detail+Image'">
+                         onerror="this.onerror=null; this.src='/images/default.jpg';">
+
                 </div>
             </th:block>
 
@@ -205,7 +207,7 @@
                 <div class="review-image" th:if="${review.imageUrl != null}">
                     <img th:src="${review.imageUrl}"
                          alt="리뷰 이미지"
-                         onerror="this.src='https://via.placeholder.com/160x160?text=No+Image'">
+                         onerror="this.onerror=null; this.src='/images/default.jpg';">
                 </div>
             </div>
         </div>

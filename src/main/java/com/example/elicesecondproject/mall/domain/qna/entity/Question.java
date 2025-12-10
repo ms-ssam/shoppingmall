@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class xQuestion extends SoftDeletableBaseEntity {
+public class Question extends SoftDeletableBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,6 +35,10 @@ public class xQuestion extends SoftDeletableBaseEntity {
     @Column(nullable = false)
     private boolean isSecret;
 
+    // isAnswer -> answered: javaBean 규약으로 라이브러리들의 인식 오류 방지
+    @Column(nullable = false)
+    private boolean answered = false;
+
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Answer answer;
 
@@ -51,6 +55,14 @@ public class xQuestion extends SoftDeletableBaseEntity {
     public void registerAnswer(Answer answer) {
         this.answer = answer;
         answer.setQuestion(this);
+        // 필드 추가
+        this.answered = true;
+    }
+
+    // 답변 삭제시 매서드
+    public void removeAnswer(){
+        this.answer = null;
+        this.answered = false;
     }
 }
 /*
