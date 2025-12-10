@@ -4,7 +4,7 @@ import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
-import com.example.elicesecondproject.mall.domain.order.entity.Order;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
@@ -106,8 +106,8 @@ public class OrderViewController {
 
         Long memberId = memberDetails.getMember().getId();
 
-        // TODO : 제품 상세나오면 수정하기
-        Order order = orderService.getOrderForMember(orderId, memberId);
+        UserOrderDetailResponse order = orderService.getMyOrderDetail(orderId, memberId);
+
         model.addAttribute("order", order);
 
         return "order/order-complete";
