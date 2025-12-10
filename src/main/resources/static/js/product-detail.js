@@ -286,9 +286,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (cartError) {
             alert(cartError);
         }
-        if (cartSuccess) {
-            alert(cartSuccess);
-        }
     }
 
     tabItems.forEach(tab => {

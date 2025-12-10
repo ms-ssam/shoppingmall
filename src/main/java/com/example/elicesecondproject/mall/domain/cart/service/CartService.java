@@ -1,8 +1,8 @@
 package com.example.elicesecondproject.mall.domain.cart.service;
 
 import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRequest;
-import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.dto.request.CartItemOptionModifyRequest;
+import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
@@ -112,7 +112,8 @@ public class CartService {
     @Transactional
     public void addItemToCart(Long memberId, AddCartItemRequest request) {
 
-        Cart cart = cartRepository.findByMemberId(memberId);
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.CART_NOT_FOUND));
 
         if (request.getOptionDetailIds().size() != request.getQuantities().size()) {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
@@ -186,5 +187,12 @@ public class CartService {
         }
 
         cart.removeItems(targets);
+    }
+
+    // 헤더에서 사용할 장바구니 아이템 카운트
+    public int getCartCount(Long memberId) {
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+        return cart.getCartItems().size();
     }
 }
