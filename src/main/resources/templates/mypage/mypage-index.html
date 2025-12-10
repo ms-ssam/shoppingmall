@@ -61,16 +61,30 @@
                 </p>
 
                 <!-- 주문이 있을 때 -->
-                <ul class="account-orders-list" th:if="${!#lists.isEmpty(recentOrders)}">
-                    <li class="account-order-item" th:each="order : ${recentOrders}">
-                        <a th:href="@{'/mypage/orders/' + ${order.id}}">
+                <div class="orders-table-wrapper" th:if="${!#lists.isEmpty(recentOrders)}">
+                    <table class="orders-table">
+                        <thead>
+                        <tr>
+                            <th>주문번호</th>
+                            <th>상품</th>
+                            <th>주문일</th>
+                            <th>결제금액</th>
+                            <th>상태</th>
+                            <th></th> <!-- ✅ 상세보기 버튼 컬럼 -->
+                        </tr>
+                        </thead>
 
-                            <!-- 첫 줄: 대표 상품명 + 상태 뱃지 -->
-                            <div class="order-row-main">
-                    <span class="order-main-product"
-                          th:text="${order.mainProductName}">대표 상품명</span>
+                        <tbody>
+                        <tr th:each="order : ${recentOrders}">
+                            <td th:text="${order.id}"></td>
+                            <td th:text="${order.mainProductName}"></td>
+                            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'"></td>
 
-                                <span th:switch="${order.orderStatus.name()}">
+                            <!-- 상태 뱃지 -->
+                            <td>
+                    <span th:switch="${order.orderStatus.name()}">
+
                         <span th:case="'PENDING'"           class="status-badge status-pending">결제 대기</span>
                         <span th:case="'FAILED'"            class="status-badge status-failed">결제 실패</span>
                         <span th:case="'PAID'"              class="status-badge status-paid">결제 완료</span>
@@ -79,28 +93,23 @@
                         <span th:case="'DELIVERED'"         class="status-badge status-delivered">배송 완료</span>
                         <span th:case="'CANCEL_REQUESTED'"  class="status-badge status-cancel-requested">취소 요청</span>
                         <span th:case="'CANCELED'"          class="status-badge status-canceled">취소 승인</span>
-                        <span th:case="*"                   class="status-badge status-etc">기타</span>
-                    </span>
-                            </div>
 
-                            <!-- 둘째 줄: 주문일 + 결제금액 -->
-                            <div class="order-row-sub">
-                    <span class="order-date"
-                          th:text="${#temporals.format(order.orderDate, 'yyyy.MM.dd')}">
-                        2025.12.10
+                        <span th:case="*" class="status-badge status-etc">기타</span>
                     </span>
+                            </td>
 
-                                <span class="order-total"
-                                      th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'">
-                        34,500원
-                    </span>
-                            </div>
-
-                        </a>
-                    </li>
-                </ul>
+                            <!-- ✅ 상세보기 버튼 -->
+                            <td class="orders-detail-cell">
+                                <a th:href="@{'/mypage/orders/' + ${order.id}}"
+                                   class="orders-detail-btn">
+                                    상세보기
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
-
 
         </section>
     </main>
