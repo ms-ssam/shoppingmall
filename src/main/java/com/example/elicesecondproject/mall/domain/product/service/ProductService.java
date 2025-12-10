@@ -78,7 +78,7 @@ public class ProductService {
     }*/
     // DTL-F-01 : 상품 기본 정보 조회 -> 상품 ID로 상품 기본 정보를 조회한다.
     public ProductDetailResponse getProduct(Long productId, Long memberId) {
-        Product foundProduct = productRepository.findById(productId)
+        Product foundProduct = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (foundProduct.getStatus() == ProductStatus.STOP) {

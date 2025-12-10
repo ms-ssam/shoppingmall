@@ -138,9 +138,9 @@
 
             <div class="img-box"
                  th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">
-                <img th:src="${product.mainImageUrl} ?: 'https://via.placeholder.com/300x400?text=No+Image'"
+                <img th:src="${product.mainImageUrl} ?: '/images/default.jpg'"
                      alt="Product Image"
-                     onerror="this.src='https://via.placeholder.com/300x400?text=Image+Not+Found';">
+                     onerror="this.onerror=null; this.src='/images/default.jpg';">
             </div>
 
             <div class="wish-icon"
