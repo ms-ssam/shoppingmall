@@ -1,10 +1,7 @@
 package com.example.elicesecondproject.mall.domain.order.dto.request;
 
 import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,9 +13,13 @@ public class OrderCreateRequest {
     private String receiverName;
 
     @NotBlank(message = "전화번호를 입력해주세요.")
+    @Pattern(regexp = "^010[0-9]{8}$",
+            message = "전화번호는 010으로 시작하며 숫자만 입력한 11자리여야 합니다.")
     private String receiverPhone;
 
     @NotBlank(message = "우편번호를 입력해주세요.")
+    @Pattern(regexp = "^\\d{5}$",
+            message = "우편번호는 5자리 숫자여야 합니다.")
     private String zipCode;
 
     @NotBlank(message = "주소를 입력해주세요.")
@@ -39,13 +40,17 @@ public class OrderCreateRequest {
     // DeliveryInfo로 변환하는 헬퍼
     public DeliveryInfo toDeliveryInfo() {
         return DeliveryInfo.of(
-                receiverName,
+                trim(receiverName),
                 receiverPhone,
                 zipCode,
                 address1,
-                address2,
-                deliveryMemo
+                trim(address2),
+                trim(deliveryMemo)
         );
+    }
+
+    private String trim(String value) {
+        return value == null ? null : value.trim();
     }
 
 }

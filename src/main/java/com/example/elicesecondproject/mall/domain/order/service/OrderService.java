@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.order.service;
 
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
+import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
@@ -32,13 +33,12 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OrderService {
     private final CartItemRepository cartItemRepository;
+    private final CartService cartService;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
 
-    /**
-     * 장바구니 → 주문서 진입
-     */
+    // 장바구니 -> 주문서
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {
 
         Member member = getMemberOrThrow(memberId);
@@ -62,16 +62,14 @@ public class OrderService {
         return new OrderSheetResponse(items, deliveryFee);
     }
 
-    /**
-     * 주문서 → 주문 생성
-     * - 배송정보 + cartItemIds 기반으로 Order/OrderItem 한 번에 생성
-     */
+    // 주문서 -> 주문 생성
     @Transactional
     public Long createOrder(Long memberId, OrderCreateRequest request) {
 
         Member member = getMemberOrThrow(memberId);
 
-        List<CartItem> cartItems = getValidCartItems(memberId, request.getCartItemIds());
+        List<Long> cartItemIds = request.getCartItemIds();
+        List<CartItem> cartItems = getValidCartItems(memberId, cartItemIds);
 
         // cartItem → OrderItem 스냅샷 변환
         List<OrderItem> orderItems = cartItems.stream()
@@ -89,9 +87,7 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        // FIXME 주문에 사용된 장바구니 항목 삭제
-        cartItemRepository.deleteAll(cartItems);
-        // FIXME: 이렇게 삭제하면 장바구니의 cartItems에도 수정사항이 반영되나? 안 되지 않나? ++totalCount 반영 X
+        cartService.deleteSelectedCartItems(memberId, cartItemIds);
 
         return order.getId();
     }
@@ -105,6 +101,7 @@ public class OrderService {
         return orders.map(orderMapper::toUserOrderInfoResponse);
     }
 
+    // TODO : 주문 상세 나오면 삭제
     @Transactional(readOnly = true)
     public Order getOrderForMember(Long orderId, Long memberId) {
         Order order = orderRepository.findById(orderId)
@@ -125,8 +122,14 @@ public class OrderService {
     }
 
     private List<CartItem> getValidCartItems(Long memberId, List<Long> cartItemIds) {
+
+        if(cartItemIds == null || cartItemIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
+        }
+
+        // fetch join 조회
         List<CartItem> items = cartItemRepository
-                .findAllByIdInAndCartMemberId(cartItemIds, memberId);
+                .findAllWithDetailsByIdInAndCartMemberId(cartItemIds, memberId);
 
         if(items.isEmpty()){
             throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
@@ -135,9 +138,7 @@ public class OrderService {
             throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_INVALID);
         }
 
-        for(CartItem cartItem : items){
-            validateCartItem(cartItem);
-        }
+        items.forEach(this::validateCartItem);
 
         return items;
     }

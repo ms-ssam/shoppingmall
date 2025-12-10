@@ -10,6 +10,45 @@
 }
 
 /* ======================================
+   전역 에러 / 비즈니스 에러 알럿
+   ====================================== */
+
+.alert {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.alert-error {
+    background-color: #ffe6e6;
+    border: 1px solid #e8b7b7;
+    color: #a10000;
+}
+
+/* 주문서 상단 전역 에러 박스 (조금 더 여백) */
+.global-error-box {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* ======================================
+   필드 에러
+   ====================================== */
+
+.field-error {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #b91c1c; /* 진한 빨간 */
+}
+
+.input-error {
+    border-color: #f97373;   /* 연한 빨간 */
+    background-color: #fffafa;
+}
+
+
+/* ======================================
    카드 공통
    ====================================== */
 
@@ -96,8 +135,9 @@
 }
 
 .form-row label {
-    font-size: 13px;
-    color: #555;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
 }
 
 .form-row input,
@@ -107,6 +147,14 @@
     padding: 8px 10px;
     font-size: 14px;
 }
+
+/* =============== placeholder =============== */
+.form-row input::placeholder,
+.form-row textarea::placeholder {
+    color: #bfbfbf;
+    font-size: 11px;
+}
+
 
 .form-row input:read-only {
     background-color: #f8f8f8;
