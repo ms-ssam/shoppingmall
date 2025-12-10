@@ -10,15 +10,18 @@ import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
-import com.example.elicesecondproject.mall.domain.order.dto.response.*;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
-import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -116,9 +119,10 @@ public class OrderService {
     }
 
     public UserOrderDetailResponse getMyOrderDetail(Long orderId, Long memberId) {
-        Order order = orderRepository.findByIdAndMemberId(orderId, memberId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
-
+        Member member = getMemberOrThrow(memberId);
+        permissionValidator.validate(order, member);
         return orderMapper.toUserOrderDetailResponse(order);
     }
 
