@@ -1,0 +1,272 @@
+/* 주문 상세 공통 카드 레이아웃 */
+.myorder-detail-page {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px 32px 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    border: 1px solid #e5e5e5;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+/* 상단 헤더 영역 */
+.myorder-detail-page .myorder-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #111;
+    padding-bottom: 12px;
+}
+
+.myorder-detail-page .myorder-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.myorder-detail-page .myorder-subtitle {
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
+}
+
+/* 상태 뱃지 */
+.myorder-detail-page .myorder-status-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.myorder-detail-page .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+/* 상태별 색상 (사이트 톤에 맞춰 검정 + 포인트 오렌지) */
+.myorder-detail-page .status-pending {
+    background-color: #fff7e6;
+    color: #d9822b;
+    border-color: #f5d9a6;
+}
+
+.myorder-detail-page .status-failed {
+    background-color: #ffecec;
+    color: #d11a2a;
+    border-color: #f5b9bf;
+}
+
+.myorder-detail-page .status-paid,
+.myorder-detail-page .status-preparing,
+.myorder-detail-page .status-delivering,
+.myorder-detail-page .status-delivered {
+    background-color: #111;
+    color: #fff;
+}
+
+.myorder-detail-page .status-cancel-requested,
+.myorder-detail-page .status-canceled {
+    background-color: #f5f5f5;
+    color: #777;
+    border-color: #ddd;
+}
+
+/* 섹션 공통 */
+.myorder-detail-page .myorder-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.myorder-detail-page .myorder-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+/* 기본 정보 / 배송 정보 그리드 */
+.myorder-detail-page .myorder-basic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 8px;
+    column-gap: 24px;
+    font-size: 13px;
+}
+
+.myorder-detail-page .myorder-basic-row {
+    display: flex;
+    gap: 8px;
+}
+
+.myorder-detail-page .myorder-label {
+    width: 90px;
+    color: #777;
+    font-size: 12px;
+}
+
+.myorder-detail-page .myorder-value {
+    color: #222;
+    word-break: keep-all;
+}
+
+/* 주소 줄바꿈 예쁘게 */
+.myorder-detail-page .myorder-basic-row .myorder-value span + span {
+    margin-left: 4px;
+}
+
+/* 주문 상품 리스트 */
+.myorder-detail-page .myorder-items-section {
+    margin-top: 32px;
+}
+
+.myorder-detail-page .myorder-items-list {
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.myorder-detail-page .myorder-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f2f2f2;
+    gap: 16px;
+}
+
+.myorder-detail-page .myorder-item-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 6px;
+    background-color: #f3f3f3;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.myorder-detail-page .myorder-item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.myorder-detail-page .myorder-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.myorder-detail-page .myorder-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.myorder-detail-page .myorder-item-meta {
+    font-size: 12px;
+    color: #777;
+}
+
+.myorder-detail-page .myorder-item-price {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* 결제 정보 */
+.myorder-detail-page .myorder-payment-box {
+    margin-top: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    font-size: 13px;
+}
+
+.myorder-detail-page .myorder-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.myorder-detail-page .myorder-payment-row.myorder-payment-total {
+    border-top: 1px dashed #ddd;
+    margin-top: 8px;
+    padding-top: 10px;
+    font-weight: 700;
+}
+
+/* 하단 버튼 영역 */
+.myorder-detail-page .myorder-detail-footer {
+    margin-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+/* 버튼 스타일 (사이트 톤에 맞게) */
+.myorder-detail-page .myorder-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 96px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.myorder-detail-page .myorder-btn.secondary {
+    background-color: #fff;
+    border-color: #111;
+    color: #111;
+}
+
+.myorder-detail-page .myorder-btn.secondary:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+.myorder-detail-page .myorder-btn.danger {
+    background-color: #d11a2a;
+    color: #fff;
+}
+
+.myorder-detail-page .myorder-btn.danger:hover {
+    background-color: #b51523;
+}
+
+/* 빈 상태 문구 */
+.myorder-detail-page .myorder-empty {
+    padding: 24px 0;
+    font-size: 13px;
+    color: #777;
+    text-align: center;
+}
+
+/* 반응형 - 모바일에서 한 줄로 너무 넓지 않게 */
+@media (max-width: 768px) {
+    .myorder-detail-page {
+        padding: 20px 16px 24px;
+    }
+
+    .myorder-detail-page .myorder-basic-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .myorder-detail-page .myorder-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .myorder-detail-page .myorder-item {
+        align-items: flex-start;
+    }
+}

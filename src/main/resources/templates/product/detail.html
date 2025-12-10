@@ -56,6 +56,11 @@
 
         <!-- 우측 상품 정보 영역 -->
         <div class="right-col">
+
+            <div id="cart-message-holder"
+                 th:attr="data-cart-error=${cartError},data-cart-success=${cartSuccess}">
+            </div>
+
             <div class="p-header">
                 <h1 class="p-title" th:text="${product.name}">상품명</h1>
 

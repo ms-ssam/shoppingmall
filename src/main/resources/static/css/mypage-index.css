@@ -1,4 +1,6 @@
-/* mypage-main.css */
+/* ============================= */
+/* MY PAGE - 메인 Account 카드   */
+/* ============================= */
 
 /* ACCOUNT 메인 카드 */
 .account-card {
@@ -30,7 +32,10 @@
     margin-bottom: 16px;
 }
 
-/* 회원 정보 리스트 */
+/* ============================= */
+/* 회원 정보 섹션                */
+/* ============================= */
+
 .account-info-list {
     margin: 0;
     padding: 0;
@@ -51,7 +56,10 @@
     margin: 0;
 }
 
-/* Orders 섹션 */
+/* ============================= */
+/* Orders 섹션 헤더              */
+/* ============================= */
+
 .account-section-header {
     display: flex;
     justify-content: space-between;
@@ -67,4 +75,120 @@
     margin-top: 8px;
     font-size: 13px;
     color: #777;
+}
+
+/* ============================= */
+/* MY 페이지 - 최근 주문 테이블  */
+/* ============================= */
+
+.orders-table-wrapper {
+    margin-top: 12px;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+}
+
+.orders-table thead th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid #e5e5e5;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.orders-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f3f3;
+    font-size: 14px;
+    color: #444;
+}
+
+/* 주문 테이블 마지막 행 아랫선 살짝 줄이거나 없애고 싶으면 */
+/* .orders-table tbody tr:last-child td { border-bottom: none; } */
+
+/* ============================= */
+/* 상태 뱃지 스타일              */
+/* ============================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* 상태별 색상 */
+.status-pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.status-failed {
+    background-color: #FEE2E2;
+    color: #B91C1C;
+}
+
+.status-paid {
+    background-color: #DBEAFE;
+    color: #1D4ED8;
+}
+
+.status-preparing {
+    background-color: #E5E7EB;
+    color: #374151;
+}
+
+.status-delivering {
+    background-color: #EDE9FE;
+    color: #6D28D9;
+}
+
+.status-delivered {
+    background-color: #DCFCE7;
+    color: #15803D;
+}
+
+.status-cancel-requested {
+    background-color: #FFEDD5;
+    color: #C2410C;
+}
+
+.status-canceled {
+    background-color: #FECACA;
+    color: #B91C1C;
+}
+
+.status-etc {
+    background-color: #E5E7EB;
+    color: #4B5563;
+}
+
+/* ============================= */
+/* MY 페이지 - 상세보기 버튼     */
+/* ============================= */
+
+.orders-detail-cell {
+    text-align: right;
+}
+
+.orders-detail-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #d0d0d0;
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.orders-detail-btn:hover {
+    background-color: #f5f5f5;
 }

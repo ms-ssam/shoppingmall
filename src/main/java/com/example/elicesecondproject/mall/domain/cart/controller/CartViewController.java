@@ -74,8 +74,6 @@ public class CartViewController {
 
         model.addAttribute("cartInfo", cartInfo);
 
-        model.addAttribute("cartCount", cartInfo.getTotalCount());
-
         return "cart/cart";  // src/main/resources/templates/cart/cart.html
     }
 

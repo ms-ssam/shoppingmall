@@ -27,7 +27,7 @@ public class ProductOptionService {
 
     public void updateOptionGroups(Product product, List<ProductOptionGroupDto> requestGroups) {
         if (requestGroups == null || requestGroups.isEmpty()) {
-            product.getOptionGroups().forEach(ProductOptionGroup::softDelete);
+            product.getOptionGroups().clear(); // 소프트 딜리트 -> 전체 그룹 + 하위 옵션 물리 삭제
             return;
         }
 
@@ -37,9 +37,14 @@ public class ProductOptionService {
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        product.getOptionGroups().stream()
-                .filter(group -> group.getId() != null && !requestIds.contains(group.getId()))
-                .forEach(ProductOptionGroup::softDelete);
+        /*product.getOptionGroups().stream()
+                .filter(group -> group.getId() != null && !requestIds.contains(group.getId()));
+                .forEach(ProductOptionGroup::softDelete); 소프트 딜리트 삭제*/
+
+        // ✅ 소프트 딜리트 삭제
+        product.getOptionGroups().removeIf(group ->
+                group.getId() != null && !requestIds.contains(group.getId())
+        );
 
         // 2. 생성 및 수정 (CREATE & UPDATE)
         for (ProductOptionGroupDto groupDto : requestGroups) {
@@ -85,18 +90,20 @@ public class ProductOptionService {
 
     private void updateOptionDetails(ProductOptionGroup group, List<OptionDetailDto> requestDetails) {
         if (requestDetails == null || requestDetails.isEmpty()) {
-            group.getDetails().forEach(OptionDetail::softDelete);
+            group.getDetails().clear(); // 전체 삭제
             return;
         }
 
+        // 요청에 포함된 ID 목록
         List<Long> requestIds = requestDetails.stream()
                 .map(OptionDetailDto::getId)
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        group.getDetails().stream()
-                .filter(detail -> detail.getId() != null && !requestIds.contains(detail.getId()))
-                .forEach(OptionDetail::softDelete);
+        // 요청에 없는 기존 디테일 제거
+        group.getDetails().removeIf(detail ->
+                detail.getId() != null && !requestIds.contains(detail.getId())
+        );
 
         normalizeDisplayOrders(requestDetails);
 
@@ -137,7 +144,7 @@ public class ProductOptionService {
         }
     }
 
-     // [추가] displayOrder 중복 제거 및 자동 조정
+    // [추가] displayOrder 중복 제거 및 자동 조정
     private void normalizeDisplayOrders(List<OptionDetailDto> details) {
         if (details == null || details.isEmpty()) {
             return;

@@ -11,6 +11,7 @@ import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -120,8 +121,12 @@ public class ProductViewController {
             return "redirect:/products/" + productId;
         }
 
-        cartService.addItemToCart(memberDetail.getMember().getId(), request);
-
+        try{
+            cartService.addItemToCart(memberDetail.getMember().getId(), request);
+        } catch (BusinessException e){
+            redirectAttributes.addFlashAttribute("cartError", e.getErrorCode().getMessage());
+            return "redirect:/products/" + productId;
+        }
         redirectAttributes.addFlashAttribute("cartSuccess", "장바구니에 상품이 추가되었습니다.");
         return "redirect:/products/" + productId + "?addedToCart=true";
     }

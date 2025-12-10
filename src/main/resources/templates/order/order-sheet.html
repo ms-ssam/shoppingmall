@@ -16,7 +16,18 @@
     <h1 class="order-sheet-title">주문서</h1>
 
     <!-- 전체 주문 폼 -->
-    <form th:action="@{/orders}" method="post" class="order-form">
+    <form th:action="@{/orders}" th:object="${orderCreateRequest}"
+          method="post" class="order-form">
+        <!-- DTO 검증 에러 안내 -->
+        <div th:if="${#fields.hasErrors()}"
+             class="alert alert-error global-error-box">
+            입력하신 내용을 다시 확인해 주세요.
+        </div>
+        <!-- 비즈니스 에러 (재고 부족, 판매 중지 등) -->
+        <div th:if="${errorMessage}"
+             class="alert alert-error"
+             th:text="${errorMessage}">
+        </div>
 
         <!-- (선택) CSRF -->
         <!--
@@ -33,17 +44,31 @@
             <div class="order-section-body">
                 <div class="form-row">
                     <label>수령인</label>
-                    <input type="text" name="receiverName">
+                    <input type="text" th:field="*{receiverName}"
+                           th:classappend="${#fields.hasErrors('receiverName')} ? ' input-error' : ''"
+                           placeholder="수령인 이름">
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('receiverName')}"
+                         th:errors="*{receiverName}">
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>연락처</label>
-                    <input type="text" name="receiverPhone">
+                    <input type="text" th:field="*{receiverPhone}"
+                           th:classappend="${#fields.hasErrors('receiverPhone')} ? ' input-error' : ''"
+                           placeholder="연락 가능한 전화번호">
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('receiverPhone')}"
+                         th:errors="*{receiverPhone}">
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>우편번호</label>
                     <div class="inline-group">
                         <!-- ✅ id/name/readonly 설정 -->
-                        <input type="text" id="zipCode" name="zipCode" readonly>
+                        <input type="text" id="zipCode" name="zipCode"
+                               th:classappend="${#fields.hasErrors('zipCode')} ? ' input-error' : ''"
+                               readonly>
                         <!-- ✅ 버튼 클릭 시 주소 검색 팝업 -->
                         <button type="button"
                                 class="btn btn-secondary"
@@ -51,21 +76,43 @@
                             우편번호 찾기
                         </button>
                     </div>
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('zipCode')}"
+                         th:errors="*{zipCode}">
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>주소</label>
                     <!-- ✅ id 추가 + readonly -->
-                    <input type="text" id="address1" name="address1" readonly>
+                    <input type="text" id="address1" name="address1"
+                           th:classappend="${#fields.hasErrors('address1')} ? ' input-error' : ''"
+                           readonly>
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('address1')}"
+                         th:errors="*{address1}">
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>상세 주소</label>
                     <!-- ✅ id 추가 -->
-                    <input type="text" id="address2" name="address2">
+                    <input type="text" id="address2" name="address2"
+                           th:classappend="${#fields.hasErrors('address2')} ? ' input-error' : ''">
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('address2')}"
+                         th:errors="*{address2}">
+                    </div>
                 </div>
                 <div class="form-row">
                     <label>배송 메모</label>
                     <textarea name="deliveryMemo"
-                              placeholder="배송 시 요청사항을 입력해 주세요."></textarea>
+                              th:field="*{deliveryMemo}"
+                              placeholder="배송 시 요청사항을 입력해 주세요."
+                              maxlength="100">
+                    </textarea>
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('deliveryMemo')}"
+                         th:errors="*{deliveryMemo}">
+                    </div>
                 </div>
             </div>
         </section>
@@ -180,9 +227,13 @@
 
                     <div class="agreement-row">
                         <label>
-                            <input type="checkbox" name="agreeTerms">
+                            <input type="checkbox" th:field="*{agreeTerms}">
                             주문 상품 정보 및 결제 대행 서비스 이용 약관에 모두 동의합니다.
                         </label>
+                        <div class="field-error"
+                             th:if="${#fields.hasErrors('agreeTerms')}"
+                             th:errors="*{agreeTerms}">
+                        </div>
                     </div>
 
                     <div class="order-actions">
