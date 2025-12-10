@@ -127,10 +127,7 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-        boolean existsActiveMember = memberRepository.existsByIdAndStatus(member.getId(), MemberStatus.ACTIVE);
-        if (!existsActiveMember) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
+        existsActiveMember(member.getId());
 
         permissionValidator.validate(order, member);
 
@@ -141,7 +138,23 @@ public class OrderService {
         order.updateOrderStatus(OrderStatus.CANCEL_REQUESTED);
     }
 
+    public List<UserOrderInfoResponse> getRecentOrdersForMyPage(Long memberId) {
+
+        existsActiveMember(memberId);
+
+        return orderRepository.findTop5ByMemberIdOrderByIdDesc(memberId)
+                .stream()
+                .map(orderMapper::toUserOrderInfoResponse)
+                .toList();
+    }
+
     // ============ 공통 메서드(조회, 유효성) ===============
+
+    private void existsActiveMember(Long memberId) {
+        if(!memberRepository.existsByIdAndStatus(memberId, MemberStatus.ACTIVE)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+    }
 
     private Member getMemberOrThrow(Long memberId) {
         return memberRepository.findById(memberId)
@@ -190,5 +203,4 @@ public class OrderService {
             throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
         }
     }
-
 }
