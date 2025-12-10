@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class MypageViewController {
     private final OrderService orderService;
 
     @GetMapping
-    public String mypagePage(@AuthenticationPrincipal MemberDetail principal,
+    public String mypageIndex(@AuthenticationPrincipal MemberDetail principal,
                              Model model
     ) {
         Long memberId = principal.getMember().getId();
@@ -46,6 +47,9 @@ public class MypageViewController {
 
         model.addAttribute("member", response);
 
+        List<UserOrderInfoResponse> recentOrders =
+                orderService.getRecentOrdersForMyPage(memberId);
+        model.addAttribute("recentOrders", recentOrders);
         return "mypage/mypage-index";
     }
 

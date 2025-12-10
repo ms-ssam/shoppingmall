@@ -55,10 +55,52 @@
                     </a>
                 </div>
 
-                <p class="account-section-desc">
-                    최근 3개월 주문 내역이 없습니다.
+                <!-- 주문이 없을 때 -->
+                <p class="account-section-desc" th:if="${#lists.isEmpty(recentOrders)}">
+                    최근 주문 내역이 없습니다.
                 </p>
+
+                <!-- 주문이 있을 때 -->
+                <ul class="account-orders-list" th:if="${!#lists.isEmpty(recentOrders)}">
+                    <li class="account-order-item" th:each="order : ${recentOrders}">
+                        <a th:href="@{'/mypage/orders/' + ${order.id}}">
+
+                            <!-- 첫 줄: 대표 상품명 + 상태 뱃지 -->
+                            <div class="order-row-main">
+                    <span class="order-main-product"
+                          th:text="${order.mainProductName}">대표 상품명</span>
+
+                                <span th:switch="${order.orderStatus.name()}">
+                        <span th:case="'PENDING'"           class="status-badge status-pending">결제 대기</span>
+                        <span th:case="'FAILED'"            class="status-badge status-failed">결제 실패</span>
+                        <span th:case="'PAID'"              class="status-badge status-paid">결제 완료</span>
+                        <span th:case="'PREPARING'"         class="status-badge status-preparing">상품 준비중</span>
+                        <span th:case="'DELIVERING'"        class="status-badge status-delivering">배송 진행</span>
+                        <span th:case="'DELIVERED'"         class="status-badge status-delivered">배송 완료</span>
+                        <span th:case="'CANCEL_REQUESTED'"  class="status-badge status-cancel-requested">취소 요청</span>
+                        <span th:case="'CANCELED'"          class="status-badge status-canceled">취소 승인</span>
+                        <span th:case="*"                   class="status-badge status-etc">기타</span>
+                    </span>
+                            </div>
+
+                            <!-- 둘째 줄: 주문일 + 결제금액 -->
+                            <div class="order-row-sub">
+                    <span class="order-date"
+                          th:text="${#temporals.format(order.orderDate, 'yyyy.MM.dd')}">
+                        2025.12.10
+                    </span>
+
+                                <span class="order-total"
+                                      th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'">
+                        34,500원
+                    </span>
+                            </div>
+
+                        </a>
+                    </li>
+                </ul>
             </section>
+
 
         </section>
     </main>
