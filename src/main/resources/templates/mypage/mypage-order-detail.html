@@ -139,25 +139,26 @@
 
                         <!-- 상품 정보 -->
                         <div class="myorder-item-info">
-                            <div class="myorder-item-name"
-                                 th:text="${item.productName}">
-                                상품명
-                            </div>
-                            <div class="myorder-item-meta">
-                                <span class="myorder-item-qty">
-                                    수량
+                            <!-- 첫 줄: 상품명 / 수량 / 단가 / 소계 -->
+                            <div class="myorder-item-row-top">
+                                <div class="myorder-item-name"
+                                     th:text="${item.productName}">
+                                    상품명
+                                </div>
+                                <div class="myorder-item-qty">
                                     <span th:text="${item.quantity}">1</span>개
-                                </span>
-                                <span class="myorder-item-unitprice">
-                                    (개당
-                                    <span th:text="${#numbers.formatInteger(item.unitPrice, 3, 'COMMA')}"></span>원)
-                                </span>
+                                </div>
+                                <div class="myorder-item-unitprice">
+                                    <span th:text="|${#numbers.formatInteger(item.unitPrice, 3, 'COMMA')}원|">
+                                        15,000원
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- 금액 -->
-                        <div class="myorder-item-price">
-                            <span th:text="${#numbers.formatInteger(item.subtotalPrice, 3, 'COMMA')}"></span>원
+                            <!-- 둘째 줄: 옵션 (색 / 사이즈) -->
+                            <div class="myorder-item-option"
+                                 th:text="${item.productOptionGroupName + ' / ' + item.optionDetail}">
+                                옵션명
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -178,7 +179,7 @@
                     <div class="myorder-payment-row">
                         <span class="myorder-label">배송비</span>
                         <span class="myorder-value"
-                              th:text="${#numbers.formatInteger(orderDetail.deliveryFee, 3, 'COMMA')} + '원'">
+                              th:text="${#numbers.formatInteger(orderDetail.deliveryFee, 0, 'COMMA')} + '원'">
                             3,000원
                         </span>
                     </div>
