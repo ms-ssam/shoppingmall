@@ -26,7 +26,6 @@
     color: #a10000;
 }
 
-/* 주문서 상단 전역 에러 박스 (조금 더 여백) */
 .global-error-box {
     margin-bottom: 20px;
     font-weight: 500;
@@ -39,25 +38,30 @@
 .field-error {
     margin-top: 2px;
     font-size: 12px;
-    color: #b91c1c; /* 진한 빨간 */
+    color: #b91c1c;
 }
 
 .input-error {
-    border-color: #f97373;   /* 연한 빨간 */
+    border-color: #f97373;
     background-color: #fffafa;
 }
-
 
 /* ======================================
    카드 공통
    ====================================== */
 
-.order-section-card,
-.order-complete-card {
+.order-section-card {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 0 1px #eee;
     padding: 24px 28px;
+}
+
+.order-complete-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px #eee;
+    padding: 32px 36px;
 }
 
 /* 주문서 제목 */
@@ -69,12 +73,27 @@
     margin-bottom: 24px;
 }
 
-/* 주문완료 헤더 */
+/* ======================================
+   주문완료 헤더
+   ====================================== */
 
 .order-complete-header {
+    text-align: center;
     margin-bottom: 28px;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 20px;
+}
+
+.complete-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid #2e7d32;
+    font-size: 26px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 12px;
 }
 
 .order-complete-title {
@@ -84,26 +103,47 @@
 }
 
 .order-complete-subtitle {
-    font-size: 13px;
+    font-size: 14px;
     color: #666;
+    line-height: 1.6;
 }
 
-/* 공통 섹션 (주문완료용) */
+.order-number-line {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #444;
+}
+.order-number-line strong {
+    font-weight: 600;
+}
 
-.order-info-section,
+/* ======================================
+   섹션 (주문완료)
+   ====================================== */
+
 .order-main-product-section,
+.order-payment-section,
 .order-delivery-section {
     margin-bottom: 24px;
 }
 
 .section-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+/* 섹션 내부 박스 (주문완료) */
+.order-section-body {
+    background-color: #fafafa;
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 13px;
+    overflow-x: auto;
 }
 
 /* ======================================
-   주문서 - 전체 폼 레이아웃
+   주문서 - 폼 레이아웃
    ====================================== */
 
 .order-form {
@@ -120,12 +160,6 @@
     font-size: 18px;
     font-weight: 600;
 }
-
-.order-section-body {
-    font-size: 14px;
-}
-
-/* 폼 레이아웃 (주문서 배송지/주문자) */
 
 .form-row {
     display: flex;
@@ -148,13 +182,11 @@
     font-size: 14px;
 }
 
-/* =============== placeholder =============== */
 .form-row input::placeholder,
 .form-row textarea::placeholder {
     color: #bfbfbf;
     font-size: 11px;
 }
-
 
 .form-row input:read-only {
     background-color: #f8f8f8;
@@ -178,73 +210,83 @@
 .order-items-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
-.order-items-table thead th {
-    text-align: left;
-    padding: 10px 8px;
+.order-items-table thead {
+    background-color: #fafafa;
+}
+
+.order-items-table th {
+    padding: 8px 10px;
     border-bottom: 1px solid #eee;
+    font-size: 12px;
     font-weight: 500;
-    color: #666;
+    color: #888;
+    text-align: center;
+}
+
+.order-items-table th:first-child {
+    text-align: left;
 }
 
 .order-items-table tbody td {
-    padding: 10px 8px;
-    border-bottom: 1px solid #f3f3f3;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f5f5f5;
     vertical-align: middle;
+    text-align: center;
 }
 
-.order-items-table .item-info .item-name {
-    font-weight: 500;
+.order-items-table tbody td:first-child {
+    text-align: left;
 }
 
-/* (필요하면 썸네일/텍스트 레이아웃도 여기에 추가 가능)
+/* 상품 정보 셀 레이아웃 */
+
 .item-info {
     display: flex;
+    align-items: flex-start;
     gap: 10px;
-    align-items: center;
+}
+
+.item-thumb-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+    margin-top: 2px;
 }
 
 .item-thumb {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-*/
-
-/* ======================================
-   주문서 하단 레이아웃 (결제수단 + 요약)
-   ====================================== */
-
-.order-bottom-layout {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 16px;
-}
-
-.payment-method-card,
-.payment-summary-card {
+    width: 100%;
     height: 100%;
+    object-fit: cover;
 }
 
-/* 결제 수단 */
-
-.payment-method-list {
+.item-text {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
-.radio-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
+.item-name {
+    font-size: 13px;
+    font-weight: 500;
 }
 
-/* 금액 요약 */
+/* ======================================
+   주문서 하단 요약 (단일 카드)
+   ====================================== */
+
+.order-bottom-section {
+    margin-top: 16px;
+}
+
+.payment-summary-card {
+    width: 100%;
+}
 
 .price-row {
     display: flex;
@@ -277,32 +319,53 @@
 
 .order-info-row {
     display: flex;
-    align-items: flex-start;
+    gap: 16px;
     padding: 6px 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .order-info-row dt {
-    width: 110px;
-    flex-shrink: 0;
+    width: 80px;
     color: #666;
+    font-weight: 500;
+    flex-shrink: 0;
 }
 
 .order-info-row dd {
     margin: 0;
     color: #222;
     word-break: keep-all;
+    flex: 1;
 }
 
-/* 대표 상품명 (주문완료에서만 사용 시 여전히 유지 가능) */
+/* ======================================
+   결제 정보 (주문완료)
+   ====================================== */
 
-.main-product-name {
-    font-size: 14px;
+.payment-info .order-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.payment-info .order-info-row.total {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #ddd;
+}
+
+.payment-info .label {
+    color: #555;
+}
+
+.payment-info .value {
     font-weight: 500;
-    padding: 10px 12px;
-    background-color: #fafafa;
-    border-radius: 6px;
-    border: 1px solid #f0f0f0;
+}
+
+.payment-info .total-amount {
+    font-size: 15px;
+    font-weight: 700;
 }
 
 /* ======================================
@@ -365,15 +428,15 @@
     justify-content: flex-end;
 }
 
+.order-complete-actions .btn {
+    min-width: 140px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
 /* ======================================
    반응형
    ====================================== */
-
-@media (max-width: 900px) {
-    .order-bottom-layout {
-        grid-template-columns: 1fr;
-    }
-}
 
 @media (max-width: 768px) {
     .order-complete-card {
