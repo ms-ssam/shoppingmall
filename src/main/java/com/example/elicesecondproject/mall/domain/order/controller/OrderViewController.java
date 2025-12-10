@@ -82,7 +82,7 @@ public class OrderViewController {
                 return "order/order-sheet";
             } catch (BusinessException e) {
                 redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-                return "redirect:/carts";
+                return "redirect:/cart";
             }
         }
 
@@ -95,7 +95,7 @@ public class OrderViewController {
         } catch(BusinessException e) {
             // 재고부족, 판매중지 상품 등 예외 -> 장바구니로
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/carts";
+            return "redirect:/cart";
         }
     }
 

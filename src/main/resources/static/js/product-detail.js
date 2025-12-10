@@ -278,6 +278,19 @@ document.addEventListener('DOMContentLoaded', function () {
         qna: document.getElementById('tab-qna')
     };
 
+    const msgHolder = document.getElementById('cart-message-holder');
+    if (msgHolder) {
+        const cartError = msgHolder.dataset.cartError;
+        const cartSuccess = msgHolder.dataset.cartSuccess;
+
+        if (cartError) {
+            alert(cartError);
+        }
+        if (cartSuccess) {
+            alert(cartSuccess);
+        }
+    }
+
     tabItems.forEach(tab => {
         tab.addEventListener('click', function () {
             const target = this.getAttribute('data-target');
