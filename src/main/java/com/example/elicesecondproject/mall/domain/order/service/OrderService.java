@@ -4,19 +4,20 @@ import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
+import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
-import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.*;
 import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
+import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
@@ -37,6 +38,7 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final PermissionValidator permissionValidator;
 
     // 장바구니 -> 주문서
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {
@@ -102,7 +104,6 @@ public class OrderService {
     }
 
     // TODO : 주문 상세 나오면 삭제
-    @Transactional(readOnly = true)
     public Order getOrderForMember(Long orderId, Long memberId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
@@ -112,6 +113,32 @@ public class OrderService {
         }
 
         return order;
+    }
+
+    public UserOrderDetailResponse getMyOrderDetail(Long orderId, Long memberId) {
+        Order order = orderRepository.findByIdAndMemberId(orderId, memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        return orderMapper.toUserOrderDetailResponse(order);
+    }
+
+    @Transactional
+    public void requestCancel(Long orderId, Member member) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        boolean existsActiveMember = memberRepository.existsByIdAndStatus(member.getId(), MemberStatus.ACTIVE);
+        if (!existsActiveMember) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        permissionValidator.validate(order, member);
+
+        if(!order.getOrderStatus().canChangeTo(OrderStatus.CANCEL_REQUESTED)) {
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS_CHANGE);
+        }
+
+        order.updateOrderStatus(OrderStatus.CANCEL_REQUESTED);
     }
 
     // ============ 공통 메서드(조회, 유효성) ===============

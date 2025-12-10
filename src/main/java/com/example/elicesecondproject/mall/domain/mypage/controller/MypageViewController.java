@@ -7,6 +7,7 @@ import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProf
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
+import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
@@ -246,5 +247,23 @@ public class MypageViewController {
         model.addAttribute("orders", responses);
         model.addAttribute("condition", condition);
         return "mypage/mypage-orders";
+    }
+
+    @GetMapping("/orders/{orderId}")
+    public String getMyOrderDetail(@PathVariable Long orderId,
+                                   @AuthenticationPrincipal MemberDetail principal,
+                                   Model model) {
+        UserOrderDetailResponse response = orderService.getMyOrderDetail(orderId, principal.getMember().getId());
+
+        model.addAttribute("orderDetail", response);
+        return "mypage/mypage-order-detail";
+    }
+
+    @PutMapping("/orders/{orderId}")
+    public String requestCancelOrder (@PathVariable Long orderId,
+                                      @AuthenticationPrincipal MemberDetail principal
+    ) {
+        orderService.requestCancel(orderId, principal.getMember());
+        return "redirect:/mypage/orders";
     }
 }
