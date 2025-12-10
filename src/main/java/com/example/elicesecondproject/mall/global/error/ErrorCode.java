@@ -27,9 +27,11 @@ public enum ErrorCode {
     INVALID_ORDER_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "OD002", "허용되지 않은 주문 상태 변경입니다."),
 
     ORDER_CART_ITEMS_EMPTY(HttpStatus.BAD_REQUEST, "OD003", "선택한 장바구니 상품이 존재하지 않습니다."),
-    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORD004", "해당 주문에 접근할 권한이 없습니다."),
+    ORDER_CART_ITEMS_INVALID(HttpStatus.BAD_REQUEST, "OD005", "유효하지 않은 장바구니 상품이 포함되어 있습니다."),
 
-    ORDER_PAYMENT_FAILED(HttpStatus.BAD_REQUEST, "ORD005", "결제 처리에 실패했습니다."),
+    ORDER_OPTION_INVALID(HttpStatus.BAD_REQUEST, "OPT004", "유효하지 않은 상품 옵션입니다."),
+    OPTION_SOLD_OUT(HttpStatus.BAD_REQUEST, "OPT005", "선택하신 옵션은 품절되었습니다."),
+
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
@@ -40,6 +42,7 @@ public enum ErrorCode {
     // 403 Forbidden
     FORBIDDEN(HttpStatus.FORBIDDEN, "A002", "접근 권한이 없습니다."),
     REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "RV002", "이 리뷰에 접근할 권한이 없습니다."),
+    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "OD004", "해당 주문에 접근할 권한이 없습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "해당 사용자를 찾을 수 없습니다."),

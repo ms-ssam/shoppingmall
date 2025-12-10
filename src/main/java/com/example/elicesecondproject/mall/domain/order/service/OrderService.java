@@ -2,8 +2,10 @@ package com.example.elicesecondproject.mall.domain.order.service;
 
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
+import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
@@ -15,6 +17,7 @@ import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -30,85 +33,61 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class OrderService {
     private final CartItemRepository cartItemRepository;
+    private final CartService cartService;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
 
-    /**
-     * 장바구니 → 주문서 진입
-     * - 선택된 cartItemIds에 대해
-     * - 본인 장바구니 것만 조회
-     * - 주문서에 뿌릴 DTO + 금액/배송비 계산
-     */
+    // 장바구니 -> 주문서
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {
 
-        // 1) 선택된 장바구니 항목 조회 (본인 것만)
-        List<CartItem> selectedCartItems = cartItemRepository
-                .findAllByIdInAndCartMemberId(request.getCartItemIds(), memberId);
+        Member member = getMemberOrThrow(memberId);
 
-        if (selectedCartItems.isEmpty()) {
-            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
-        }
+        List<CartItem> selectedCartItems = getValidCartItems(memberId, request.getCartItemIds());
 
-        // 2) 화면용 DTO로 변환
+        // 주문서아이템DTO로 변환 - 단가*수량 계산 db기준으로
         List<OrderSheetItemResponse> items = selectedCartItems.stream()
                 .map(OrderSheetItemResponse::from)
                 .toList();
 
-        // 3) 상품 총액
+        // 상품 총 가격 계산
         int totalPrice = items.stream()
                 .mapToInt(OrderSheetItemResponse::getSubtotalPrice)
                 .sum();
 
-        // 4) 배송비 (규칙은 Order 쪽 메서드가 가진다고 가정)
+        // 배송비 (규칙은 Order 쪽 메서드가 가진다고 가정)
         int deliveryFee = Order.calculateShippingFee(totalPrice);
 
-        // 주문자 정보
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        // 5) 화면용 합계 DTO 반환
+        // 화면용 합계 DTO 반환
         return new OrderSheetResponse(items, deliveryFee);
     }
 
-    /**
-     * 주문서 → 주문 생성
-     * - 배송정보 + cartItemIds 기반으로 Order/OrderItem 한 번에 생성
-     */
+    // 주문서 -> 주문 생성
     @Transactional
     public Long createOrder(Long memberId, OrderCreateRequest request) {
 
-        // 1) 회원 확인
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getMemberOrThrow(memberId);
 
-        // 2) 장바구니 항목 조회 (회원 검증 포함해서 보안상 안전하게)
-        List<CartItem> cartItems = cartItemRepository
-                .findAllByIdInAndCartMemberId(request.getCartItemIds(), memberId);
+        List<Long> cartItemIds = request.getCartItemIds();
+        List<CartItem> cartItems = getValidCartItems(memberId, cartItemIds);
 
-        if (cartItems.isEmpty()) {
-            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
-        }
-
-        // 3) CartItem → OrderItem 스냅샷 변환
+        // cartItem → OrderItem 스냅샷 변환
         List<OrderItem> orderItems = cartItems.stream()
                 .map(OrderItem::fromCartItem)
                 .toList();
 
-        // 4) 배송정보 생성
+        // 배송정보 생성
         DeliveryInfo deliveryInfo = request.toDeliveryInfo();
 
-        // 5) Order 한 번에 생성 (총액/배송비/대표상품명은 Order 내부에서 계산)
+        // Order 한 번에 생성 (총액/배송비/대표상품명은 Order 내부에서 계산)
         Order order = Order.create(member, deliveryInfo, orderItems);
 
         // TODO : 결제 구현 후 수정.
-        // 지금은 "즉시 결제 완료"
         order.markAsPaid();
 
         orderRepository.save(order);
 
-        // 6) 주문에 사용된 장바구니 항목 삭제
-        cartItemRepository.deleteAll(cartItems);  // FIXME: 이렇게 삭제하면 장바구니의 cartItems에도 수정사항이 반영되나? 안 되지 않나? ++totalCount 반영 X
+        cartService.deleteSelectedCartItems(memberId, cartItemIds);
 
         return order.getId();
     }
@@ -122,6 +101,7 @@ public class OrderService {
         return orders.map(orderMapper::toUserOrderInfoResponse);
     }
 
+    // TODO : 주문 상세 나오면 삭제
     @Transactional(readOnly = true)
     public Order getOrderForMember(Long orderId, Long memberId) {
         Order order = orderRepository.findById(orderId)
@@ -133,4 +113,55 @@ public class OrderService {
 
         return order;
     }
+
+    // ============ 공통 메서드(조회, 유효성) ===============
+
+    private Member getMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private List<CartItem> getValidCartItems(Long memberId, List<Long> cartItemIds) {
+
+        if(cartItemIds == null || cartItemIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
+        }
+
+        // fetch join 조회
+        List<CartItem> items = cartItemRepository
+                .findAllWithDetailsByIdInAndCartMemberId(cartItemIds, memberId);
+
+        if(items.isEmpty()){
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_EMPTY);
+        }
+        if(cartItemIds.size() != items.size()){
+            throw new BusinessException(ErrorCode.ORDER_CART_ITEMS_INVALID);
+        }
+
+        items.forEach(this::validateCartItem);
+
+        return items;
+    }
+
+    private void validateCartItem(CartItem cartItem) {
+
+        OptionDetail optionDetail = cartItem.getProductOptionDetail();
+        if(optionDetail == null || optionDetail.isSoldOut()) {
+            throw new BusinessException(ErrorCode.ORDER_OPTION_INVALID);
+        }
+
+        Product product = optionDetail.getProduct();
+        if(product == null) {
+            throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        if(!product.isOnSale()) {
+            throw new BusinessException(ErrorCode.PRODUCT_STOPPED);
+        }
+
+        // 재고체크
+        if(optionDetail.getStockQuantity() < cartItem.getQuantity()) {
+            throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
+        }
+    }
+
 }
