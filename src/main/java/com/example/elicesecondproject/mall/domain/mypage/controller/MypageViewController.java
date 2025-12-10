@@ -10,6 +10,9 @@ import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSea
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
+import com.example.elicesecondproject.mall.domain.product.dto.WishListProductResponse;
+import com.example.elicesecondproject.mall.domain.product.service.ProductService;
+import com.example.elicesecondproject.mall.domain.product.service.WishListService;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
@@ -37,6 +40,8 @@ public class MypageViewController {
     private final MemberService memberService;
     private final ReviewService reviewService;
     private final OrderService orderService;
+    private final ProductService productService;
+    private final WishListService wishListService;
 
     @GetMapping
     public String mypageIndex(@AuthenticationPrincipal MemberDetail principal,
@@ -269,5 +274,16 @@ public class MypageViewController {
     ) {
         orderService.requestCancel(orderId, principal.getMember());
         return "redirect:/mypage/orders";
+    }
+
+    @GetMapping("/wish-list")
+    public String getWishList(@AuthenticationPrincipal MemberDetail principal,
+                              Pageable pageable,
+                              Model model) {
+        Page<WishListProductResponse> wishList = wishListService.getWishListByMember(principal.getMember().getId(), pageable);
+
+        model.addAttribute("wishList", wishList);
+
+        return "mypage/mypage-wish-list";
     }
 }
