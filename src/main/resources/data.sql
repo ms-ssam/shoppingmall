@@ -1,4 +1,50 @@
 -- ========================================
+-- 0. MEMBERS 초기 데이터 (가장 먼저 실행)
+-- ========================================
+-- 이메일 변경: admin -> admin1, user -> user1
+-- 비밀번호 '1234' 암호화: $2a$10$8.UnVuG9HHgffUDAlk8qfOpNa.hPayFybA6.u.y/0e/j1I9.k.x.W
+
+-- 1. 관리자 (Admin) 생성
+INSERT INTO members (
+    email, password, name, nickname, phone, role, status,
+    email_verified, provider, created_at, updated_at, deleted_at
+) VALUES (
+             'admin1@test.com',
+             '$2a$10$8.UnVuG9HHgffUDAlk8qfOpNa.hPayFybA6.u.y/0e/j1I9.k.x.W',
+             '관리자', 'AdminUser', '010-0000-0000', 'ADMIN', 'ACTIVE',
+             true, 'LOCAL', NOW(), NOW(), NULL
+         );
+
+-- 2. 일반 유저 (User) 생성
+INSERT INTO members (
+    email, password, name, nickname, phone, role, status,
+    email_verified, provider, created_at, updated_at, deleted_at
+) VALUES (
+             'user1@test.com',
+             '$2a$10$8.UnVuG9HHgffUDAlk8qfOpNa.hPayFybA6.u.y/0e/j1I9.k.x.W',
+             '일반유저', 'GeneralUser', '010-1111-1111', 'USER', 'ACTIVE',
+             true, 'LOCAL', NOW(), NOW(), NULL
+         );
+
+-- ========================================
+-- 0-1. CARTS 초기 데이터 (Members 생성 후 실행)
+-- ========================================
+-- Cart가 Member의 ID를 FK(member_id)로 가짐
+
+-- 관리자 장바구니
+INSERT INTO carts (member_id, total_count, created_at, updated_at)
+VALUES (
+           (SELECT id FROM members WHERE email='admin1@test.com'),
+           0, NOW(), NOW()
+       );
+
+-- 일반 유저 장바구니
+INSERT INTO carts (member_id, total_count, created_at, updated_at)
+VALUES (
+           (SELECT id FROM members WHERE email='user1@test.com'),
+           0, NOW(), NOW()
+       );
+-- ========================================
 -- 1. CATEGORY 초기 데이터
 -- ========================================
 INSERT INTO category (
@@ -226,3 +272,61 @@ INSERT INTO product_image (
 (40, 9, '/uploads/products/9/slider/thumbnail/padding-slide3.jpg', 'SLIDER', 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (41, 9, '/uploads/products/9/description/resized/padding-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (42, 9, '/uploads/products/9/description/resized/padding-desc2.jpg', 'DESCRIPTION', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+
+
+
+-- ==========================================
+-- 6. QUESTION (문의) 더미 데이터
+-- ==========================================
+
+-- 1. 관리자가 작성한 일반 문의 (상품 ID: 1)
+INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+VALUES (
+           (SELECT id FROM members WHERE email='admin1@test.com'), -- 변경된 이메일로 ID 조회
+           1,
+           '관리자 테스트 문의입니다.',
+           '배송 시스템 점검을 위한 테스트 질문입니다.',
+           false,
+           false,
+           NOW(), NOW(), NULL
+       );
+
+-- 2. 관리자가 작성한 비밀 문의 (상품 ID: 2)
+INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+VALUES (
+           (SELECT id FROM members WHERE email='admin1@test.com'),
+           2,
+           '비밀글 테스트',
+           '관리자 비밀글 기능 확인 중입니다.',
+           true,
+           false,
+           NOW(), NOW(), NULL
+       );
+
+-- 3. 관리자가 작성하고 답변 완료된 문의 (상품 ID: 3)
+INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+VALUES (
+           (SELECT id FROM members WHERE email='admin1@test.com'),
+           3,
+           '재입고 날짜 확인용',
+           '데이터베이스 정합성 테스트 질문입니다.',
+           false,
+           true,
+           NOW(), NOW(), NULL
+       );
+
+
+-- ==========================================
+-- 7. ANSWER (답변) 더미 데이터
+-- ==========================================
+
+-- 위 3번 문의(question_id = 3)에 대한 답변
+INSERT INTO answer (question_id, admin_id, content, created_at, updated_at)
+VALUES (
+           3,
+           (SELECT id FROM members WHERE email='admin1@test.com'), -- 답변자도 admin1
+           '테스트 확인 완료되었습니다. 정상 작동합니다.',
+           NOW(), NOW()
+       );
