@@ -690,8 +690,10 @@ function submitProduct() {
                 alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
 
                 if (!isEditMode) {
+                    // 등록 성공 시에만 목록(또는 edit 화면)으로 이동
                     location.href = '/admin/products';
                 }
+                // isEditMode === true 이면 현재 /admin/products/{id}/edit 에 남음
             } else {
                 alert((isEditMode ? "수정 실패: " : "등록 실패: ") + data.message);
             }
