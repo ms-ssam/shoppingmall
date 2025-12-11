@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @EntityGraph(attributePaths = {                                     // LazyInitializationException 방지
@@ -38,4 +39,13 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     // memberId에 해당하는 사용자의 장바구니에 담겨있는 cartItem들 중 대응되는 optionDetail이 param의 optionDetailIds에 포함되는 것들 조회
     List<CartItem> findAllByCartMemberIdAndProductOptionDetailIdIn(Long memberId, List<Long> optionDetailIds);
+
+    // memberId에 해당하는 사용자 장바구니 안 장바구니 항목들이 가진 optionDetailId 중 주어진 optionDetailIds 안에 있는 것만 목록으로 조회
+    @Query("""
+        select distinct ci.productOptionDetail.id
+        from CartItem ci
+        where ci.cart.member.id = :memberId
+          and ci.productOptionDetail.id in :optionDetailIds
+        """)
+    Set<Long> findExistingOptionDetailIdsInCart(Long memberId, List<Long> optionDetailIds);
 }

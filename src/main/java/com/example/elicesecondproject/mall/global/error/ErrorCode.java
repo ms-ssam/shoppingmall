@@ -32,6 +32,8 @@ public enum ErrorCode {
     ORDER_OPTION_INVALID(HttpStatus.BAD_REQUEST, "OPT004", "유효하지 않은 상품 옵션입니다."),
     OPTION_SOLD_OUT(HttpStatus.BAD_REQUEST, "OPT005", "선택하신 옵션은 품절되었습니다."),
 
+    INVALID_PAYMENT_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "PM003", "허용되지 않은 결제 상태 변경입니다."),
+
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
