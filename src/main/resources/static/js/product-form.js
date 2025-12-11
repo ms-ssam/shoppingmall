@@ -135,7 +135,7 @@ function loadExistingProductData() {
         return;
     }
 
-    // 🔥 추가: 기존 이미지 로드
+    // 기존 이미지 로드
     if (typeof existingImages !== 'undefined' && existingImages && existingImages.length > 0) {
         console.log('이미지 개수:', existingImages.length);
         existingImages.forEach(image => {
@@ -208,7 +208,7 @@ function loadExistingProductData() {
     console.log('=== 기존 상품 데이터 로드 완료 ===\n');
 }
 
-// 🔥 추가: 기존 대표 이미지 로드 함수
+// 기존 대표 이미지 로드 함수
 function loadExistingMainImage(imageUrl) {
     const preview = document.getElementById('mainImagePreview');
     preview.innerHTML = `
@@ -220,10 +220,11 @@ function loadExistingMainImage(imageUrl) {
             </button>
         </div>
     `;
+    setupImageErrorHandling();
     console.log('✅ 대표 이미지 로드:', imageUrl);
 }
 
-// 🔥 추가: 기존 슬라이더 이미지 로드 함수
+// 기존 슬라이더 이미지 로드 함수
 function loadExistingSliderImage(imageUrl) {
     const listDiv = document.getElementById('sliderImageList');
     const currentCount = listDiv.querySelectorAll('.image-preview-item').length;
@@ -241,10 +242,11 @@ function loadExistingSliderImage(imageUrl) {
         </button>
     `;
     listDiv.appendChild(itemDiv);
+    setupImageErrorHandling();
     console.log('✅ 슬라이더 이미지 로드:', imageUrl);
 }
 
-// 🔥 추가: 기존 상세 이미지 로드 함수
+// 기존 상세 이미지 로드 함수
 function loadExistingDescImage(imageUrl) {
     const listDiv = document.getElementById('descImageList');
 
@@ -260,10 +262,11 @@ function loadExistingDescImage(imageUrl) {
         </button>
     `;
     listDiv.appendChild(itemDiv);
+    setupImageErrorHandling();
     console.log('✅ 상세 이미지 로드:', imageUrl);
 }
 
-// 🔥 추가: 슬라이더 이미지 순서 업데이트 함수
+// 슬라이더 이미지 순서 업데이트 함수
 function updateSliderImageOrder() {
     const items = document.querySelectorAll('#sliderImageList .image-preview-item');
     items.forEach((item, index) => {
@@ -289,6 +292,7 @@ function handleMainImage(file) {
                 </button>
             </div>
         `;
+        setupImageErrorHandling();
     };
     reader.readAsDataURL(file);
 }
@@ -344,6 +348,7 @@ function renderSliderImages() {
                 </button>
             `;
             listDiv.appendChild(itemDiv);
+            setupImageErrorHandling();
         };
         reader.readAsDataURL(file);
     });
@@ -391,6 +396,7 @@ function renderDescImages() {
                 </button>
             `;
             listDiv.appendChild(itemDiv);
+            setupImageErrorHandling();
         };
         reader.readAsDataURL(file);
     });
@@ -684,10 +690,8 @@ function submitProduct() {
                 alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
 
                 if (!isEditMode) {
-                    // 등록 성공 시에만 목록(또는 edit 화면)으로 이동
                     location.href = '/admin/products';
                 }
-                // isEditMode === true 이면 현재 /admin/products/{id}/edit 에 남음
             } else {
                 alert((isEditMode ? "수정 실패: " : "등록 실패: ") + data.message);
             }
@@ -696,4 +700,23 @@ function submitProduct() {
             console.error(err);
             alert("서버 오류가 발생했습니다.");
         });
+}
+
+// ==================== 이미지 에러 핸들링 ====================
+function setupImageErrorHandling() {
+    document.querySelectorAll('img').forEach(img => {
+        if (!img.dataset.errorBound) {
+            img.dataset.errorBound = 'true';
+            img.addEventListener('error', handleImageError);
+        }
+    });
+}
+
+function handleImageError(event) {
+    const img = event.target;
+    if (!img.dataset.errorHandled) {
+        img.dataset.errorHandled = 'true';
+        img.src = '/images/default.jpg';
+        img.alt = '이미지를 불러올 수 없습니다';
+    }
 }
