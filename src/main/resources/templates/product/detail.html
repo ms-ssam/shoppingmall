@@ -204,7 +204,6 @@
                 <div class="review-content" th:text="${review.content}">
                     리뷰 내용입니다.
                 </div>
-
                 <div class="review-image" th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}">
                     <img th:src="${review.imageUrl}" alt="리뷰 이미지">
                 </div>
