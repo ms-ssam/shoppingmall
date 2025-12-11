@@ -106,6 +106,17 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
+    @Override
+    public Optional<Order> findWithItemsByOrderId(String orderId) {
+        Order result = queryFactory
+                .selectFrom(order)
+                .leftJoin(order.orderItems, orderItem).fetchJoin()
+                .where(order.orderId.eq(orderId))
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
     // 주문 상태 필터 (String -> Enum 매핑)
     private BooleanExpression eqStatus(String status) {
         if (!StringUtils.hasText(status)) {

@@ -380,3 +380,29 @@ document.addEventListener('DOMContentLoaded', function () {
         buyHidden.innerHTML = cartHidden.innerHTML;
     });
 });
+// ==================== 이미지 에러 핸들링 ====================
+function setupImageErrorHandling() {
+    document.querySelectorAll('img').forEach(img => {
+        if (!img.dataset.errorBound) {
+            img.dataset.errorBound = 'true';
+            img.addEventListener('error', handleImageError);
+        }
+    });
+}
+
+function handleImageError(event) {
+    const img = event.target;
+    if (!img.dataset.errorHandled) {
+        img.dataset.errorHandled = 'true';
+        img.src = '/images/default.jpg';
+        img.alt = '이미지를 불러올 수 없습니다';
+    }
+}
+
+// 페이지 로드 시 실행
+document.addEventListener('DOMContentLoaded', setupImageErrorHandling);
+
+// Swiper 초기화 후에도 실행 (슬라이더 이미지 처리)
+if (typeof swiperMain !== 'undefined') {
+    swiperMain.on('init', setupImageErrorHandling);
+}

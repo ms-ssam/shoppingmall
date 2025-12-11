@@ -139,8 +139,7 @@
             <div class="img-box"
                  th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">
                 <img th:src="${product.mainImageUrl} ?: '/images/default.jpg'"
-                     alt="Product Image"
-                     onerror="this.onerror=null; this.src='/images/default.jpg';">
+                     alt="Product Image">
             </div>
 
             <div class="wish-icon"
@@ -229,6 +228,26 @@
             })
             .catch(error => console.error('Error:', error));
     }
+    // 이미지 처리
+    function setupImageErrorHandling() {
+        document.querySelectorAll('img').forEach(img => {
+            if (!img.dataset.errorBound) {
+                img.dataset.errorBound = 'true';
+                img.addEventListener('error', handleImageError);
+            }
+        });
+    }
+
+    function handleImageError(event) {
+        const img = event.target;
+        if (!img.dataset.errorHandled) {
+            img.dataset.errorHandled = 'true';
+            img.src = '/images/default.jpg';
+            img.alt = '이미지를 불러올 수 없습니다';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', setupImageErrorHandling);
 </script>
 
 </body>

@@ -14,4 +14,6 @@ public interface OrderRepositoryCustom {
                                Long memberId,
                                Pageable pageable);
     Optional<Order> findWithItemsById(Long orderId);
+
+    Optional<Order> findWithItemsByOrderId(String orderId);
 }

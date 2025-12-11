@@ -10,4 +10,6 @@ public interface OrderRepository extends JpaRepository<Order,Long>, OrderReposit
     Optional<Order> findByIdAndMemberId(Long orderId, Long memberId);
 
     List<Order> findTop5ByMemberIdOrderByIdDesc(Long memberId);
+
+    Optional<Order> findByOrderId(String orderId);
 }

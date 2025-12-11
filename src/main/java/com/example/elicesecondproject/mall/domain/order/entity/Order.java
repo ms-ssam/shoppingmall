@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Table(name = "orders")
@@ -21,6 +22,9 @@ public class Order extends BaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 64)
+    private String orderId;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -64,6 +68,8 @@ public class Order extends BaseEntity implements Ownable {
                                List<OrderItem> orderItems) {
 
         Order order = new Order();
+
+        order.orderId = generateOrderId();
 
         order.memberId = member.getId();
 
@@ -141,6 +147,10 @@ public class Order extends BaseEntity implements Ownable {
         } else {
             this.mainProductName = firstName + " 외 " + extraCount + "개";
         }
+    }
+
+    private static String generateOrderId() {
+        return "ORD-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
     }
 
     @Override

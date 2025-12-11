@@ -13,8 +13,10 @@ import java.util.List;
 @Getter
 @Setter
 public class UserOrderDetailResponse {
-    private Long id;                                        // 주문 id
-    private LocalDateTime orderDate;                        // 주문 날짜
+
+    private LocalDateTime orderDate;    // 주문 날짜
+    private Long id;
+    private String orderId;
 
     private OrderStatus orderStatus;                        // 주문 상태
     private PaymentStatus paymentStatus;                    // 결제 상태
