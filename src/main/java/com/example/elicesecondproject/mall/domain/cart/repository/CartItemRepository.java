@@ -23,14 +23,14 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     Optional<CartItem> findByCartIdAndProductOptionDetailId(Long cartId, Long productOptionDetailId);
 
     @Query("""
-        select ci
-        from CartItem ci
-        join fetch ci.productOptionDetail od
-        join fetch od.productOptionGroup pog
-        join fetch pog.product
-        where ci.id in :cartItemIds
-          and ci.cart.member.id = :memberId
-    """)
+                select ci
+                from CartItem ci
+                join fetch ci.productOptionDetail od
+                join fetch od.productOptionGroup pog
+                join fetch pog.product
+                where ci.id in :cartItemIds
+                  and ci.cart.member.id = :memberId
+            """)
     List<CartItem> findAllWithDetailsByIdInAndCartMemberId(
             @Param("cartItemIds") List<Long> cartItemIds,
             @Param("memberId") Long memberId

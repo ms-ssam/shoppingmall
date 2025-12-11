@@ -34,6 +34,9 @@ public class AdminOrderViewController {
         model.addAttribute("orders", responses);
         model.addAttribute("searchCondition", searchCondition);
 
+        model.addAttribute("menu", "order");      // ★ 이거 추가
+        model.addAttribute("pageTitle", "주문 관리");
+
         return "admin/order/order-list";
     }
 

@@ -95,6 +95,11 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
 
     // --- 비즈니스 메서드 ---
 
+    public void addReview(Review review) {
+        reviews.add(review);
+        review.setProduct(this);
+    }
+
     // 썸네일 이미지 업데이트
     public void updateThumbnailUrl(String thumbnailUrl){
         this.thumbnailUrl = thumbnailUrl;
