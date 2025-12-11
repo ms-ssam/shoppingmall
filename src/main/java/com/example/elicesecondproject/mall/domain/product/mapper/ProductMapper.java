@@ -1,10 +1,7 @@
 package com.example.elicesecondproject.mall.domain.product.mapper;
 
 import com.example.elicesecondproject.mall.domain.option.mapper.OptionMapper;
-import com.example.elicesecondproject.mall.domain.product.dto.CreateProductRequest;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductImageDto;
-import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
+import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductImage;
 import org.mapstruct.Mapper;
@@ -22,6 +19,8 @@ public interface ProductMapper {
     @Mapping(target = "salePrice", expression = "java(product.getSalePrice())")
     @Mapping(target = "mainImageUrl", source = "thumbnailUrl")
     ProductDetailResponse toDetailResponse(Product product);
+
+    WishListProductResponse toWishListProductResponse(Product product);
 
     Product toEntity(CreateProductRequest request);
 

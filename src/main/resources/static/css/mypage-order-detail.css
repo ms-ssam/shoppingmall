@@ -153,27 +153,57 @@
     object-fit: cover;
 }
 
-.myorder-detail-page .myorder-item-info {
+
+/* 주문 상세 - 상품 한 줄 레이아웃 다듬기 */
+
+.myorder-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f3f3;
+}
+
+/* 오른쪽 정보 영역 전체 */
+.myorder-item-info {
     flex: 1;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.myorder-detail-page .myorder-item-name {
-    font-size: 13px;
+/* 첫 줄: 상품명 / 수량 / 단가 / 소계 */
+.myorder-item-row-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.myorder-item-name {
+    font-size: 14px;
     font-weight: 500;
-    margin-bottom: 4px;
 }
 
-.myorder-detail-page .myorder-item-meta {
-    font-size: 12px;
+/* 숫자 칼럼들 (수량 / 단가 / 소계) */
+.myorder-item-qty,
+.myorder-item-unitprice,
+.myorder-item-subtotal {
+    min-width: 80px;
+    text-align: right;
+    font-size: 13px;
+    color: #444;
+    white-space: nowrap;
+}
+
+.myorder-item-subtotal {
+    font-weight: 600;
+}
+
+/* 둘째 줄: 옵션 */
+.myorder-item-option {
+    font-size: 13px;
     color: #777;
 }
 
-.myorder-detail-page .myorder-item-price {
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-}
 
 /* 결제 정보 */
 .myorder-detail-page .myorder-payment-box {
@@ -187,9 +217,10 @@
 
 .myorder-detail-page .myorder-payment-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     padding: 4px 0;
+    gap: 24px;
 }
 
 .myorder-detail-page .myorder-payment-row.myorder-payment-total {

@@ -137,14 +137,17 @@
                     <tr th:each="item : ${orderSheet.items}">
                         <td class="item-info">
                             <!-- 썸네일 -->
-                            <img th:src="${item.thumbnailUrl}"
-                                 alt="상품 이미지"
-                                 class="item-thumb">
-
-                            <!-- 상품명만 -->
+                            <div class="item-thumb-wrapper">
+                                <img th:src="${item.thumbnailUrl}"
+                                     alt="상품 이미지"
+                                     class="item-thumb">
+                            </div>
+                            <!-- 상품명 -->
                             <div class="item-text">
                                 <div class="item-name"
-                                     th:text="${item.productName}">상품명</div>
+                                     th:text="${item.productName}">
+                                    상품명
+                                </div>
                             </div>
                         </td>
 
@@ -172,32 +175,8 @@
             </div>
         </section>
 
-        <!-- 결제 요약 / 결제수단 -->
+        <!-- 결제 요약  -->
         <section class="order-bottom-layout">
-            <!-- 결제수단 -->
-            <section class="order-section-card payment-method-card">
-                <header class="order-section-header">
-                    <h2 class="order-section-title">결제 수단</h2>
-                </header>
-                <div class="order-section-body">
-                    <div class="payment-method-list">
-                        <label class="radio-row">
-                            <input type="radio" value="CARD" checked disabled>
-                            <span>신용/체크카드</span>
-                        </label>
-                        <label class="radio-row">
-                            <input type="radio" value="VBANK" disabled>
-                            <span>가상계좌</span>
-                        </label>
-                        <label class="radio-row">
-                            <input type="radio" value="TRANSFER" disabled>
-                            <span>계좌이체</span>
-                        </label>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 결제 금액 요약 -->
             <section class="order-section-card payment-summary-card">
                 <header class="order-section-header">
                     <h2 class="order-section-title">최종 결제 금액</h2>

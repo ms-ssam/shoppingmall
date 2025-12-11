@@ -14,46 +14,28 @@
 <main class="order-complete-container">
 
     <section class="order-complete-card">
+
+        <!-- 상단 완료 메시지 -->
         <header class="order-complete-header">
+            <div class="complete-icon">✓</div>
+
             <h1 class="order-complete-title">주문이 완료되었습니다.</h1>
+
             <p class="order-complete-subtitle">
-                이용해 주셔서 감사합니다. 주문 내역은 마이페이지 &gt; 주문 내역에서 다시 확인하실 수 있습니다.
+                이용해 주셔서 감사합니다.<br>
+                주문 내역은 <strong>마이페이지 &gt; 주문 내역</strong>에서 다시 확인하실 수 있습니다.
+            </p>
+
+            <!-- 주문번호만 표시 -->
+            <p class="order-number-line">
+                주문번호 <strong th:text="${order.id}"></strong>
             </p>
         </header>
 
-        <!-- 주문 기본 정보 -->
-        <section class="order-info-section">
-            <dl class="order-info-list">
-                <div class="order-info-row">
-                    <dt>주문번호</dt>
-                    <dd th:text="${order.id}">123456</dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>주문일자</dt>
-                    <dd th:text="${#temporals.format(order.orderDate, 'yyyy.MM.dd HH:mm')}">
-                        2025.12.09 15:30
-                    </dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>주문자</dt>
-                    <dd th:text="${order.ordererName}">홍길동</dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>결제 금액</dt>
-                    <dd th:text="${#numbers.formatInteger(order.totalPaymentFee, 0, 'COMMA')} + '원'">
-                        33,000원
-                    </dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>결제 상태</dt>
-                    <dd th:text="${order.paymentStatus}">COMPLETED</dd>
-                </div>
-            </dl>
-        </section>
 
         <!-- 주문 상품 정보 -->
         <section class="order-main-product-section">
-            <h2 class="section-title">주문 상품</h2>
+            <h2 class="section-title">주문 상품 정보</h2>
 
             <div class="order-section-body">
                 <table class="order-items-table">
@@ -67,13 +49,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <!-- Order.orderItems 사용 -->
                     <tr th:each="item : ${order.orderItems}">
                         <td class="item-info">
                             <!-- 썸네일 -->
-                            <img th:src="${item.productThumbnailUrl}"
-                                 alt="상품 이미지"
-                                 class="item-thumb">
+                            <div class="item-thumb-wrapper">
+                                <img th:src="${item.productThumbnailUrl}"
+                                     alt="상품 이미지"
+                                     class="item-thumb">
+                            </div>
 
                             <!-- 상품명 -->
                             <div class="item-text">
@@ -91,11 +74,11 @@
 
                         <td th:text="${item.quantity}">1</td>
 
-                        <td th:text="${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')} + '원'">
+                        <td th:text="|${#numbers.formatInteger(item.unitPrice, 0, 'COMMA')}원|">
                             10,000원
                         </td>
 
-                        <td th:text="${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')} + '원'">
+                        <td th:text="|${#numbers.formatInteger(item.subtotalPrice, 0, 'COMMA')}원|">
                             10,000원
                         </td>
                     </tr>
@@ -104,27 +87,72 @@
             </div>
         </section>
 
-        <!-- 배송지 요약 -->
+        <!-- 결제 정보 (결제 수단은 추후 추가 예정) -->
+        <section class="order-payment-section">
+            <h2 class="section-title">결제 정보</h2>
+            <div class="order-section-body payment-info">
+                <div class="order-info-row">
+                    <span class="label">상품 금액</span>
+                    <span class="value"
+                          th:text="|${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')}원|">
+                        30,000원
+                    </span>
+                </div>
+                <div class="order-info-row">
+                    <span class="label">배송비</span>
+                    <span class="value"
+                          th:text="|${#numbers.formatInteger(order.deliveryFee, 0, 'COMMA')}원|">
+                        3,000원
+                    </span>
+                </div>
+                <div class="order-info-row total">
+                    <span class="label">총 결제 금액</span>
+                    <span class="value total-amount"
+                          th:text="|${#numbers.formatInteger(order.totalPaymentFee, 0, 'COMMA')}원|">
+                        33,000원
+                    </span>
+                </div>
+                <div class="order-info-row">
+                    <span class="label">주문 상태</span>
+                    <span class="value" th:text="${order.orderStatus}">
+                        COMPLETED
+                    </span>
+                </div>
+                <div>
+                    <!-- TODO : 결제 정보 추가 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 배송지 정보 -->
         <section class="order-delivery-section">
             <h2 class="section-title">배송지 정보</h2>
-            <dl class="order-info-list">
-                <div class="order-info-row">
-                    <dt>수령인</dt>
-                    <dd th:text="${order.deliveryInfo.receiverName}">홍길동</dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>연락처</dt>
-                    <dd th:text="${order.deliveryInfo.receiverPhone}">010-1234-5678</dd>
-                </div>
-                <div class="order-info-row">
-                    <dt>주소</dt>
-                    <dd>
-                        <span th:text="'(' + ${order.deliveryInfo.zipCode} + ') '"></span>
-                        <span th:text="${order.deliveryInfo.address1}"></span>
-                        <span th:text="' ' + ${order.deliveryInfo.address2}"></span>
-                    </dd>
-                </div>
-            </dl>
+            <div class="order-section-body">
+                <dl class="order-info-list">
+                    <div class="order-info-row">
+                        <dt>수령인</dt>
+                        <dd th:text="${order.deliveryInfo.receiverName}">홍길동</dd>
+                    </div>
+                    <div class="order-info-row">
+                        <dt>연락처</dt>
+                        <dd th:text="${order.deliveryInfo.receiverPhone}">010-1234-5678</dd>
+                    </div>
+                    <div class="order-info-row">
+                        <dt>주소</dt>
+                        <dd>
+                            <span th:text="'(' + ${order.deliveryInfo.zipCode} + ') '">(12345) </span>
+                            <span th:text="${order.deliveryInfo.address1}">서울시 어딘가 1로</span>
+                            <span th:text="' ' + ${order.deliveryInfo.address2}"> 101동 1001호</span>
+                        </dd>
+                    </div>
+                    <div class="order-info-row" th:if="${order.deliveryInfo.memo}">
+                        <dt>배송 메모</dt>
+                        <dd th:text="${order.deliveryInfo.memo}">
+                            부재 시 경비실에 맡겨주세요.
+                        </dd>
+                    </div>
+                </dl>
+            </div>
         </section>
 
         <!-- 버튼 영역 -->
@@ -140,6 +168,7 @@
                 쇼핑 계속하기
             </button>
         </div>
+
     </section>
 
 </main>
