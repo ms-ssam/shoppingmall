@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>에러가 발생했습니다</title>
+
+    <!-- 공통 헤더 CSS -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/custom-error.css}">
+</head>
+<body>
+
+<!-- 🔥 공통 헤더 -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="error-wrapper">
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+
+        <div class="error-title">에러가 발생했습니다</div>
+
+        <!-- 상태 코드를 보여줄지 말지는 선택 -->
+        <div class="error-status" th:text="'상태 코드: ' + ${status}"></div>
+
+        <div class="error-message" th:text="${message}"></div>
+
+        <a href="/" class="home-btn">홈으로 돌아가기</a>
+    </div>
+</div>
+
+</body>
+</html>

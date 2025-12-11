@@ -24,7 +24,7 @@ public interface ProductMapper {
 
     Product toEntity(CreateProductRequest request);
 
-
+    ReviewProductInfoDto toReviewProductInfoDto(Product product);
 
     ProductImageDto toImageDto(ProductImage image);
 

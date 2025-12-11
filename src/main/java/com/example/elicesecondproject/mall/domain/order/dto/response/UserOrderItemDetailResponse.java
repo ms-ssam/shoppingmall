@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserOrderItemDetailResponse {
+    private Long id;
+
     private Long productId;
     private String productName;
     private String productThumbnailUrl;

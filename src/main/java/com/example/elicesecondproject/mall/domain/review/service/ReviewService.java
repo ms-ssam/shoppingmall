@@ -3,7 +3,13 @@ package com.example.elicesecondproject.mall.domain.review.service;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
+import com.example.elicesecondproject.mall.domain.order.entity.Order;
+import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
+import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
+import com.example.elicesecondproject.mall.domain.order.repository.OrderItemRepository;
+import com.example.elicesecondproject.mall.domain.product.dto.ReviewProductInfoDto;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.review.dto.request.CreateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
@@ -35,7 +41,9 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ReviewMapper reviewMapper;
+    private final ProductMapper productMapper;
     private final PermissionValidator permissionValidator;
     private final GlobalImageFileService globalImageFileService;
 
@@ -48,27 +56,40 @@ public class ReviewService {
         return reviews.map(reviewMapper::toReviewResponse);
     }
 
+    public ReviewProductInfoDto getReviewProductInfoForCreate(Long orderItemId, Long memberId){
+        OrderItem orderItem = getOrderItemWithValidation(orderItemId);
+        Order order = orderItem.getOrder();
+        Long productId = orderItem.getProductId();
+
+        validateReviewCreatable(order, productId, memberId);
+
+        Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        return productMapper.toReviewProductInfoDto(product);
+    }
+
     @Transactional
-    public ReviewResponse createReview(Long productId, CreateReviewRequest request, Long memberId) {
+    public void createReview(Long orderItemId, Long memberId, CreateReviewRequest request, MultipartFile image) {
+        OrderItem orderItem = getOrderItemWithValidation(orderItemId);
+        Order order = orderItem.getOrder();
+        Long productId = orderItem.getProductId();
+
+        validateReviewCreatable(order, productId, memberId);
+
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         Member member = getActiveMember(memberId);
 
-        Review review = Review.builder()
-                .product(product)
-                .member(member)
-                .rating(request.getRating())
-                .content(request.getContent())
-                .imageUrl(request.getImageUrl())
-                .build();
+        String imageUrl = globalImageFileService.saveReviewImage(productId, image);
+
+        Review review = Review.of(product, member, request.getRating(), request.getContent(), imageUrl);
 
         reviewRepository.save(review);
 
         // product 리뷰 수 증가, 평균 평점 갱신
         updateProductRatingAndCount(product);
-
-        return reviewMapper.toReviewResponse(review);
     }
 
     @Transactional
@@ -165,5 +186,28 @@ public class ReviewService {
     private Review getActiveReview(Long reviewId) {
         return reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REVIEW_NOT_FOUND));
+    }
+
+    private OrderItem getOrderItemWithValidation(Long orderItemId) {
+        return orderItemRepository.findWithOrder(orderItemId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_ITEM_NOT_FOUND));
+    }
+
+    private void validateReviewCreatable(Order order, Long productId, Long memberId) {
+
+        // 1) 내 주문인지 검증
+        if (!order.getMemberId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        // 2) 배송완료 상태인지 검증
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) {
+            throw new BusinessException(ErrorCode.REVIEW_ORDER_STATUS_INVALID);
+        }
+
+        // 3) 이미 이 회원이 이 상품에 대해 리뷰 작성했는지 검증 // 한 주문당 같은 상품은 1번만 리뷰 가능
+        if (reviewRepository.existsByMemberIdAndProductId(memberId, productId)) {
+            throw new BusinessException(ErrorCode.REVIEW_ALREADY_WRITTEN);
+        }
     }
 }

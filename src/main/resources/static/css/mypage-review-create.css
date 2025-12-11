@@ -1,0 +1,323 @@
+/* ===========================
+   공통 카드 레이아웃
+   =========================== */
+
+.review-create-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px 32px 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    border: 1px solid #e5e5e5;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 상단 헤더 영역 */
+
+.review-create-header {
+    border-bottom: 2px solid #111;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.review-create-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.review-create-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #777;
+}
+
+/* 바디 영역 */
+
+.review-create-body {
+    margin-top: 8px;
+}
+
+/* 폼 공통 */
+
+.review-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ===========================
+   상품 정보 + 별점
+   =========================== */
+
+.review-product-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.review-product-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    background-color: #f3f3f3;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.review-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.review-product-main {
+    flex: 1;
+}
+
+.review-product-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* 별점 영역 */
+
+.review-rating-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* 별점(스타) – 라디오 숨기고 label 꾸미기 */
+
+.review-rating-stars {
+    display: inline-flex;
+    flex-direction: row-reverse; /* 5 → 1 순서로 클릭 */
+    gap: 2px;
+}
+
+.review-rating-stars input[type="radio"] {
+    display: none;
+}
+
+.review-rating-stars label {
+    cursor: pointer;
+    font-size: 20px;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ddd;
+    transition: color 0.15s ease;
+}
+
+/* 비선택 상태: 회색 별 */
+.review-rating-stars label::before {
+    content: "★";
+}
+
+/* 호버 시 오른쪽까지 모두 색칠 */
+.review-rating-stars label:hover,
+.review-rating-stars label:hover ~ label {
+    color: #ffb300;
+}
+
+/* 선택된 이후 상태 */
+.review-rating-stars input[type="radio"]:checked ~ label {
+    color: #ffb300;
+}
+
+.review-rating-required {
+    font-size: 12px;
+    color: #d11a2a;
+}
+
+/* 구분선 */
+
+.review-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 16px 0 8px;
+}
+
+/* ===========================
+   섹션 공통
+   =========================== */
+
+.review-section {
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+}
+
+.review-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.review-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* ===========================
+   상세리뷰 텍스트 영역
+   =========================== */
+
+.review-textarea-wrapper {
+    position: relative;
+}
+
+.review-textarea {
+    width: 100%;
+    min-height: 140px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    resize: vertical;
+    font-size: 13px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.review-textarea:focus {
+    outline: none;
+    border-color: #111;
+}
+
+/* 글자 수 카운터 */
+
+.review-textarea-counter {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    font-size: 11px;
+    color: #999;
+}
+
+/* ===========================
+   사진 첨부 영역
+   =========================== */
+
+.review-photo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 파일 선택 버튼 – .btn 기반 살짝 커스텀 */
+
+.review-photo-button {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* 실제 input 숨김은 안 하고 기본 스타일만 최소화(브라우저 표시 유지) */
+.review-photo-input {
+    font-size: 12px;
+}
+
+.review-photo-count {
+    font-size: 12px;
+    color: #555;
+}
+
+.review-photo-help {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888;
+}
+
+/* 파일 리스트 */
+
+.review-photo-file-list {
+    margin-top: 6px;
+    list-style: none;
+    padding-left: 0;
+    font-size: 12px;
+    color: #555;
+}
+
+.review-photo-file-list li + li {
+    margin-top: 2px;
+}
+
+/* ===========================
+   버튼 영역
+   =========================== */
+
+.review-button-group {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* 이미 header.css에 .btn 있을 가능성 높지만
+   여기서 약간만 느낌 통일해줌 */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background-color: #111;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #000;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #111;
+    border-color: #111;
+}
+
+.btn-secondary:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+/* ===========================
+   반응형
+   =========================== */
+
+@media (max-width: 768px) {
+    .review-create-card {
+        padding: 20px 16px 24px;
+    }
+
+    .review-product-row {
+        align-items: flex-start;
+    }
+}
+
+/* 실제 input은 숨기고 label 버튼만 보이게 */
+.review-photo-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}

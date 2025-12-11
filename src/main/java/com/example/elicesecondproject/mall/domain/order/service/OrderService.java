@@ -19,6 +19,7 @@ import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
+import com.example.elicesecondproject.mall.domain.order.repository.OrderItemRepository;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
@@ -43,6 +44,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final PermissionValidator permissionValidator;
+    private final OrderItemRepository orderItemRepository;
 
     // 장바구니 -> 주문서
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {

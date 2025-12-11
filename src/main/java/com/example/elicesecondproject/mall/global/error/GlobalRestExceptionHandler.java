@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice(annotations = RestController.class)
-public class GlobalExceptionHandler {
+public class GlobalRestExceptionHandler {
 
     @ExceptionHandler(FieldValidationException.class)
     public ResponseEntity<Object> handleFieldValidation(FieldValidationException e) {
