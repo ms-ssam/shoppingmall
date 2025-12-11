@@ -68,7 +68,9 @@ public enum ErrorCode {
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다."),
-    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S002","파일 업로드에 실패했습니다.");
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S002","파일 업로드에 실패했습니다."),
+    INVALID_PAYMENT_AMOUNT(HttpStatus.INTERNAL_SERVER_ERROR, "PM001", "주문 금액과 결제 금액이 일치하지 않습니다."),
+    PAYMENT_CONFIRM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "PM002", "결제 승인에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;

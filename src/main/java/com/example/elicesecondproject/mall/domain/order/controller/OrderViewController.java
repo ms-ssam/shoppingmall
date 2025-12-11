@@ -4,7 +4,6 @@ import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
@@ -13,7 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -89,8 +90,9 @@ public class OrderViewController {
         try{
             Long orderId = orderService.createOrder(memberId, request);
 
-            // 일단 주문 완료 = 결제 완료. (TODO : 결제 pg 연동 후 수정)
-            return "redirect:/orders/" + orderId + "/complete";
+//            // 일단 주문 완료 = 결제 완료. (TODO : 결제 pg 연동 후 수정)
+//            return "redirect:/orders/" + orderId + "/complete";
+            return "redirect:/orders/" + orderId + "/payment";  // 결제 페이지로 이동
 
         } catch(BusinessException e) {
             // 재고부족, 판매중지 상품 등 예외 -> 장바구니로
@@ -99,17 +101,17 @@ public class OrderViewController {
         }
     }
 
-    @GetMapping("/{orderId}/complete")
-    public String orderComplete(@PathVariable Long orderId,
-                                @AuthenticationPrincipal MemberDetail memberDetails,
-                                Model model) {
-
-        Long memberId = memberDetails.getMember().getId();
-
-        UserOrderDetailResponse order = orderService.getMyOrderDetail(orderId, memberId);
-
-        model.addAttribute("order", order);
-
-        return "order/order-complete";
-    }
+//    @GetMapping("/{orderId}/complete")
+//    public String orderComplete(@PathVariable Long orderId,
+//                                @AuthenticationPrincipal MemberDetail memberDetails,
+//                                Model model) {
+//
+//        Long memberId = memberDetails.getMember().getId();
+//
+//        // TODO : 제품 상세나오면 수정하기
+//        UserOrderInfoResponse order = orderService.getOrderForMember(orderId, memberId);  // 푸름님 여기 아예 다른 메서드로 갈아끼우셨음
+//        model.addAttribute("order", order);
+//
+//        return "order/order-complete";
+//    }
 }

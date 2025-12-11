@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 public class AdminOrderInfoResponse {
     private Long id;
+    // TODO: private String orderId 추가 - 관련 html 수정
     private String ordererName;
     private String mainProductName;
     private int totalPaymentFee;
