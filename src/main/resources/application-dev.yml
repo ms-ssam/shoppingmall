@@ -8,8 +8,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop # 운영환경은 validate
-    show-sql: true
-
+    properties:
+      hibernate:
+        show_sql: true
+      defer-datasource-initialization: true
+      sql:
+        init:
+          mode: always
+          encoding: UTF-8
 file:
   upload:
     base-path: /home/gitlab-runner/uploads
