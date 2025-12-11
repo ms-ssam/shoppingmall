@@ -6,6 +6,7 @@ let colorVariantIndex = 0;
 let sizeVariantIndexMap = {};
 let isEditMode = false;
 let productId = null;
+let deletedExistingImages = [];
 
 // ==================== 초기화 함수 ====================
 function initializeProductForm() {
@@ -45,45 +46,142 @@ function initializeEventListeners() {
         }
     });
 
+    // ⭐ 슬라이더 이미지 추가 버튼
     document.getElementById('addSliderImageBtn').addEventListener('click', () => {
-        const currentCount = document.querySelectorAll('#sliderImageList .image-preview-item').length;
+        const existingCount = document.querySelectorAll('#sliderImageList [data-existing-url]').length;
+        const currentCount = existingCount + sliderImages.length;
+
         if (currentCount >= 4) {
             alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
             return;
         }
+
+        const remaining = 4 - currentCount;
+        console.log(`슬라이더 이미지: 현재 ${currentCount}개, 추가 가능 ${remaining}개`);
+
         document.getElementById('sliderImageInput').click();
     });
 
+    // ⭐ 슬라이더 이미지 파일 선택 (수정)
     document.getElementById('sliderImageInput').addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
-        const currentCount = document.querySelectorAll('#sliderImageList .image-preview-item').length;
 
-        files.forEach(file => {
-            if (currentCount + sliderImages.length < 4) {
-                handleSliderImage(file);
+        if (files.length === 0) {
+            return;
+        }
+
+        const existingCount = document.querySelectorAll('#sliderImageList [data-existing-url]').length;
+        const currentTotalCount = existingCount + sliderImages.length;
+
+        console.log(`파일 선택됨: ${files.length}개`);
+        console.log(`현재 상태: 기존 ${existingCount}개 + 새 이미지 ${sliderImages.length}개 = 총 ${currentTotalCount}개`);
+
+        if (currentTotalCount >= 4) {
+            alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+
+        const allowedCount = 4 - currentTotalCount;
+        let addedCount = 0;
+
+        // ⭐ for 루프로 정확한 개수 제어
+        for (let i = 0; i < files.length && addedCount < allowedCount; i++) {
+            const file = files[i];
+
+            // 중복 체크 (파일명 + 크기)
+            const isDuplicate = sliderImages.some(img =>
+                img.name === file.name && img.size === file.size
+            );
+
+            if (!isDuplicate) {
+                sliderImages.push(file);
+                addedCount++;
+                console.log(`✅ 추가됨: ${file.name} (${addedCount}/${allowedCount})`);
+            } else {
+                console.log(`⚠️ 중복 제외: ${file.name}`);
             }
-        });
+        }
+
+        if (addedCount > 0) {
+            renderSliderImages();
+            console.log(`총 ${addedCount}개 이미지 추가 완료`);
+        }
+
+        if (files.length > addedCount) {
+            const skipped = files.length - addedCount;
+            alert(`${addedCount}개 추가되었습니다. (${skipped}개는 제한 또는 중복으로 제외)`);
+        }
+
         e.target.value = '';
     });
 
+    // ⭐ 상세 설명 이미지 추가 버튼
     document.getElementById('addDescImageBtn').addEventListener('click', () => {
-        const currentCount = document.querySelectorAll('#descImageList .image-preview-item').length;
+        const existingCount = document.querySelectorAll('#descImageList [data-existing-url]').length;
+        const currentCount = existingCount + descImages.length;
+
         if (currentCount >= 10) {
             alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
             return;
         }
+
+        const remaining = 10 - currentCount;
+        console.log(`상세 이미지: 현재 ${currentCount}개, 추가 가능 ${remaining}개`);
+
         document.getElementById('descImageInput').click();
     });
 
+    // ⭐ 상세 설명 이미지 파일 선택 (수정)
     document.getElementById('descImageInput').addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
-        const currentCount = document.querySelectorAll('#descImageList .image-preview-item').length;
 
-        files.forEach(file => {
-            if (currentCount + descImages.length < 10) {
-                handleDescImage(file);
+        if (files.length === 0) {
+            return;
+        }
+
+        const existingCount = document.querySelectorAll('#descImageList [data-existing-url]').length;
+        const currentTotalCount = existingCount + descImages.length;
+
+        console.log(`파일 선택됨: ${files.length}개`);
+        console.log(`현재 상태: 기존 ${existingCount}개 + 새 이미지 ${descImages.length}개 = 총 ${currentTotalCount}개`);
+
+        if (currentTotalCount >= 10) {
+            alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+
+        const allowedCount = 10 - currentTotalCount;
+        let addedCount = 0;
+
+        // ⭐ for 루프로 정확한 개수 제어
+        for (let i = 0; i < files.length && addedCount < allowedCount; i++) {
+            const file = files[i];
+
+            const isDuplicate = descImages.some(img =>
+                img.name === file.name && img.size === file.size
+            );
+
+            if (!isDuplicate) {
+                descImages.push(file);
+                addedCount++;
+                console.log(`✅ 추가됨: ${file.name} (${addedCount}/${allowedCount})`);
+            } else {
+                console.log(`⚠️ 중복 제외: ${file.name}`);
             }
-        });
+        }
+
+        if (addedCount > 0) {
+            renderDescImages();
+            console.log(`총 ${addedCount}개 이미지 추가 완료`);
+        }
+
+        if (files.length > addedCount) {
+            const skipped = files.length - addedCount;
+            alert(`${addedCount}개 추가되었습니다. (${skipped}개는 제한 또는 중복으로 제외)`);
+        }
+
         e.target.value = '';
     });
 
@@ -236,7 +334,7 @@ function loadExistingSliderImage(imageUrl) {
         <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${currentCount + 1}</span>
         <img src="${imageUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
         <span class="flex-1 text-sm text-gray-700 truncate">기존 이미지</span>
-        <button type="button" onclick="this.closest('.image-preview-item').remove(); updateSliderImageOrder();"
+        <button type="button" onclick="removeExistingSliderImage('${imageUrl}')"
                 class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
             삭제
         </button>
@@ -256,7 +354,7 @@ function loadExistingDescImage(imageUrl) {
     itemDiv.innerHTML = `
         <img src="${imageUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
         <span class="flex-1 text-sm text-gray-700 truncate">기존 이미지</span>
-        <button type="button" onclick="this.closest('.image-preview-item').remove();"
+        <button type="button" onclick="removeExistingDescImage('${imageUrl}')"
                 class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
             삭제
         </button>
@@ -264,6 +362,26 @@ function loadExistingDescImage(imageUrl) {
     listDiv.appendChild(itemDiv);
     setupImageErrorHandling();
     console.log('✅ 상세 이미지 로드:', imageUrl);
+}
+
+// 기존 이미지 삭제 함수들
+function removeExistingSliderImage(imageUrl) {
+    deletedExistingImages.push(imageUrl);
+    const item = document.querySelector(`#sliderImageList [data-existing-url="${imageUrl}"]`);
+    if (item) {
+        item.remove();
+        updateSliderImageOrder();
+        console.log('🗑️ 기존 슬라이더 이미지 삭제 예약:', imageUrl);
+    }
+}
+
+function removeExistingDescImage(imageUrl) {
+    deletedExistingImages.push(imageUrl);
+    const item = document.querySelector(`#descImageList [data-existing-url="${imageUrl}"]`);
+    if (item) {
+        item.remove();
+        console.log('🗑️ 기존 상세 이미지 삭제 예약:', imageUrl);
+    }
 }
 
 // 슬라이더 이미지 순서 업데이트 함수
@@ -304,26 +422,14 @@ function removeMainImage() {
 }
 
 // ==================== 슬라이더 이미지 처리 ====================
-function handleSliderImage(file) {
-    const currentCount = document.querySelectorAll('#sliderImageList .image-preview-item').length;
-    if (currentCount + sliderImages.length >= 4) {
-        alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
-        return;
-    }
-
-    sliderImages.push(file);
-    renderSliderImages();
-}
-
 function removeSliderImage(index) {
+    console.log(`🗑️ 슬라이더 이미지 삭제: index ${index}`);
     sliderImages.splice(index, 1);
     renderSliderImages();
 }
 
 function renderSliderImages() {
     const listDiv = document.getElementById('sliderImageList');
-
-    // 기존 이미지 개수 확인
     const existingItems = listDiv.querySelectorAll('[data-existing-url]');
     const startIndex = existingItems.length;
 
@@ -331,44 +437,53 @@ function renderSliderImages() {
     const newItems = listDiv.querySelectorAll('[data-index]');
     newItems.forEach(item => item.remove());
 
-    // 새 이미지 추가
+    // DocumentFragment로 DOM 조작 최소화
+    const fragment = document.createDocumentFragment();
+
     sliderImages.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
-            itemDiv.dataset.index = index;
-            itemDiv.innerHTML = `
-                <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${startIndex + index + 1}</span>
-                <img src="${e.target.result}" class="w-12 h-12 object-cover rounded image-thumbnail">
-                <span class="flex-1 text-sm text-gray-700 truncate">${file.name}</span>
-                <button type="button" onclick="removeSliderImage(${index})"
-                        class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-                    삭제
-                </button>
-            `;
-            listDiv.appendChild(itemDiv);
-            setupImageErrorHandling();
-        };
-        reader.readAsDataURL(file);
+        if (file._previewUrl) {
+            const itemDiv = createSliderImageElement(file._previewUrl, file.name, index, startIndex);
+            fragment.appendChild(itemDiv);
+        } else {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                file._previewUrl = e.target.result;
+                const itemDiv = createSliderImageElement(e.target.result, file.name, index, startIndex);
+                listDiv.appendChild(itemDiv);
+                updateSliderImageOrder();
+                setupImageErrorHandling();
+            };
+            reader.readAsDataURL(file);
+        }
     });
 
+    if (fragment.childNodes.length > 0) {
+        listDiv.appendChild(fragment);
+    }
+
     updateSliderImageOrder();
+    setupImageErrorHandling();
+}
+
+function createSliderImageElement(previewUrl, fileName, index, startIndex) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
+    itemDiv.dataset.index = index;
+    itemDiv.innerHTML = `
+        <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${startIndex + index + 1}</span>
+        <img src="${previewUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
+        <span class="flex-1 text-sm text-gray-700 truncate">${fileName}</span>
+        <button type="button" onclick="removeSliderImage(${index})"
+                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
+            삭제
+        </button>
+    `;
+    return itemDiv;
 }
 
 // ==================== 상세 설명 이미지 처리 ====================
-function handleDescImage(file) {
-    const currentCount = document.querySelectorAll('#descImageList .image-preview-item').length;
-    if (currentCount + descImages.length >= 10) {
-        alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
-        return;
-    }
-
-    descImages.push(file);
-    renderDescImages();
-}
-
 function removeDescImage(index) {
+    console.log(`🗑️ 상세 이미지 삭제: index ${index}`);
     descImages.splice(index, 1);
     renderDescImages();
 }
@@ -380,26 +495,45 @@ function renderDescImages() {
     const newItems = listDiv.querySelectorAll('[data-index]');
     newItems.forEach(item => item.remove());
 
-    // 새 이미지 추가
+    // DocumentFragment로 DOM 조작 최소화
+    const fragment = document.createDocumentFragment();
+
     descImages.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
-            itemDiv.dataset.index = index;
-            itemDiv.innerHTML = `
-                <img src="${e.target.result}" class="w-12 h-12 object-cover rounded image-thumbnail">
-                <span class="flex-1 text-sm text-gray-700 truncate">${file.name}</span>
-                <button type="button" onclick="removeDescImage(${index})"
-                        class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-                    삭제
-                </button>
-            `;
-            listDiv.appendChild(itemDiv);
-            setupImageErrorHandling();
-        };
-        reader.readAsDataURL(file);
+        if (file._previewUrl) {
+            const itemDiv = createDescImageElement(file._previewUrl, file.name, index);
+            fragment.appendChild(itemDiv);
+        } else {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                file._previewUrl = e.target.result;
+                const itemDiv = createDescImageElement(e.target.result, file.name, index);
+                listDiv.appendChild(itemDiv);
+                setupImageErrorHandling();
+            };
+            reader.readAsDataURL(file);
+        }
     });
+
+    if (fragment.childNodes.length > 0) {
+        listDiv.appendChild(fragment);
+    }
+
+    setupImageErrorHandling();
+}
+
+function createDescImageElement(previewUrl, fileName, index) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
+    itemDiv.dataset.index = index;
+    itemDiv.innerHTML = `
+        <img src="${previewUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
+        <span class="flex-1 text-sm text-gray-700 truncate">${fileName}</span>
+        <button type="button" onclick="removeDescImage(${index})"
+                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
+            삭제
+        </button>
+    `;
+    return itemDiv;
 }
 
 // ==================== 카테고리 모달 ====================
@@ -675,7 +809,15 @@ function submitProduct() {
         formData.append('descImages', img);
     });
 
-    console.log('전송할 데이터:', requestData);
+    // 삭제된 기존 이미지 URL 전송
+    if (isEditMode && deletedExistingImages.length > 0) {
+        formData.append('deletedImageUrls', JSON.stringify(deletedExistingImages));
+    }
+
+    console.log('📤 전송할 데이터:', requestData);
+    console.log('🗑️ 삭제할 이미지:', deletedExistingImages);
+    console.log('🖼️ 슬라이더 이미지:', sliderImages.length, '개');
+    console.log('📝 상세 이미지:', descImages.length, '개');
 
     const url = isEditMode ? `/api/admin/products/${productId}` : '/api/admin/products';
     const method = isEditMode ? 'PUT' : 'POST';
@@ -690,16 +832,14 @@ function submitProduct() {
                 alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
 
                 if (!isEditMode) {
-                    // 등록 성공 시에만 목록(또는 edit 화면)으로 이동
                     location.href = '/admin/products';
                 }
-                // isEditMode === true 이면 현재 /admin/products/{id}/edit 에 남음
             } else {
                 alert((isEditMode ? "수정 실패: " : "등록 실패: ") + data.message);
             }
         })
         .catch(err => {
-            console.error(err);
+            console.error('❌ 서버 오류:', err);
             alert("서버 오류가 발생했습니다.");
         });
 }
