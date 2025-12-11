@@ -7,6 +7,14 @@
 <body>
 <h1>결제하기</h1>
 
+<!-- 주문서로 돌아가기 버튼 -->
+<div class="payment-header-actions">
+    <button type="button"
+            th:onclick="'location.href=\'/orders/' + ${order.id} + '/sheet\''">
+        주문서로 돌아가기
+    </button>
+</div>
+
 <section>
     <p th:text="${order.mainProductName}">대표 상품명</p>
     <p>
@@ -56,7 +64,7 @@
     document.getElementById("pay-button").addEventListener("click", async () => {
         try {
             await widgets.requestPayment({
-                orderId: orderId,  // orderCode 문자열
+                orderId: orderId,    // 문자열 주문번호
                 orderName: orderName,
                 successUrl: successUrl,
                 failUrl: failUrl,
@@ -65,7 +73,26 @@
             });
         } catch (error) {
             console.error("requestPayment error:", error);
-            alert(error.message + " (" + error.code + ")");
+
+            // 1) 사용자가 결제창에서 취소한 경우
+            if (error.code === "USER_CANCEL") {
+                alert("결제를 취소했습니다.");
+                // 👉 이 경우에는 결제 페이지에 그대로 남겨두면 됨
+                return;
+            }
+
+            // 2) 진짜 오류인 경우
+            alert("결제 처리 중 문제가 발생했습니다.\n잠시 후 다시 시도해 주세요.\n"
+                + "(" + error.code + ")");
+
+            // 옵션: 이 때 failUrl로 보내서 서버에서 로그/처리하고 싶다면
+            /*
+            const url = new URL(failUrl);
+            url.searchParams.set("code", error.code);
+            url.searchParams.set("message", error.message);
+            url.searchParams.set("orderId", orderCode);
+            window.location.href = url.toString();
+            */
         }
     });
 </script>

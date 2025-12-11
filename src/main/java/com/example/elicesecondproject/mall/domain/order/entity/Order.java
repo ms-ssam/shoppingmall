@@ -3,6 +3,8 @@ package com.example.elicesecondproject.mall.domain.order.entity;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.common.Ownable;
 import com.example.elicesecondproject.mall.global.entity.BaseEntity;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -100,20 +102,30 @@ public class Order extends BaseEntity implements Ownable {
     }
     // ============================
 
-    public void changePaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-
-    public void changeOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
     public void markAsPaid() {
-        this.orderStatus = OrderStatus.PAID;
-        this.paymentStatus = PaymentStatus.COMPLETED;
-        this.orderDate = LocalDateTime.now();
+        changeOrderStatus(OrderStatus.PAID);
+        changePaymentStatus(PaymentStatus.COMPLETED);
+        orderDate = LocalDateTime.now();
     }
 
+    public void markAsFailed() {
+        changeOrderStatus(OrderStatus.FAILED);
+        changePaymentStatus(PaymentStatus.FAILED);
+    }
+
+    public void changePaymentStatus(PaymentStatus newStatus) {
+        if(!paymentStatus.canChangeTo(newStatus)) {
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS_CHANGE);
+        }
+        paymentStatus = newStatus;
+    }
+
+    public void changeOrderStatus(OrderStatus newStatus) {
+        if(!orderStatus.canChangeTo(newStatus)) {
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS_CHANGE);
+        }
+        orderStatus = newStatus;
+    }
 
     private void recalcAmount() {
         this.totalPrice = this.orderItems.stream()
