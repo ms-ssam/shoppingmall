@@ -35,6 +35,8 @@ public enum ErrorCode {
     REVIEW_ORDER_STATUS_INVALID(HttpStatus.BAD_REQUEST, "RV003", "현재 주문 상태에서는 리뷰를 작성할 수 없습니다."),
 
 
+    INVALID_PAYMENT_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "PM003", "허용되지 않은 결제 상태 변경입니다."),
+
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
@@ -75,7 +77,9 @@ public enum ErrorCode {
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다."),
-    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S002","파일 업로드에 실패했습니다.");
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S002","파일 업로드에 실패했습니다."),
+    INVALID_PAYMENT_AMOUNT(HttpStatus.INTERNAL_SERVER_ERROR, "PM001", "주문 금액과 결제 금액이 일치하지 않습니다."),
+    PAYMENT_CONFIRM_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "PM002", "결제 승인에 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;

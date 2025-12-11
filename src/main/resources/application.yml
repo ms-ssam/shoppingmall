@@ -3,13 +3,15 @@ spring:
     name: shoppingMall
   profiles:
     active: local
-  thymeleaf:
-    cache: true
   mvc:
     hiddenmethod:
       filter:
         enabled: true  # PUT, DELETE 요청 hidden-method 지원
   jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
@@ -22,6 +24,10 @@ spring:
     rest:
       max-page-size: 50
       default-page-size: 10
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
   #  datasource:
   #    url: jdbc:h2:mem:testdb
   #    username: sa
@@ -65,6 +71,13 @@ file:
     thumbnail:
       main-size: 300 # 300x300
       slider-size: 100 # 100x100
+
+toss:
+  payments:
+    widget-client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm  # 프론트에서 사용 (위젯 초기화)
+    secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6  # 백엔드에서 사용 (결제 승인 - confirm)
+    success-url: "http://localhost:8080/payments/toss/success"
+    fail-url: "http://localhost:8080/payments/toss/fail"
 
 server:
   port: 8080

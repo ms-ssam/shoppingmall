@@ -8,7 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop # 운영환경은 validate
-    show-sql: true
+    show_sql: true
 
 file:
   upload:

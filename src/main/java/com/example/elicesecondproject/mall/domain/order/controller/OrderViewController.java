@@ -3,8 +3,8 @@ package com.example.elicesecondproject.mall.domain.order.controller;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
-import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
@@ -16,12 +16,50 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/orders")
 public class OrderViewController {
 
     private final OrderService orderService;
+
+    // 결제 페이지에서 '주문서로 돌아가기' 버튼 눌렀을 때
+    // 장바구니 -> 주문서 개념 재사용
+    @GetMapping("/{orderId}/sheet")
+    public String backToOrderSheet(@AuthenticationPrincipal MemberDetail memberDetail,
+                                   @PathVariable Long orderId,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
+
+        Long memberId = memberDetail.getMember().getId();
+
+        try {
+            // 1) 주문을 FAILED 로 바꾸고, Cart 기반 주문서 DTO 생성
+            OrderSheetResponse orderSheet =
+                    orderService.cancelPendingOrderAndCreateOrderSheet(memberId, orderId);
+
+            // 2) 주문 생성용 DTO (배송정보 입력 & cartItemIds)
+            OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+
+            List<Long> cartItemIds = orderSheet.getItems().stream()  // OrderSheetItemResponse 안에 cartItemIds 추출
+                    .map(OrderSheetItemResponse::getCartItemId)
+                    .toList();
+
+            orderCreateRequest.setCartItemIds(cartItemIds);  // 주문 생성용 DTO에 넣기
+
+            model.addAttribute("orderSheet", orderSheet);
+            model.addAttribute("orderCreateRequest", orderCreateRequest);
+
+            // 기존 주문서 화면 재사용
+            return "order/order-sheet";
+
+        } catch (BusinessException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/cart";
+        }
+    }
 
     // 장바구니 -> 주문서 화면
     // 모든 에러는 errorMessage 하나로 통일해서 /cart로 리다이렉트
@@ -89,8 +127,7 @@ public class OrderViewController {
         try{
             Long orderId = orderService.createOrder(memberId, request);
 
-            // 일단 주문 완료 = 결제 완료. (TODO : 결제 pg 연동 후 수정)
-            return "redirect:/orders/" + orderId + "/complete";
+            return "redirect:/orders/" + orderId + "/payment";  // 결제 페이지로 이동
 
         } catch(BusinessException e) {
             // 재고부족, 판매중지 상품 등 예외 -> 장바구니로
@@ -99,17 +136,17 @@ public class OrderViewController {
         }
     }
 
-    @GetMapping("/{orderId}/complete")
-    public String orderComplete(@PathVariable Long orderId,
-                                @AuthenticationPrincipal MemberDetail memberDetails,
-                                Model model) {
-
-        Long memberId = memberDetails.getMember().getId();
-
-        UserOrderDetailResponse order = orderService.getMyOrderDetail(orderId, memberId);
-
-        model.addAttribute("order", order);
-
-        return "order/order-complete";
-    }
+//    @GetMapping("/{orderId}/complete")
+//    public String orderComplete(@PathVariable Long orderId,
+//                                @AuthenticationPrincipal MemberDetail memberDetails,
+//                                Model model) {
+//
+//        Long memberId = memberDetails.getMember().getId();
+//
+//        // TODO : 제품 상세나오면 수정하기
+//        UserOrderInfoResponse order = orderService.getOrderForMember(orderId, memberId);  // 푸름님 여기 아예 다른 메서드로 갈아끼우셨음
+//        model.addAttribute("order", order);
+//
+//        return "order/order-complete";
+//    }
 }

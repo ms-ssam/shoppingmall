@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -89,14 +90,70 @@ public class OrderService {
         // Order 한 번에 생성 (총액/배송비/대표상품명은 Order 내부에서 계산)
         Order order = Order.create(member, deliveryInfo, orderItems);
 
-        // TODO : 결제 구현 후 수정.
-        order.markAsPaid();
-
         orderRepository.save(order);
 
-        cartService.deleteSelectedCartItems(memberId, cartItemIds);
-
         return order.getId();
+    }
+
+    // 결제 페이지에서 '주문서로 돌아가기' 눌렀을 때
+    @Transactional
+    public OrderSheetResponse cancelPendingOrderAndCreateOrderSheet(Long memberId, Long orderId) {
+
+        // 1) 주문 + 주문아이템 조회
+        Order order = orderRepository.findWithItemsById(orderId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 2) 본인 주문인지 확인
+        if (!order.getOwnerId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        // 3) 상태가 PENDING 인 경우에만 취소 허용
+        if (order.getOrderStatus() != OrderStatus.PENDING) {
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS_CHANGE);
+        }
+
+        // 4) 주문 상태 및 결제 상태를 FAILED 로 변경 (결제 시도 실패/취소)
+        order.markAsFailed();
+
+        // 5) 이 주문에 사용된 optionDetailId 모으기
+        List<Long> optionDetailIds = order.getOrderItems().stream()
+                .map(OrderItem::getOptionDetailId)
+                .distinct()
+                .toList();
+
+        if (optionDetailIds.isEmpty()) {  // 주문에 아이템이 없다는 건 도메인적으로 이미 이상한 상태
+            throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
+        }
+
+        // 6) 장바구니에 실제로 존재하는 optionDetailId 목록 조회
+        Set<Long> foundOptionDetailIds = cartItemRepository.findExistingOptionDetailIdsInCart(memberId, optionDetailIds);
+
+        // 7) 유효성 검사
+        if (foundOptionDetailIds.isEmpty()) {  // 관련 장바구니 항목이 하나도 없는 경우 (다 사라진 경우)
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+
+        boolean missingExists = optionDetailIds.stream()
+                .anyMatch(id -> !foundOptionDetailIds.contains(id));
+
+        if (missingExists) {  // 주문에 있던 상품 중 일부가 장바구니에서 사라진 상태
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
+        }
+
+        // 8) 해당 옵션들을 가진 CartItem 들을 다시 조회
+        List<CartItem> cartItems = cartItemRepository.findAllByCartMemberIdAndProductOptionDetailIdIn(memberId, optionDetailIds);
+
+        // 8) cartItemIds 로 Cart 기반 주문서 다시 생성
+        List<Long> cartItemIds = cartItems.stream()
+                .map(CartItem::getId)
+                .toList();
+
+        OrderSheetFromCartRequest sheetRequest = new OrderSheetFromCartRequest();
+        sheetRequest.setCartItemIds(cartItemIds);
+
+        // 9) 기존 장바구니 -> 주문서 로직 재사용
+        return createOrderSheet(memberId, sheetRequest);
     }
 
     public Page<UserOrderInfoResponse> getMyOrders(UserOrderSearchCondition condition,
@@ -108,8 +165,7 @@ public class OrderService {
         return orders.map(orderMapper::toUserOrderInfoResponse);
     }
 
-    // TODO : 주문 상세 나오면 삭제
-    public Order getOrderForMember(Long orderId, Long memberId) {
+    public UserOrderInfoResponse getOrderForMember(Long orderId, Long memberId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -117,7 +173,7 @@ public class OrderService {
             throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
-        return order;
+        return orderMapper.toUserOrderInfoResponse(order);
     }
 
     public UserOrderDetailResponse getMyOrderDetail(Long orderId, Long memberId) {
