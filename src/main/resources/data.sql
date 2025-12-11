@@ -88,24 +88,22 @@ INSERT INTO category (
 
 
 -- ========================================
--- 2. PRODUCT 초기 데이터 (total_stock 추가)
+-- 2. PRODUCT 초기 데이터 (수정됨: total_stock 제거)
 -- ========================================
 INSERT INTO product (
     id, category_id, name, price, discount_rate, status,
     description, average_rating, review_count, wish_list_count,
-    total_stock, version, deleted_at, created_at, updated_at
+    version, deleted_at, created_at, updated_at
 ) VALUES
-      (1, 6, '베이직 반팔티', 19000, 0, 'SELLING', '남녀공용 데일리 반팔티', 4.5, 10, 5, 450, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (2, 7, '베이직 긴팔티', 24000, 10, 'SELLING', '가장 편한 긴팔 티셔츠', 4.2, 8, 3, 240, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (3, 12, '슬림핏 청바지', 39000, 0, 'SELLING', '데일리 청바지', 4.8, 20, 12, 240, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (4, 16, '오버핏 데님 자켓', 69000, 5, 'SELLING', '남녀공용 데님 자켓', 4.7, 18, 7, 80, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (5, 21, '로고 볼캡', 29000, 0, 'SELLING', '심플 볼캡', 4.4, 5, 2, 150, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (6, 9, '오버핏 후드티', 45000, 15, 'SELLING', '편안한 오버핏 후드', 4.6, 25, 15, 300, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (7, 10, '옥스포드 셔츠', 39000, 0, 'SELLING', '데일리 셔츠', 4.3, 12, 8, 200, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (8, 13, '와이드 면바지', 35000, 10, 'SELLING', '편안한 면바지', 4.4, 15, 6, 180, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-      (9, 18, '숏패딩', 89000, 20, 'SELLING', '가벼운 숏패딩', 4.9, 30, 20, 250, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-
+      (1, 6, '베이직 반팔티', 19000, 0, 'SELLING', '남녀공용 데일리 반팔티', 4.5, 10, 5, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (2, 7, '베이직 긴팔티', 24000, 10, 'SELLING', '가장 편한 긴팔 티셔츠', 4.2, 8, 3, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (3, 12, '슬림핏 청바지', 39000, 0, 'SELLING', '데일리 청바지', 4.8, 20, 12, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (4, 16, '오버핏 데님 자켓', 69000, 5, 'SELLING', '남녀공용 데님 자켓', 4.7, 18, 7, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (5, 21, '로고 볼캡', 29000, 0, 'SELLING', '심플 볼캡', 4.4, 5, 2, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (6, 9, '오버핏 후드티', 45000, 15, 'SELLING', '편안한 오버핏 후드', 4.6, 25, 15, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (7, 10, '옥스포드 셔츠', 39000, 0, 'SELLING', '데일리 셔츠', 4.3, 12, 8, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (8, 13, '와이드 면바지', 35000, 10, 'SELLING', '편안한 면바지', 4.4, 15, 6, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+      (9, 18, '숏패딩', 89000, 20, 'SELLING', '가벼운 숏패딩', 4.9, 30, 20, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- ========================================
 -- 3. PRODUCT OPTION GROUP 초기 데이터
 -- ========================================

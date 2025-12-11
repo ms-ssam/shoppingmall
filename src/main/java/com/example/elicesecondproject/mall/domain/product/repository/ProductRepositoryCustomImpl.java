@@ -9,6 +9,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,8 @@ import static com.example.elicesecondproject.mall.domain.category.entity.QCatego
 import static com.example.elicesecondproject.mall.domain.product.entity.QProduct.product;
 import static com.example.elicesecondproject.mall.domain.product.entity.QProductImage.productImage;
 import static com.example.elicesecondproject.mall.domain.product.entity.QWishList.wishList;
+import static com.example.elicesecondproject.mall.domain.option.entity.QOptionDetail.optionDetail;
+import static com.example.elicesecondproject.mall.domain.option.entity.QProductOptionGroup.productOptionGroup;
 
 @Slf4j
 @Repository
@@ -113,8 +116,8 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
             case WISHLIST_COUNT -> product.wishListCount.desc();
             case RATING -> product.averageRating.desc();
 
-             case STOCK_HIGH -> product.totalStock.desc();
-             case STOCK_LOW -> product.totalStock.asc();
+            case STOCK_HIGH -> calculateTotalStock().desc();
+            case STOCK_LOW -> calculateTotalStock().asc();
             default -> product.createdAt.desc();
         };
     }
@@ -162,7 +165,9 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 product.averageRating,
                 product.reviewCount,
                 product.wishListCount,
-                product.totalStock,
+
+                // TODO: 리팩토링 - 계산해서 조회하는 걸로 변경
+                calculateTotalStock(),
                 isLikedExpr,
                 product.category.name,
                 product.createdAt
@@ -214,6 +219,20 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
     }
 
 
+    // [추가] 총 재고 계산용 서브쿼리 (SELECT sum(stock) FROM option_detail ...)
+
+    private NumberExpression<Integer> calculateTotalStock() {
+        return Expressions.asNumber(
+                JPAExpressions
+                        .select(optionDetail.stockQuantity.sum().coalesce(0)) // 합계 (Null이면 0)
+                        .from(optionDetail)
+                        .join(optionDetail.productOptionGroup, productOptionGroup)
+                        .where(productOptionGroup.product.eq(product)
+                                .and(optionDetail.deletedAt.isNull())       // 삭제된 옵션 제외
+                                .and(productOptionGroup.deletedAt.isNull()) // 삭제된 그룹 제외
+                        )
+        ).intValue(); // Projections.constructor에서 인식을 dto에 적힌 integer이 아니라 object로 처리해서 발생하는 오류 수정
+    }
 
 }/*
         // 2차 정렬로 id DESC 한 번 더 넣어주면 정렬 안정적

@@ -77,13 +77,15 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         }
         this.stockQuantity = restStock;
 
+        //TODO: 리팩토링 : 재고 자동 재계산 삭제 조회 시 계산하는 방식으로
         //상품의 전체 재고 자동 재계산
-        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+        /*if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
             this.productOptionGroup.getProduct().recalculateTotalStock();
-        }
+        }*/
     }
 
-    public void addStock(int quantity) {
+    //TODO: 리팩토링 - 총 재고 필드 삭제
+    /*public void addStock(int quantity) {
         if (quantity <= 0) {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
@@ -91,7 +93,7 @@ public class OptionDetail extends SoftDeletableBaseEntity {
         if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
             this.productOptionGroup.getProduct().recalculateTotalStock();
         }
-    }
+    }*/
 
     public void update(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
         this.name = name;

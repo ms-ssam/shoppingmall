@@ -177,7 +177,9 @@ public class ProductOptionService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
 
         optionDetail.removeStock(quantity);
-        Product product = optionDetail.getProductOptionGroup().getProduct();
-        product.recalculateTotalStock();
+
+        //TODO: 리팩토링 - 총 재고 필드 삭제
+        /*Product product = optionDetail.getProductOptionGroup().getProduct();
+        product.recalculateTotalStock();*/
     }
 }

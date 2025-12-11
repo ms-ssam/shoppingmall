@@ -73,8 +73,9 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     private int reviewCount = 0;
     private int wishListCount = 0;
 
-    @Column(nullable = false)
-    private Integer totalStock = 0;
+    //TODO: 리팩토링: totalStock 필드 삭제(지금 optionDetail과의 결합도 상승의 원인, 옵션 도메인에서 담당하는 게 맞아 보임
+    /*@Column(nullable = false)
+    private Integer totalStock = 0;*/
 
     @Version
     private Long version; // 관리자 동시 수정 방지 낙관적 락
@@ -100,18 +101,6 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
         this.thumbnailUrl = thumbnailUrl;
     }
 
-
-
-    // 상품 정보 수정
-    /* [수정 전: Before]
-    public void updateDetails(String name, int price, int discountRate, String description, ProductStatus status) {
-        this.name = name;
-        this.price = price;
-        this.discountRate = discountRate;
-        this.description = description;
-        this.status = status;
-    }
-    */
     public void updateDetails(String name, int price, int discountRate, String description, ProductStatus status) {
         this.name = name;
         this.price = price;
@@ -208,9 +197,13 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
     public void updateStatus(ProductStatus status) {
         this.status = status;
     }
+    public List<ProductOptionGroup> getProductOptionGroups(){
+        return this.optionGroups;
+    }
 
     //재고 합계 재계산 + 자동 품절 처리
-    public void recalculateTotalStock() {
+    //TODO: 리팩토링 :totalstock 필드를 없애기 -> 계산도 조회일 때 하기
+    /*public void recalculateTotalStock() {
         this.totalStock = optionGroups.stream()
                 .filter(group -> group.getDeletedAt() == null)
                 .flatMap(group -> group.getDetails().stream())
@@ -227,9 +220,8 @@ public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeleta
             this.status = ProductStatus.SELLING;
         }
 
-    }
+    }*/
 
-    public List<ProductOptionGroup> getProductOptionGroups(){
-        return this.optionGroups;
-    }
+
+
 }

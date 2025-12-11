@@ -22,9 +22,6 @@ public interface ProductMapper {
 
     WishListProductResponse toWishListProductResponse(Product product);
 
-    Product toEntity(CreateProductRequest request);
-
-
 
     ProductImageDto toImageDto(ProductImage image);
 

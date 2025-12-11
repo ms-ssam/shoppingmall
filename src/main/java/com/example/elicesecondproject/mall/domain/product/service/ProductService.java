@@ -119,86 +119,12 @@ public class ProductService {
         return productRepository.findAllProductsForAdmin(pageable, finalSortType);
     }
 
-
-
     // [추가] 관리자용 - 검색 (STOP 포함
     public Page<ProductSummaryDto> searchProductsForAdmin(String keyword, ProductSortType sortType, Pageable pageable) {
         String trimmed = validateAndNormalizeKeyword(keyword);
         sortType = sortType != null ? sortType : ProductSortType.LATEST;
         return productRepository.searchProductsForAdmin(trimmed, sortType, pageable);
     }
-
-    /*//PROD-REG-F-10 상품 등록
-    @Transactional
-    public ProductDetailResponse createProduct(CreateProductRequest request) {
-        // 1. 카테고리 조회 (Service 이용 권장)
-        Category category = categoryService.getCategoryById(request.getCategoryId());
-
-        // 2. 상품 엔티티 생성 (기본 정보 세팅)
-        Product product = new Product(
-                request.getName(),
-                request.getPrice(),
-                request.getDiscountRate(),
-                request.getDescription(),
-                category,
-                request.getStatus()
-        );
-        productRepository.save(product);
-
-        // 색상 옵션 저장
-        productOptionService.updateOptionGroups(product, request.getOptionGroups());
-
-        // 재고 합계 계산
-        product.recalculateTotalStock();
-
-        // 이미지 등록
-        productImageService.updateImages(product, request.getImages());
-        productRepository.save(product);
-
-        return productMapper.toDetailResponse(product);
-    }*/
-
-
-
-
-
-
-
-//    // PROD-REG-F-11(관리자) 상품 상세 수정
-//    @Transactional
-//    public ProductDetailResponse updateProduct(Long productId, UpdateProductRequest request) {
-//        Product product = productRepository.findById(productId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
-//
-//        // 1. 기본 정보 수정
-//        product.updateDetails(
-//                request.getName(),
-//                request.getPrice(),
-//                request.getDiscountRate(),
-//                request.getDescription(),
-//                request.getStatus()
-//        );
-//
-//        // 2. 카테고리 수정
-//        if (request.getCategoryId() != null) {
-//            Category currentCategory = product.getCategory();
-//            if (currentCategory == null || !currentCategory.getId().equals(request.getCategoryId())) {
-//                Category newCategory = categoryService.getCategoryById(request.getCategoryId());
-//                product.updateCategory(newCategory);
-//            }
-//        }
-//
-//
-//        // 3. 옵션 그룹 비교 수정
-//        productOptionService.updateOptionGroups(product, request.getOptionGroups());
-//        product.recalculateTotalStock();
-//
-//        // 4. 이미지 비교 수정
-//        productImageService.updateImages(product, request.getImages());
-//
-//        return productMapper.toDetailResponse(product);
-//    }
-
 
 
 
@@ -221,7 +147,9 @@ public class ProductService {
 
         // 3. 옵션 저장 및 재고 계산
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
-        product.recalculateTotalStock();
+
+        //TODO: 리팩토링 - 총 재고 필드 삭제
+        //product.recalculateTotalStock();
 
         // 4. 이미지 저장 (ProductImageService로 위임!)
         productImageService.uploadAndSaveImages(product, mainImage, sliderImages, descImages);
@@ -254,7 +182,8 @@ public class ProductService {
 
         // 3. 옵션 수정
         productOptionService.updateOptionGroups(product, request.getOptionGroups());
-        product.recalculateTotalStock();
+        //TODO: 리팩토링 - 총 재고 필드 삭제
+        //product.recalculateTotalStock();
 
         // 4. 이미지 수정 (새 파일이 있는 경우만 덮어쓰기 로직 예시)
         if (mainImage != null || (sliderImages != null && !sliderImages.isEmpty()) || (descImages != null && !descImages.isEmpty())) {
