@@ -36,5 +36,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
             @Param("memberId") Long memberId
     );
 
-
+    // memberId에 해당하는 사용자의 장바구니에 담겨있는 cartItem들 중 대응되는 optionDetail이 param의 optionDetailIds에 포함되는 것들 조회
+    List<CartItem> findAllByCartMemberIdAndProductOptionDetailIdIn(Long memberId, List<Long> optionDetailIds);
 }

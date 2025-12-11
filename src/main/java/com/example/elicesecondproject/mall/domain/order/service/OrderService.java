@@ -87,12 +87,7 @@ public class OrderService {
         // Order 한 번에 생성 (총액/배송비/대표상품명은 Order 내부에서 계산)
         Order order = Order.create(member, deliveryInfo, orderItems);
 
-        // TODO : 결제 구현 후 수정.
-        order.markAsPaid();
-
         orderRepository.save(order);
-
-        cartService.deleteSelectedCartItems(memberId, cartItemIds);
 
         return order.getId();
     }
@@ -106,8 +101,7 @@ public class OrderService {
         return orders.map(orderMapper::toUserOrderInfoResponse);
     }
 
-    // TODO : 주문 상세 나오면 삭제
-    public Order getOrderForMember(Long orderId, Long memberId) {
+    public UserOrderInfoResponse getOrderForMember(Long orderId, Long memberId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -115,7 +109,7 @@ public class OrderService {
             throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
-        return order;
+        return orderMapper.toUserOrderInfoResponse(order);
     }
 
     public UserOrderDetailResponse getMyOrderDetail(Long orderId, Long memberId) {
