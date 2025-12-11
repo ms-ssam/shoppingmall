@@ -12,7 +12,7 @@ spring:
 
 file:
   upload:
-    base-path: /home/elice/uploads
+    base-path: /home/gitlab-runner/uploads
 
 logging:
   level:
