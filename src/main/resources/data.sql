@@ -214,7 +214,7 @@ INSERT INTO product_image (
     id, product_id, image_url, image_type, display_order, deleted_at, created_at, updated_at
 ) VALUES
 -- 상품 1: 베이직 반팔티
-(1, 1, '/uploads/products/1/main/thumbnail/tshirt-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 1, '/images/products/t-shirt.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, 1, '/uploads/products/1/slider/thumbnail/tshirt-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (3, 1, '/uploads/products/1/slider/thumbnail/tshirt-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (4, 1, '/uploads/products/1/slider/thumbnail/tshirt-slide3.jpg', 'SLIDER', 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -222,13 +222,13 @@ INSERT INTO product_image (
 (6, 1, '/uploads/products/1/description/resized/tshirt-desc2.jpg', 'DESCRIPTION', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 2: 베이직 긴팔티
-(7, 2, '/uploads/products/2/main/thumbnail/longtee-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 2, '/images/products/long-sleeve.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (8, 2, '/uploads/products/2/slider/thumbnail/longtee-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (9, 2, '/uploads/products/2/slider/thumbnail/longtee-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (10, 2, '/uploads/products/2/description/resized/longtee-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 3: 슬림핏 청바지
-(11, 3, '/uploads/products/3/main/thumbnail/jeans-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 3, '/images/products/jean.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (12, 3, '/uploads/products/3/slider/thumbnail/jeans-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (13, 3, '/uploads/products/3/slider/thumbnail/jeans-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (14, 3, '/uploads/products/3/slider/thumbnail/jeans-slide3.jpg', 'SLIDER', 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -236,18 +236,18 @@ INSERT INTO product_image (
 (16, 3, '/uploads/products/3/description/resized/jeans-desc2.jpg', 'DESCRIPTION', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 4: 오버핏 데님 자켓
-(17, 4, '/uploads/products/4/main/thumbnail/jacket-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 4, '/images/products/jacket.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (18, 4, '/uploads/products/4/slider/thumbnail/jacket-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (19, 4, '/uploads/products/4/slider/thumbnail/jacket-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (20, 4, '/uploads/products/4/description/resized/jacket-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 5: 로고 볼캡
-(21, 5, '/uploads/products/5/main/thumbnail/cap-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(21, 5, '/images/products/cap.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (22, 5, '/uploads/products/5/slider/thumbnail/cap-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (23, 5, '/uploads/products/5/description/resized/cap-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 6: 오버핏 후드티
-(24, 6, '/uploads/products/6/main/thumbnail/hoodie-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(24, 6, '/images/products/hoodie.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (25, 6, '/uploads/products/6/slider/thumbnail/hoodie-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (26, 6, '/uploads/products/6/slider/thumbnail/hoodie-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (27, 6, '/uploads/products/6/slider/thumbnail/hoodie-slide3.jpg', 'SLIDER', 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -255,18 +255,18 @@ INSERT INTO product_image (
 (29, 6, '/uploads/products/6/description/resized/hoodie-desc2.jpg', 'DESCRIPTION', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 7: 옥스포드 셔츠
-(30, 7, '/uploads/products/7/main/thumbnail/shirt-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(30, 7, '/images/products/shirt.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (31, 7, '/uploads/products/7/slider/thumbnail/shirt-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (32, 7, '/uploads/products/7/description/resized/shirt-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 8: 와이드 면바지
-(33, 8, '/uploads/products/8/main/thumbnail/pants-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(33, 8, '/images/products/pants.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (34, 8, '/uploads/products/8/slider/thumbnail/pants-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (35, 8, '/uploads/products/8/slider/thumbnail/pants-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (36, 8, '/uploads/products/8/description/resized/pants-desc1.jpg', 'DESCRIPTION', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- 상품 9: 숏패딩
-(37, 9, '/uploads/products/9/main/thumbnail/padding-main.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(37, 9, '/images/products/padding.jpg', 'MAIN', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (38, 9, '/uploads/products/9/slider/thumbnail/padding-slide1.jpg', 'SLIDER', 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (39, 9, '/uploads/products/9/slider/thumbnail/padding-slide2.jpg', 'SLIDER', 1, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (40, 9, '/uploads/products/9/slider/thumbnail/padding-slide3.jpg', 'SLIDER', 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
