@@ -26,14 +26,14 @@ public class Question extends SoftDeletableBaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(length = 100,  nullable = false)
+    @Column(length = 30,  nullable = false)
     private  String title;
 
-    @Column(length = 100,  nullable = false)
+    @Column(length = 255,  nullable = false)
     private  String content;
 
     @Column(nullable = false)
-    private boolean isSecret;
+    private boolean secret;
 
     // isAnswer -> answered: javaBean 규약으로 라이브러리들의 인식 오류 방지
     @Column(nullable = false)
@@ -43,12 +43,12 @@ public class Question extends SoftDeletableBaseEntity {
     private Answer answer;
 
     @Builder
-    public Question(Member member, Product product, String title, String content, boolean isSecret) {
+    public Question(Member member, Product product, String title, String content, boolean secret) {
         this.member = member;
         this.product = product;
         this.title = title;
         this.content = content;
-        this.isSecret = isSecret;
+        this.secret = secret;
     }
 
 
