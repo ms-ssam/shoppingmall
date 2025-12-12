@@ -29,4 +29,6 @@ public interface ProductMapper {
     ProductImageDto toImageDto(ProductImage image);
 
     ProductImage toImageEntity(ProductImageDto dto);
+
+    QnaProductInfoResponse toQnaProductInfoResponse(Product product);
 }

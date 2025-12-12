@@ -27,5 +27,5 @@ public class QuestionService {
         return questions.map(questionMapper::toQuestionResponse);
     }
 
-
+    // 사용자 문의 제품
 }
