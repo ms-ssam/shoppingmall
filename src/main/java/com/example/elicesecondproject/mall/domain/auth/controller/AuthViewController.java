@@ -1,25 +1,15 @@
 package com.example.elicesecondproject.mall.domain.auth.controller;
 
-import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
-import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
 import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.UriUtils;
-
-import java.nio.charset.StandardCharsets;
 
 
 @Controller
@@ -34,7 +24,7 @@ public class AuthViewController {
         return "auth/login"; // templates/auth/login.html
     }
 
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public String login(
             @Valid LoginRequest request,
             BindingResult bindingResult,
@@ -81,7 +71,7 @@ public class AuthViewController {
 
         // 로그인 성공 → 메인 페이지 이동
         return "redirect:/";
-    }
+    }*/
 
 
     @GetMapping("/signup")
@@ -109,7 +99,7 @@ public class AuthViewController {
 
 
 
-    @PostMapping("/logout")
+    /*@PostMapping("/logout")
     public String logout(HttpServletResponse response) {
 
         // ACCESS_TOKEN 삭제
@@ -134,5 +124,7 @@ public class AuthViewController {
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         return "redirect:/login"; // 로그아웃 후 로그인 페이지로 이동
-    }
+    }*/
+
+
 }

@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.auth.controller;
 
 
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
+import com.example.elicesecondproject.mall.domain.auth.dto.response.AccessTokenResponse;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.TokenResponse;
 import com.example.elicesecondproject.mall.domain.auth.service.AuthService;
@@ -56,41 +57,12 @@ public class AuthController {
         return ResponseEntity.ok(new TokenResponse(tokens.getAccessToken(), "Bearer", 1800));
     }
 
-    /*@PostMapping("/reissue")
+    @PostMapping("/reissue")
     public ResponseEntity<AccessTokenResponse> reissue(
             @CookieValue("refreshToken") String refreshToken
     ) {
         String newAccessToken = authService.reissue(refreshToken);
         return ResponseEntity.ok(new AccessTokenResponse(newAccessToken));
-    }*/
-
-    // 뷰 용 accessToken 재발급
-    @PostMapping("/auth/reissue")
-    public ResponseEntity<Void> reissue(
-            @CookieValue(value = "REFRESH_TOKEN", required = false) String refreshToken,
-            HttpServletResponse response
-    ) {
-        if (refreshToken == null || refreshToken.isBlank()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        try {
-            String newAccessToken = authService.reissue(refreshToken);
-
-            ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", newAccessToken)
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(30 * 60)
-                    .sameSite("Lax")
-                    .build();
-
-            response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-            return ResponseEntity.ok().build();
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
     }
 
     @PostMapping("/logout")
