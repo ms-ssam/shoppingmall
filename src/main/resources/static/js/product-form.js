@@ -1,4 +1,3 @@
-// ==================== 전역 변수 ====================
 let mainImage = null;
 let sliderImages = [];
 let descImages = [];
@@ -7,26 +6,26 @@ let sizeVariantIndexMap = {};
 let isEditMode = false;
 let productId = null;
 let deletedExistingImages = [];
+let selectedCategoryId = null;
+let selectedCategoryPath = '';
 
-// ==================== 초기화 함수 ====================
+const IMAGE_LIMITS = {
+    MAIN: 1,
+    SLIDER: 4,
+    DESC: 10
+};
+
 function initializeProductForm() {
     isEditMode = productData !== null;
     productId = isEditMode ? productData.id : null;
 
     console.log('카테고리 데이터:', categoryTreeData);
     console.log('수정 모드:', isEditMode);
-    console.log('상품 데이터:', productData);
 
     if (isEditMode) {
         loadExistingProductData();
-
-        if (productData.category) {
-            let categoryName = productData.category.name;
-            if (productData.category.parentName) {
-                categoryName = productData.category.parentName + ' > ' + categoryName;
-            }
-            document.getElementById('categoryDisplay').value = categoryName;
-        }
+    } else {
+        addColorVariant();
     }
 
     calculateSalePrice();
@@ -34,385 +33,276 @@ function initializeProductForm() {
     initializeSortable();
 }
 
-// ==================== 이벤트 리스너 초기화 ====================
 function initializeEventListeners() {
-    document.getElementById('mainImageUpload').addEventListener('click', () => {
-        document.getElementById('mainImageInput').click();
-    });
+    setupImageUploadListeners();
+    setupPriceInputListeners();
 
-    document.getElementById('mainImageInput').addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleMainImage(e.target.files[0]);
-        }
-    });
+    const nameInput = document.getElementById('productName');
+    if (nameInput) {
+        nameInput.addEventListener('input', updateNameLength);
+        updateNameLength();
+    }
+}
 
-    // ⭐ 슬라이더 이미지 추가 버튼
-    document.getElementById('addSliderImageBtn').addEventListener('click', () => {
-        const existingCount = document.querySelectorAll('#sliderImageList [data-existing-url]').length;
-        const currentCount = existingCount + sliderImages.length;
+function setupImageUploadListeners() {
+    const imageTypes = [
+        { btnId: 'addMainImageBtn', inputId: 'mainImageInput', handler: handleMainImageUpload },
+        { btnId: 'addSliderImageBtn', inputId: 'sliderImageInput', handler: handleSliderImageUpload },
+        { btnId: 'addDescImageBtn', inputId: 'descImageInput', handler: handleDescImageUpload }
+    ];
 
-        if (currentCount >= 4) {
-            alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
-            return;
-        }
-
-        const remaining = 4 - currentCount;
-        console.log(`슬라이더 이미지: 현재 ${currentCount}개, 추가 가능 ${remaining}개`);
-
-        document.getElementById('sliderImageInput').click();
-    });
-
-    // ⭐ 슬라이더 이미지 파일 선택 (수정)
-    document.getElementById('sliderImageInput').addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-
-        if (files.length === 0) {
-            return;
-        }
-
-        const existingCount = document.querySelectorAll('#sliderImageList [data-existing-url]').length;
-        const currentTotalCount = existingCount + sliderImages.length;
-
-        console.log(`파일 선택됨: ${files.length}개`);
-        console.log(`현재 상태: 기존 ${existingCount}개 + 새 이미지 ${sliderImages.length}개 = 총 ${currentTotalCount}개`);
-
-        if (currentTotalCount >= 4) {
-            alert('슬라이더 이미지는 최대 4장까지 등록 가능합니다.');
-            e.target.value = '';
-            return;
-        }
-
-        const allowedCount = 4 - currentTotalCount;
-        let addedCount = 0;
-
-        // ⭐ for 루프로 정확한 개수 제어
-        for (let i = 0; i < files.length && addedCount < allowedCount; i++) {
-            const file = files[i];
-
-            // 중복 체크 (파일명 + 크기)
-            const isDuplicate = sliderImages.some(img =>
-                img.name === file.name && img.size === file.size
-            );
-
-            if (!isDuplicate) {
-                sliderImages.push(file);
-                addedCount++;
-                console.log(`✅ 추가됨: ${file.name} (${addedCount}/${allowedCount})`);
-            } else {
-                console.log(`⚠️ 중복 제외: ${file.name}`);
-            }
-        }
-
-        if (addedCount > 0) {
-            renderSliderImages();
-            console.log(`총 ${addedCount}개 이미지 추가 완료`);
-        }
-
-        if (files.length > addedCount) {
-            const skipped = files.length - addedCount;
-            alert(`${addedCount}개 추가되었습니다. (${skipped}개는 제한 또는 중복으로 제외)`);
-        }
-
-        e.target.value = '';
-    });
-
-    // ⭐ 상세 설명 이미지 추가 버튼
-    document.getElementById('addDescImageBtn').addEventListener('click', () => {
-        const existingCount = document.querySelectorAll('#descImageList [data-existing-url]').length;
-        const currentCount = existingCount + descImages.length;
-
-        if (currentCount >= 10) {
-            alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
-            return;
-        }
-
-        const remaining = 10 - currentCount;
-        console.log(`상세 이미지: 현재 ${currentCount}개, 추가 가능 ${remaining}개`);
-
-        document.getElementById('descImageInput').click();
-    });
-
-    // ⭐ 상세 설명 이미지 파일 선택 (수정)
-    document.getElementById('descImageInput').addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-
-        if (files.length === 0) {
-            return;
-        }
-
-        const existingCount = document.querySelectorAll('#descImageList [data-existing-url]').length;
-        const currentTotalCount = existingCount + descImages.length;
-
-        console.log(`파일 선택됨: ${files.length}개`);
-        console.log(`현재 상태: 기존 ${existingCount}개 + 새 이미지 ${descImages.length}개 = 총 ${currentTotalCount}개`);
-
-        if (currentTotalCount >= 10) {
-            alert('상세 설명 이미지는 최대 10장까지 등록 가능합니다.');
-            e.target.value = '';
-            return;
-        }
-
-        const allowedCount = 10 - currentTotalCount;
-        let addedCount = 0;
-
-        // ⭐ for 루프로 정확한 개수 제어
-        for (let i = 0; i < files.length && addedCount < allowedCount; i++) {
-            const file = files[i];
-
-            const isDuplicate = descImages.some(img =>
-                img.name === file.name && img.size === file.size
-            );
-
-            if (!isDuplicate) {
-                descImages.push(file);
-                addedCount++;
-                console.log(`✅ 추가됨: ${file.name} (${addedCount}/${allowedCount})`);
-            } else {
-                console.log(`⚠️ 중복 제외: ${file.name}`);
-            }
-        }
-
-        if (addedCount > 0) {
-            renderDescImages();
-            console.log(`총 ${addedCount}개 이미지 추가 완료`);
-        }
-
-        if (files.length > addedCount) {
-            const skipped = files.length - addedCount;
-            alert(`${addedCount}개 추가되었습니다. (${skipped}개는 제한 또는 중복으로 제외)`);
-        }
-
-        e.target.value = '';
-    });
-
-    const mainUploadArea = document.getElementById('mainImageUpload');
-
-    mainUploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        mainUploadArea.classList.add('drag-over');
-    });
-
-    mainUploadArea.addEventListener('dragleave', () => {
-        mainUploadArea.classList.remove('drag-over');
-    });
-
-    mainUploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        mainUploadArea.classList.remove('drag-over');
-        if (e.dataTransfer.files.length > 0) {
-            handleMainImage(e.dataTransfer.files[0]);
-        }
+    imageTypes.forEach(({ btnId, inputId, handler }) => {
+        document.getElementById(btnId)?.addEventListener('click', () => handler('click'));
+        document.getElementById(inputId)?.addEventListener('change', (e) => handler('change', e));
     });
 }
 
-// ==================== Sortable 초기화 ====================
+function handleMainImageUpload(action, event) {
+    if (action === 'click') {
+        if (mainImage || document.querySelector('#mainImagePreview .image-preview-item')) {
+            alert('대표 이미지는 1장만 등록 가능합니다.');
+            return;
+        }
+        document.getElementById('mainImageInput').click();
+    } else if (action === 'change' && event.target.files.length > 0) {
+        const file = event.target.files[0];
+        mainImage = file;
+        renderImagePreview('mainImagePreview', file, true);
+    }
+}
+
+function handleSliderImageUpload(action, event) {
+    if (action === 'click') {
+        if (!checkImageLimit('sliderImageList', sliderImages, IMAGE_LIMITS.SLIDER, '슬라이더')) return;
+        document.getElementById('sliderImageInput').click();
+    } else if (action === 'change') {
+        addMultipleImages(event, sliderImages, 'sliderImageList', IMAGE_LIMITS.SLIDER, '슬라이더', renderSliderImages);
+    }
+}
+
+function handleDescImageUpload(action, event) {
+    if (action === 'click') {
+        if (!checkImageLimit('descImageList', descImages, IMAGE_LIMITS.DESC, '상세 설명')) return;
+        document.getElementById('descImageInput').click();
+    } else if (action === 'change') {
+        addMultipleImages(event, descImages, 'descImageList', IMAGE_LIMITS.DESC, '상세 설명', renderDescImages);
+    }
+}
+
+function checkImageLimit(listId, imageArray, limit, typeName) {
+    const existingCount = document.querySelectorAll(`#${listId} [data-existing-url]`).length;
+    const currentCount = existingCount + imageArray.length;
+
+    if (currentCount >= limit) {
+        alert(`${typeName} 이미지는 최대 ${limit}장까지 등록 가능합니다.`);
+        return false;
+    }
+    return true;
+}
+
+function addMultipleImages(event, imageArray, listId, limit, typeName, renderFunc) {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    const existingCount = document.querySelectorAll(`#${listId} [data-existing-url]`).length;
+    const currentCount = existingCount + imageArray.length;
+
+    if (currentCount >= limit) {
+        alert(`${typeName} 이미지는 최대 ${limit}장까지 등록 가능합니다.`);
+        event.target.value = '';
+        return;
+    }
+
+    const allowedCount = limit - currentCount;
+    let addedCount = 0;
+
+    files.slice(0, allowedCount).forEach(file => {
+        const isDuplicate = imageArray.some(img => img.name === file.name && img.size === file.size);
+        if (!isDuplicate) {
+            imageArray.push(file);
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) renderFunc();
+    if (files.length > addedCount) {
+        alert(`${addedCount}개 추가되었습니다. (${files.length - addedCount}개는 제한 또는 중복으로 제외)`);
+    }
+
+    event.target.value = '';
+}
+
+function setupPriceInputListeners() {
+    const priceInput = document.getElementById('regularPrice');
+    const discountInput = document.getElementById('discountRate');
+
+    [priceInput, discountInput].forEach(input => {
+        if (!input) return;
+        input.addEventListener('keydown', preventInvalidChars);
+        input.addEventListener('input', (e) => {
+            if (input === priceInput) limitLength(e, 8);
+            else limitLength(e, 3, 100);
+            calculateSalePrice();
+        });
+    });
+}
+
+function preventInvalidChars(e) {
+    if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault();
+}
+
+function limitLength(e, maxLength, maxValue) {
+    const value = e.target.value;
+    if (value.length > maxLength) e.target.value = value.slice(0, maxLength);
+    if (maxValue && parseInt(value) > maxValue) e.target.value = String(maxValue);
+}
+
+function updateNameLength() {
+    const input = document.getElementById('productName');
+    const counter = document.getElementById('nameLength');
+    if (input && counter) counter.textContent = input.value.length;
+}
+
 function initializeSortable() {
     if (typeof Sortable === 'undefined') {
         console.warn('Sortable.js가 로드되지 않았습니다.');
         return;
     }
-
     new Sortable(document.getElementById('sliderImageList'), {
         animation: 150,
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
-        onEnd: function(evt) {
-            updateSliderImageOrder();
-        }
+        onEnd: updateSliderImageOrder
     });
 }
 
-// ==================== 기존 상품 데이터 로드 ====================
 function loadExistingProductData() {
-    console.log('=== 기존 상품 데이터 로드 시작 ===');
-    console.log('isEditMode:', isEditMode);
-    console.log('productData:', productData);
+    if (!productData) return;
 
-    if (!productData) {
-        console.error('❌ productData가 없습니다!');
-        return;
+    if (existingImages?.length > 0) {
+        const imageLoaders = {
+            'MAIN': loadExistingMainImage,
+            'SLIDER': loadExistingSliderImage,
+            'DESCRIPTION': loadExistingDescImage
+        };
+        existingImages.forEach(img => imageLoaders[img.imageType]?.(img.imageUrl));
     }
 
-    // 기존 이미지 로드
-    if (typeof existingImages !== 'undefined' && existingImages && existingImages.length > 0) {
-        console.log('이미지 개수:', existingImages.length);
-        existingImages.forEach(image => {
-            if (image.imageType === 'MAIN') {
-                loadExistingMainImage(image.imageUrl);
-            } else if (image.imageType === 'SLIDER') {
-                loadExistingSliderImage(image.imageUrl);
-            } else if (image.imageType === 'DESCRIPTION') {
-                loadExistingDescImage(image.imageUrl);
-            }
-        });
-    } else {
-        console.warn('⚠️ 기존 이미지가 없습니다');
-    }
-
-    if (!productData.optionGroups || productData.optionGroups.length === 0) {
-        console.warn('⚠️ optionGroups가 비어있습니다!');
-        return;
-    }
-
-    console.log('옵션 그룹 개수:', productData.optionGroups.length);
-
-    productData.optionGroups.forEach((group, groupIdx) => {
-        console.log(`\n--- 그룹 ${groupIdx} 처리 시작: ${group.name} ---`);
-
-        const currentColorIndex = colorVariantIndex;
+    productData.optionGroups?.forEach(group => {
+        const colorIdx = colorVariantIndex;
         addColorVariant();
 
-        const colorInput = document.getElementById(`colorName${currentColorIndex}`);
+        const colorInput = document.getElementById(`colorName${colorIdx}`);
         if (colorInput) {
             colorInput.value = group.name || '';
             colorInput.dataset.groupId = group.id || '';
-            console.log(`✅ 색상 설정 완료: ${group.name}, ID: ${group.id}`);
-        } else {
-            console.error(`❌ colorName${currentColorIndex} 요소를 찾을 수 없음`);
         }
 
-        if (group.details && group.details.length > 0) {
-            console.log(`사이즈 개수: ${group.details.length}`);
+        group.details?.forEach((detail, idx) => {
+            if (idx > 0) addSizeVariant(colorIdx);
 
-            group.details.forEach((detail, detailIdx) => {
-                console.log(`  사이즈 ${detailIdx}: ${detail.name}, SKU: ${detail.sku}`);
-
-                addSizeVariant(currentColorIndex);
-
-                const lastSizeIndex = sizeVariantIndexMap[currentColorIndex] - 1;
-                const sizeDiv = document.getElementById(`size${currentColorIndex}_${lastSizeIndex}`);
-
-                if (sizeDiv) {
-                    const sizeNameInput = sizeDiv.querySelector('.size-name');
-                    const skuInput = sizeDiv.querySelector('.sku-display');
-                    const stockInput = sizeDiv.querySelector('.size-stock');
-
-                    if (sizeNameInput) sizeNameInput.value = detail.name || '';
-                    if (stockInput) stockInput.value = detail.stockQuantity || 0;
-                    if (skuInput) skuInput.value = detail.sku || '';
-
-                    sizeDiv.dataset.detailId = detail.id || '';
-
-                    console.log(`  ✅ 사이즈 설정 완료: ${detail.name}`);
-                } else {
-                    console.error(`  ❌ size${currentColorIndex}_${lastSizeIndex} 요소를 찾을 수 없음`);
-                }
-            });
-        } else {
-            console.warn(`  ⚠️ 그룹 "${group.name}"에 details가 없습니다`);
-        }
-    });
-
-    console.log('=== 기존 상품 데이터 로드 완료 ===\n');
-}
-
-// 기존 대표 이미지 로드 함수
-function loadExistingMainImage(imageUrl) {
-    const preview = document.getElementById('mainImagePreview');
-    preview.innerHTML = `
-        <div class="relative image-preview-item">
-            <img src="${imageUrl}" class="w-full h-32 object-cover rounded image-thumbnail">
-            <button type="button" onclick="removeMainImage()"
-                    class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 btn-delete">
-                삭제
-            </button>
-        </div>
-    `;
-    setupImageErrorHandling();
-    console.log('✅ 대표 이미지 로드:', imageUrl);
-}
-
-// 기존 슬라이더 이미지 로드 함수
-function loadExistingSliderImage(imageUrl) {
-    const listDiv = document.getElementById('sliderImageList');
-    const currentCount = listDiv.querySelectorAll('.image-preview-item').length;
-
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
-    itemDiv.dataset.existingUrl = imageUrl;
-    itemDiv.innerHTML = `
-        <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${currentCount + 1}</span>
-        <img src="${imageUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
-        <span class="flex-1 text-sm text-gray-700 truncate">기존 이미지</span>
-        <button type="button" onclick="removeExistingSliderImage('${imageUrl}')"
-                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-            삭제
-        </button>
-    `;
-    listDiv.appendChild(itemDiv);
-    setupImageErrorHandling();
-    console.log('✅ 슬라이더 이미지 로드:', imageUrl);
-}
-
-// 기존 상세 이미지 로드 함수
-function loadExistingDescImage(imageUrl) {
-    const listDiv = document.getElementById('descImageList');
-
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
-    itemDiv.dataset.existingUrl = imageUrl;
-    itemDiv.innerHTML = `
-        <img src="${imageUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
-        <span class="flex-1 text-sm text-gray-700 truncate">기존 이미지</span>
-        <button type="button" onclick="removeExistingDescImage('${imageUrl}')"
-                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-            삭제
-        </button>
-    `;
-    listDiv.appendChild(itemDiv);
-    setupImageErrorHandling();
-    console.log('✅ 상세 이미지 로드:', imageUrl);
-}
-
-// 기존 이미지 삭제 함수들
-function removeExistingSliderImage(imageUrl) {
-    deletedExistingImages.push(imageUrl);
-    const item = document.querySelector(`#sliderImageList [data-existing-url="${imageUrl}"]`);
-    if (item) {
-        item.remove();
-        updateSliderImageOrder();
-        console.log('🗑️ 기존 슬라이더 이미지 삭제 예약:', imageUrl);
-    }
-}
-
-function removeExistingDescImage(imageUrl) {
-    deletedExistingImages.push(imageUrl);
-    const item = document.querySelector(`#descImageList [data-existing-url="${imageUrl}"]`);
-    if (item) {
-        item.remove();
-        console.log('🗑️ 기존 상세 이미지 삭제 예약:', imageUrl);
-    }
-}
-
-// 슬라이더 이미지 순서 업데이트 함수
-function updateSliderImageOrder() {
-    const items = document.querySelectorAll('#sliderImageList .image-preview-item');
-    items.forEach((item, index) => {
-        const badge = item.querySelector('.order-badge');
-        if (badge) {
-            badge.textContent = index + 1;
-        }
+            const sizeDiv = document.getElementById(`size${colorIdx}_${idx}`);
+            if (sizeDiv) {
+                sizeDiv.querySelector('.size-name').value = detail.name || '';
+                sizeDiv.querySelector('.size-stock').value = detail.stockQuantity || 0;
+                sizeDiv.querySelector('.sku-display').value = detail.sku || '';
+                sizeDiv.dataset.detailId = detail.id || '';
+            }
+        });
     });
 }
 
-// ==================== 대표 이미지 처리 ====================
-function handleMainImage(file) {
-    mainImage = file;
+function renderImagePreview(containerId, file, isSingle = false) {
     const reader = new FileReader();
     reader.onload = (e) => {
-        const preview = document.getElementById('mainImagePreview');
-        preview.innerHTML = `
-            <div class="relative image-preview-item">
+        const container = document.getElementById(containerId);
+        const html = `
+            <div class="relative image-preview-item border border-gray-200 rounded p-2">
                 <img src="${e.target.result}" class="w-full h-32 object-cover rounded image-thumbnail">
                 <button type="button" onclick="removeMainImage()"
-                        class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 btn-delete">
+                        class="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 btn-delete">
                     삭제
                 </button>
             </div>
         `;
+        container.innerHTML = html;
         setupImageErrorHandling();
     };
     reader.readAsDataURL(file);
+}
+
+function loadExistingMainImage(url) {
+    const preview = document.getElementById('mainImagePreview');
+    preview.innerHTML = createImageHTML(url, 'removeMainImage()', true);
+    setupImageErrorHandling();
+}
+
+function loadExistingSliderImage(url) {
+    const listDiv = document.getElementById('sliderImageList');
+    const count = listDiv.querySelectorAll('.image-preview-item').length;
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
+    itemDiv.dataset.existingUrl = url;
+    itemDiv.innerHTML = createSliderItemHTML(url, count + 1, `removeExistingSliderImage('${url}')`, '기존 이미지');
+    listDiv.appendChild(itemDiv);
+    setupImageErrorHandling();
+}
+
+function loadExistingDescImage(url) {
+    const listDiv = document.getElementById('descImageList');
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
+    itemDiv.dataset.existingUrl = url;
+    itemDiv.innerHTML = createDescItemHTML(url, `removeExistingDescImage('${url}')`, '기존 이미지');
+    listDiv.appendChild(itemDiv);
+    setupImageErrorHandling();
+}
+
+function createImageHTML(url, onclickFunc, isAbsolute = false) {
+    const btnClass = isAbsolute ? 'absolute top-3 right-3' : '';
+    return `
+        <div class="relative image-preview-item border border-gray-200 rounded p-2">
+            <img src="${url}" class="w-full h-32 object-cover rounded image-thumbnail">
+            <button type="button" onclick="${onclickFunc}"
+                    class="${btnClass} bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 btn-delete">
+                삭제
+            </button>
+        </div>
+    `;
+}
+
+function createSliderItemHTML(url, order, onclickFunc, label) {
+    return `
+        <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${order}</span>
+        <img src="${url}" class="w-12 h-12 object-cover rounded image-thumbnail">
+        <span class="flex-1 text-sm text-gray-700 truncate">${label}</span>
+        <button type="button" onclick="${onclickFunc}"
+                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
+            삭제
+        </button>
+    `;
+}
+
+function createDescItemHTML(url, onclickFunc, label) {
+    return `
+        <img src="${url}" class="w-12 h-12 object-cover rounded image-thumbnail">
+        <span class="flex-1 text-sm text-gray-700 truncate">${label}</span>
+        <button type="button" onclick="${onclickFunc}"
+                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
+            삭제
+        </button>
+    `;
+}
+
+function removeExistingSliderImage(url) {
+    deletedExistingImages.push(url);
+    document.querySelector(`#sliderImageList [data-existing-url="${url}"]`)?.remove();
+    updateSliderImageOrder();
+}
+
+function removeExistingDescImage(url) {
+    deletedExistingImages.push(url);
+    document.querySelector(`#descImageList [data-existing-url="${url}"]`)?.remove();
 }
 
 function removeMainImage() {
@@ -421,122 +311,73 @@ function removeMainImage() {
     document.getElementById('mainImageInput').value = '';
 }
 
-// ==================== 슬라이더 이미지 처리 ====================
-function removeSliderImage(index) {
-    console.log(`🗑️ 슬라이더 이미지 삭제: index ${index}`);
-    sliderImages.splice(index, 1);
+function removeSliderImage(idx) {
+    sliderImages.splice(idx, 1);
     renderSliderImages();
+}
+
+function removeDescImage(idx) {
+    descImages.splice(idx, 1);
+    renderDescImages();
 }
 
 function renderSliderImages() {
     const listDiv = document.getElementById('sliderImageList');
-    const existingItems = listDiv.querySelectorAll('[data-existing-url]');
-    const startIndex = existingItems.length;
+    const existingCount = listDiv.querySelectorAll('[data-existing-url]').length;
 
-    // 기존에 추가된 새 이미지들 제거
-    const newItems = listDiv.querySelectorAll('[data-index]');
-    newItems.forEach(item => item.remove());
+    listDiv.querySelectorAll('[data-index]').forEach(item => item.remove());
 
-    // DocumentFragment로 DOM 조작 최소화
-    const fragment = document.createDocumentFragment();
+    sliderImages.forEach((file, idx) => {
+        const render = (url) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
+            itemDiv.dataset.index = idx;
+            itemDiv.innerHTML = createSliderItemHTML(url, existingCount + idx + 1, `removeSliderImage(${idx})`, file.name);
+            listDiv.appendChild(itemDiv);
+            updateSliderImageOrder();
+            setupImageErrorHandling();
+        };
 
-    sliderImages.forEach((file, index) => {
-        if (file._previewUrl) {
-            const itemDiv = createSliderImageElement(file._previewUrl, file.name, index, startIndex);
-            fragment.appendChild(itemDiv);
-        } else {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                file._previewUrl = e.target.result;
-                const itemDiv = createSliderImageElement(e.target.result, file.name, index, startIndex);
-                listDiv.appendChild(itemDiv);
-                updateSliderImageOrder();
-                setupImageErrorHandling();
-            };
-            reader.readAsDataURL(file);
-        }
+        if (file._previewUrl) render(file._previewUrl);
+        else readFileAsDataURL(file, render);
     });
-
-    if (fragment.childNodes.length > 0) {
-        listDiv.appendChild(fragment);
-    }
-
-    updateSliderImageOrder();
-    setupImageErrorHandling();
-}
-
-function createSliderImageElement(previewUrl, fileName, index, startIndex) {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 cursor-move image-preview-item';
-    itemDiv.dataset.index = index;
-    itemDiv.innerHTML = `
-        <span class="order-badge flex items-center justify-center w-6 h-6 bg-teal-500 text-white text-xs font-bold rounded-full">${startIndex + index + 1}</span>
-        <img src="${previewUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
-        <span class="flex-1 text-sm text-gray-700 truncate">${fileName}</span>
-        <button type="button" onclick="removeSliderImage(${index})"
-                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-            삭제
-        </button>
-    `;
-    return itemDiv;
-}
-
-// ==================== 상세 설명 이미지 처리 ====================
-function removeDescImage(index) {
-    console.log(`🗑️ 상세 이미지 삭제: index ${index}`);
-    descImages.splice(index, 1);
-    renderDescImages();
 }
 
 function renderDescImages() {
     const listDiv = document.getElementById('descImageList');
+    listDiv.querySelectorAll('[data-index]').forEach(item => item.remove());
 
-    // 기존에 추가된 새 이미지들 제거
-    const newItems = listDiv.querySelectorAll('[data-index]');
-    newItems.forEach(item => item.remove());
+    descImages.forEach((file, idx) => {
+        const render = (url) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
+            itemDiv.dataset.index = idx;
+            itemDiv.innerHTML = createDescItemHTML(url, `removeDescImage(${idx})`, file.name);
+            listDiv.appendChild(itemDiv);
+            setupImageErrorHandling();
+        };
 
-    // DocumentFragment로 DOM 조작 최소화
-    const fragment = document.createDocumentFragment();
-
-    descImages.forEach((file, index) => {
-        if (file._previewUrl) {
-            const itemDiv = createDescImageElement(file._previewUrl, file.name, index);
-            fragment.appendChild(itemDiv);
-        } else {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                file._previewUrl = e.target.result;
-                const itemDiv = createDescImageElement(e.target.result, file.name, index);
-                listDiv.appendChild(itemDiv);
-                setupImageErrorHandling();
-            };
-            reader.readAsDataURL(file);
-        }
+        if (file._previewUrl) render(file._previewUrl);
+        else readFileAsDataURL(file, render);
     });
-
-    if (fragment.childNodes.length > 0) {
-        listDiv.appendChild(fragment);
-    }
-
-    setupImageErrorHandling();
 }
 
-function createDescImageElement(previewUrl, fileName, index) {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'flex items-center gap-3 p-2 border border-gray-200 rounded bg-gray-50 image-preview-item';
-    itemDiv.dataset.index = index;
-    itemDiv.innerHTML = `
-        <img src="${previewUrl}" class="w-12 h-12 object-cover rounded image-thumbnail">
-        <span class="flex-1 text-sm text-gray-700 truncate">${fileName}</span>
-        <button type="button" onclick="removeDescImage(${index})"
-                class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete">
-            삭제
-        </button>
-    `;
-    return itemDiv;
+function readFileAsDataURL(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        file._previewUrl = e.target.result;
+        callback(e.target.result);
+    };
+    reader.readAsDataURL(file);
 }
 
-// ==================== 카테고리 모달 ====================
+function updateSliderImageOrder() {
+    document.querySelectorAll('#sliderImageList .image-preview-item').forEach((item, idx) => {
+        const badge = item.querySelector('.order-badge');
+        if (badge) badge.textContent = idx + 1;
+    });
+}
+
 function openCategoryModal() {
     const modal = document.getElementById('categoryModal');
     modal.classList.remove('hidden');
@@ -548,6 +389,15 @@ function closeCategoryModal() {
     const modal = document.getElementById('categoryModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex', 'modal-backdrop');
+
+    // 선택 상태 초기화
+    selectedCategoryId = null;
+    selectedCategoryPath = '';
+
+    // 하이라이트 제거
+    document.querySelectorAll('.category-parent-item, .category-item').forEach(item => {
+        item.classList.remove('bg-teal-50', 'border-teal-500');
+    });
 }
 
 function loadCategories() {
@@ -556,33 +406,74 @@ function loadCategories() {
 
     categoryTreeData.forEach(parent => {
         const div = document.createElement('div');
-        div.className = 'category-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200';
-        div.textContent = parent.name;
-        div.onclick = () => loadChildCategories(parent.id, parent.children, parent.name);
+        div.className = 'category-parent-item p-3 border-b border-gray-200 cursor-pointer hover:bg-gray-100';
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span class="flex-1" onclick="event.stopPropagation(); selectParentCategory(${parent.id}, ${JSON.stringify(parent.children).replace(/"/g, '&quot;')}, '${parent.name}')">${parent.name}</span>
+            </div>
+        `;
         parentList.appendChild(div);
     });
 }
 
-function loadChildCategories(parentId, children, parentName) {
+function selectParentCategory(parentId, children, parentName) {
+    // 대분류 선택 시 하이라이트
+    document.querySelectorAll('.category-parent-item').forEach(item => {
+        item.classList.remove('bg-teal-50', 'border-teal-500');
+    });
+    event.currentTarget.closest('.category-parent-item').classList.add('bg-teal-50', 'border-teal-500');
+
+    // 임시로 저장 (대분류만 선택한 경우)
+    selectedCategoryId = parentId;
+    selectedCategoryPath = parentName;
+
+    // 소분류 로드
+    loadChildCategories(children, parentName);
+}
+
+function loadChildCategories(children, parentName) {
     const childList = document.getElementById('childCategoryList');
     childList.innerHTML = '';
+
+    if (!children || children.length === 0) {
+        childList.innerHTML = '<p class="p-3 text-sm text-gray-500 text-center">소분류가 없습니다.</p>';
+        return;
+    }
 
     children.forEach(child => {
         const div = document.createElement('div');
         div.className = 'category-item p-3 hover:bg-teal-100 cursor-pointer border-b border-gray-200';
         div.textContent = child.name;
-        div.onclick = () => selectCategory(child.id, `${parentName} > ${child.name}`);
+        div.onclick = () => selectChildCategory(child.id, `${parentName} > ${child.name}`);
         childList.appendChild(div);
     });
 }
 
-function selectCategory(categoryId, fullPath) {
-    document.getElementById('categoryId').value = categoryId;
-    document.getElementById('categoryDisplay').value = fullPath;
+function selectChildCategory(childId, fullPath) {
+    // 소분류 선택 시 하이라이트
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('bg-teal-50', 'border-teal-500');
+    });
+    event.currentTarget.classList.add('bg-teal-50', 'border-teal-500');
+
+    // 임시로 저장 (소분류까지 선택한 경우)
+    selectedCategoryId = childId;
+    selectedCategoryPath = fullPath;
+}
+
+function confirmCategorySelection() {
+    if (!selectedCategoryId) {
+        alert('카테고리를 선택해주세요.');
+        return;
+    }
+
+    // 최종 확정
+    document.getElementById('categoryId').value = selectedCategoryId;
+    document.getElementById('categoryDisplay').innerHTML = `<span class="text-gray-700">${selectedCategoryPath}</span>`;
+
     closeCategoryModal();
 }
 
-// ==================== 가격 자동 계산 ====================
 function calculateSalePrice() {
     const regular = parseFloat(document.getElementById('regularPrice').value) || 0;
     const discount = parseFloat(document.getElementById('discountRate').value) || 0;
@@ -590,275 +481,213 @@ function calculateSalePrice() {
     document.getElementById('salePriceDisplay').textContent = salePrice.toLocaleString() + '원';
 }
 
-// ==================== 색상 옵션 관리 ====================
 function addColorVariant() {
-    const index = colorVariantIndex++;
+    const idx = colorVariantIndex++;
     const container = document.getElementById('colorVariantList');
-    const variantDiv = document.createElement('div');
-    variantDiv.className = 'color-variant-card border border-gray-200 rounded p-4 bg-gray-50';
-    variantDiv.id = `colorVariant${index}`;
-    variantDiv.innerHTML = `
-        <div class="flex items-center justify-between mb-3">
-            <input type="text" id="colorName${index}" placeholder="색상명 (예: 블랙)"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500 mr-2"
-                   oninput="updateAllSkus(${index})">
-            <button type="button" onclick="removeColorVariant(${index})"
-                    class="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600 btn-delete">
+    const div = document.createElement('div');
+    div.className = 'color-variant-card border border-gray-200 rounded p-4 bg-gray-50';
+    div.id = `colorVariant${idx}`;
+    div.innerHTML = `
+        <div class="grid grid-cols-[1fr_64px] gap-2 mb-3">
+            <input type="text" id="colorName${idx}" placeholder="색상명 (예: 블랙)"
+                   class="px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
+                   oninput="updateAllSkus(${idx})">
+            <button type="button" onclick="removeColorVariant(${idx})"
+                    class="w-16 py-2 bg-red-500 text-white rounded text-xs hover:bg-red-600 btn-delete whitespace-nowrap">
                 삭제
             </button>
         </div>
-        <div id="sizeList${index}" class="space-y-2"></div>
-        <button type="button" onclick="addSizeVariant(${index})"
+        <div id="sizeList${idx}" class="space-y-2"></div>
+        <button type="button" onclick="addSizeVariant(${idx})"
                 class="w-full py-2 border border-dashed border-gray-300 rounded text-sm text-gray-600 hover:border-teal-500 hover:text-teal-600 transition mt-2">
             + 사이즈 추가
         </button>
     `;
-    container.appendChild(variantDiv);
+    container.appendChild(div);
+
+    sizeVariantIndexMap[idx] = 0;
+    addSizeVariant(idx);
 }
 
-function removeColorVariant(colorIndex) {
-    document.getElementById(`colorVariant${colorIndex}`).remove();
+function removeColorVariant(idx) {
+    document.getElementById(`colorVariant${idx}`)?.remove();
 }
 
-function addSizeVariant(colorIndex) {
-    if (!sizeVariantIndexMap[colorIndex]) {
-        sizeVariantIndexMap[colorIndex] = 0;
-    }
-    const sizeIndex = sizeVariantIndexMap[colorIndex]++;
-    const sizeList = document.getElementById(`sizeList${colorIndex}`);
-    const sizeDiv = document.createElement('div');
-    sizeDiv.className = 'grid grid-cols-12 gap-2 items-center';
-    sizeDiv.id = `size${colorIndex}_${sizeIndex}`;
-    sizeDiv.innerHTML = `
-        <input type="text" placeholder="사이즈 (예: M)"
-               class="size-name col-span-3 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500"
-               oninput="updateSKU(${colorIndex}, ${sizeIndex})">
-        <input type="text" readonly
-               class="sku-display sku-auto col-span-4 px-2 py-1 border border-gray-200 bg-gray-100 rounded text-sm text-gray-600"
-               placeholder="SKU (자동생성)">
-        <input type="number" placeholder="재고"
-               class="size-stock col-span-3 px-2 py-1 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500">
-        <button type="button" onclick="removeSizeVariant(${colorIndex}, ${sizeIndex})"
-                class="col-span-2 px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400 btn-delete">
+function addSizeVariant(colorIdx) {
+    if (!sizeVariantIndexMap[colorIdx]) sizeVariantIndexMap[colorIdx] = 0;
+
+    const sizeIdx = sizeVariantIndexMap[colorIdx]++;
+    const sizeList = document.getElementById(`sizeList${colorIdx}`);
+    const div = document.createElement('div');
+    div.className = 'grid grid-cols-[1fr_64px] gap-2';
+    div.id = `size${colorIdx}_${sizeIdx}`;
+    div.innerHTML = `
+        <div class="flex items-center gap-2">
+            <input type="text" placeholder="사이즈 (예: M)"
+                   class="size-name w-28 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500"
+                   oninput="updateSKU(${colorIdx}, ${sizeIdx})">
+            <input type="text" readonly
+                   class="sku-display sku-auto flex-1 px-2 py-1.5 border border-gray-200 bg-gray-100 rounded text-sm text-gray-600"
+                   placeholder="상품 코드(자동생성)">
+            <input type="number" placeholder="재고" min="0"
+                   class="size-stock w-20 px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-teal-500 focus:border-teal-500">
+        </div>
+        <button type="button" onclick="removeSizeVariant(${colorIdx}, ${sizeIdx})"
+                class="w-16 py-1.5 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400 btn-delete whitespace-nowrap">
             삭제
         </button>
     `;
-    sizeList.appendChild(sizeDiv);
+    sizeList.appendChild(div);
 }
 
-function removeSizeVariant(colorIndex, sizeIndex) {
-    document.getElementById(`size${colorIndex}_${sizeIndex}`).remove();
+function removeSizeVariant(colorIdx, sizeIdx) {
+    document.getElementById(`size${colorIdx}_${sizeIdx}`)?.remove();
 }
 
-// ==================== SKU 자동 생성 ====================
-function updateSKU(colorIndex, sizeIndex) {
-    const colorName = document.getElementById(`colorName${colorIndex}`).value.trim().toUpperCase();
-    const sizeDiv = document.getElementById(`size${colorIndex}_${sizeIndex}`);
+function updateSKU(colorIdx, sizeIdx) {
+    const colorName = document.getElementById(`colorName${colorIdx}`).value.trim().toUpperCase();
+    const sizeDiv = document.getElementById(`size${colorIdx}_${sizeIdx}`);
     const sizeName = sizeDiv.querySelector('.size-name').value.trim().toUpperCase();
     const skuDisplay = sizeDiv.querySelector('.sku-display');
 
-    if (colorName && sizeName) {
-        skuDisplay.value = `${colorName}-${sizeName}`;
-    } else {
-        skuDisplay.value = '';
-    }
+    skuDisplay.value = (colorName && sizeName) ? `${colorName}-${sizeName}` : '';
 }
 
-function updateAllSkus(colorIndex) {
-    const sizeList = document.getElementById(`sizeList${colorIndex}`);
-    const sizeDivs = sizeList.querySelectorAll('[id^="size' + colorIndex + '_"]');
-    sizeDivs.forEach((div) => {
-        const sizeIndex = parseInt(div.id.split('_')[1]);
-        updateSKU(colorIndex, sizeIndex);
+function updateAllSkus(colorIdx) {
+    const sizeList = document.getElementById(`sizeList${colorIdx}`);
+    sizeList.querySelectorAll(`[id^="size${colorIdx}_"]`).forEach(div => {
+        const sizeIdx = parseInt(div.id.split('_')[1]);
+        updateSKU(colorIdx, sizeIdx);
     });
 }
 
-// ==================== displayOrder 자동 조정 함수 ====================
-function normalizeDisplayOrders(details) {
-    if (!details || details.length === 0) {
-        return;
-    }
-
-    const usedOrders = new Set();
-    let nextOrder = 1;
-
-    details.forEach(detail => {
-        if (detail.displayOrder == null || usedOrders.has(detail.displayOrder)) {
-            while (usedOrders.has(nextOrder)) {
-                nextOrder++;
-            }
-            detail.displayOrder = nextOrder;
-        }
-
-        usedOrders.add(detail.displayOrder);
-
-        if (detail.displayOrder >= nextOrder) {
-            nextOrder = detail.displayOrder + 1;
-        }
-    });
-
-    console.log('✅ displayOrder 정규화 완료:', details.map(d => d.displayOrder));
-}
-
-// ==================== 상품 등록/수정 ====================
 function submitProduct() {
     const name = document.getElementById('productName').value.trim();
     const categoryId = document.getElementById('categoryId').value;
     const regularPrice = parseFloat(document.getElementById('regularPrice').value);
     const discountRate = parseFloat(document.getElementById('discountRate').value) || 0;
     const description = document.getElementById('productDescription').value.trim();
-    const status = document.getElementById('productStatus').value;
+    const status = document.querySelector('input[name="productStatus"]:checked')?.value || 'SELLING';
 
-    if (!name) {
-        alert('상품명을 입력하세요.');
-        return;
-    }
-    if (!categoryId) {
-        alert('카테고리를 선택하세요.');
-        return;
-    }
-    if (!regularPrice || regularPrice <= 0) {
-        alert('정가를 입력하세요.');
-        return;
-    }
-    if (!isEditMode && !mainImage) {
-        alert('대표 이미지를 업로드하세요.');
-        return;
-    }
+    if (!validateProductData(name, categoryId, regularPrice)) return;
 
-    const optionGroups = [];
-    const colorDivs = document.querySelectorAll('[id^="colorVariant"]');
-
-    colorDivs.forEach((colorDiv) => {
-        const colorIndex = colorDiv.id.replace('colorVariant', '');
-        const colorNameInput = document.getElementById(`colorName${colorIndex}`);
-
-        if (!colorNameInput) return;
-
-        const colorName = colorNameInput.value.trim();
-        if (!colorName) return;
-
-        const groupId = colorNameInput.dataset.groupId ? parseInt(colorNameInput.dataset.groupId) : null;
-
-        const details = [];
-        const sizeDivs = colorDiv.querySelectorAll(`[id^="size${colorIndex}_"]`);
-
-        sizeDivs.forEach((sizeDiv) => {
-            const sizeNameInput = sizeDiv.querySelector('.size-name');
-            const skuInput = sizeDiv.querySelector('.sku-display');
-            const stockInput = sizeDiv.querySelector('.size-stock');
-
-            if (!sizeNameInput || !skuInput || !stockInput) return;
-
-            const sizeName = sizeNameInput.value.trim();
-            const sku = skuInput.value.trim();
-            const stock = parseInt(stockInput.value) || 0;
-
-            const detailId = sizeDiv.dataset.detailId ? parseInt(sizeDiv.dataset.detailId) : null;
-
-            if (sizeName && sku) {
-                details.push({
-                    id: detailId,
-                    name: sizeName,
-                    sku: sku,
-                    addPrice: 0,
-                    stockQuantity: stock,
-                    displayOrder: null
-                });
-            }
-        });
-
-        normalizeDisplayOrders(details);
-
-        if (details.length > 0) {
-            optionGroups.push({
-                id: groupId,
-                name: colorName,
-                displayOrder: optionGroups.length + 1,
-                details: details
-            });
-        }
-    });
-
+    const optionGroups = collectOptionGroups();
     if (optionGroups.length === 0) {
         alert('최소 1개 이상의 색상/사이즈 옵션을 추가하세요.');
         return;
     }
 
-    const formData = new FormData();
+    const formData = createFormData({ name, price: regularPrice, discountRate, description, categoryId: parseInt(categoryId), status, optionGroups });
+    submitFormData(formData);
+}
 
-    const requestData = {
-        name: name,
-        price: regularPrice,
-        discountRate: discountRate,
-        description: description,
-        categoryId: parseInt(categoryId),
-        status: status,
-        optionGroups: optionGroups
-    };
-
-    formData.append('data', new Blob([JSON.stringify(requestData)], {type: 'application/json'}));
-
-    if (mainImage) {
-        formData.append('mainImage', mainImage);
+function validateProductData(name, categoryId, price) {
+    if (!name) return focusOnField('productName', '상품명을 입력하세요.'), false;
+    if (!categoryId) return alert('카테고리를 선택하세요.'), false;
+    if (!price || price <= 0) return focusOnField('regularPrice', '가격을 입력하세요.'), false;
+    if (!isEditMode && !mainImage && !document.querySelector('#mainImagePreview .image-preview-item')) {
+        return alert('대표 이미지를 업로드하세요.'), false;
     }
-    sliderImages.forEach(img => {
-        formData.append('sliderImages', img);
-    });
-    descImages.forEach(img => {
-        formData.append('descImages', img);
-    });
+    return true;
+}
 
-    // 삭제된 기존 이미지 URL 전송
+function collectOptionGroups() {
+    const groups = [];
+    document.querySelectorAll('[id^="colorVariant"]').forEach(colorDiv => {
+        const colorIdx = colorDiv.id.replace('colorVariant', '');
+        const colorInput = document.getElementById(`colorName${colorIdx}`);
+        if (!colorInput) return;
+
+        const colorName = colorInput.value.trim();
+        if (!colorName) return;
+
+        const details = [];
+        colorDiv.querySelectorAll(`[id^="size${colorIdx}_"]`).forEach(sizeDiv => {
+            const sizeName = sizeDiv.querySelector('.size-name')?.value.trim();
+            const sku = sizeDiv.querySelector('.sku-display')?.value.trim();
+            const stock = parseInt(sizeDiv.querySelector('.size-stock')?.value) || 0;
+
+            if (sizeName && sku) {
+                details.push({
+                    id: sizeDiv.dataset.detailId ? parseInt(sizeDiv.dataset.detailId) : null,
+                    name: sizeName,
+                    sku,
+                    addPrice: 0,
+                    stockQuantity: stock,
+                    displayOrder: details.length + 1
+                });
+            }
+        });
+
+        if (details.length > 0) {
+            groups.push({
+                id: colorInput.dataset.groupId ? parseInt(colorInput.dataset.groupId) : null,
+                name: colorName,
+                displayOrder: groups.length + 1,
+                details
+            });
+        }
+    });
+    return groups;
+}
+
+function createFormData(requestData) {
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(requestData)], { type: 'application/json' }));
+
+    if (mainImage) formData.append('mainImage', mainImage);
+    sliderImages.forEach(img => formData.append('sliderImages', img));
+    descImages.forEach(img => formData.append('descImages', img));
+
     if (isEditMode && deletedExistingImages.length > 0) {
         formData.append('deletedImageUrls', JSON.stringify(deletedExistingImages));
     }
 
-    console.log('📤 전송할 데이터:', requestData);
-    console.log('🗑️ 삭제할 이미지:', deletedExistingImages);
-    console.log('🖼️ 슬라이더 이미지:', sliderImages.length, '개');
-    console.log('📝 상세 이미지:', descImages.length, '개');
+    return formData;
+}
 
+function submitFormData(formData) {
     const url = isEditMode ? `/api/admin/products/${productId}` : '/api/admin/products';
     const method = isEditMode ? 'PUT' : 'POST';
 
-    fetch(url, {
-        method: method,
-        body: formData
-    })
+    fetch(url, { method, body: formData })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
                 alert(isEditMode ? "상품이 수정되었습니다." : "상품이 성공적으로 등록되었습니다.");
-
-                if (!isEditMode) {
-                    location.href = '/admin/products';
-                }
+                if (!isEditMode) location.href = '/admin/products';
             } else {
                 alert((isEditMode ? "수정 실패: " : "등록 실패: ") + data.message);
             }
         })
         .catch(err => {
-            console.error('❌ 서버 오류:', err);
+            console.error('서버 오류:', err);
             alert("서버 오류가 발생했습니다.");
         });
 }
 
-// ==================== 이미지 에러 핸들링 ====================
+function focusOnField(fieldId, errorMessage) {
+    alert(errorMessage);
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.focus();
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        field.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+        setTimeout(() => field.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
+    }
+}
+
 function setupImageErrorHandling() {
     document.querySelectorAll('img').forEach(img => {
         if (!img.dataset.errorBound) {
             img.dataset.errorBound = 'true';
-            img.addEventListener('error', handleImageError);
+            img.addEventListener('error', (e) => {
+                if (!e.target.dataset.errorHandled) {
+                    e.target.dataset.errorHandled = 'true';
+                    e.target.src = '/images/default.jpg';
+                    e.target.alt = '이미지를 불러올 수 없습니다';
+                }
+            });
         }
     });
-}
-
-function handleImageError(event) {
-    const img = event.target;
-    if (!img.dataset.errorHandled) {
-        img.dataset.errorHandled = 'true';
-        img.src = '/images/default.jpg';
-        img.alt = '이미지를 불러올 수 없습니다';
-    }
 }
