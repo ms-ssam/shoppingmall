@@ -32,6 +32,9 @@ public enum ErrorCode {
     ORDER_OPTION_INVALID(HttpStatus.BAD_REQUEST, "OPT004", "유효하지 않은 상품 옵션입니다."),
     OPTION_SOLD_OUT(HttpStatus.BAD_REQUEST, "OPT005", "선택하신 옵션은 품절되었습니다."),
 
+    REVIEW_ORDER_STATUS_INVALID(HttpStatus.BAD_REQUEST, "RV003", "현재 주문 상태에서는 리뷰를 작성할 수 없습니다."),
+
+
     INVALID_PAYMENT_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "PM003", "허용되지 않은 결제 상태 변경입니다."),
 
 
@@ -59,6 +62,8 @@ public enum ErrorCode {
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "IMG003", "해당 이미지를 찾을 수 없습니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV001", "해당 리뷰를 찾을 수 없습니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD001", "해당 주문을 찾을 수 없습니다."),
+    ORDER_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "OD006", "해당 주문 상품을 찾을 수 없습니다."),
+
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PM004", "해당 결제를 찾을 수 없습니다."),
 
     // 409 Conflict
@@ -68,6 +73,8 @@ public enum ErrorCode {
     NOT_ENOUGH_STOCK(HttpStatus.CONFLICT, "I001", "재고가 부족합니다."),
     INVALID_STOCK_QUANTITY(HttpStatus.CONFLICT, "I002", "재고 수량이 유효하지 않습니다."),
     CART_ITEM_PRODUCT_MISMATCH(HttpStatus.CONFLICT, "CI002", "해당 상품의 옵션이 아닙니다."),
+    REVIEW_ALREADY_WRITTEN(HttpStatus.CONFLICT, "RV004", "이미 해당 상품에 대한 리뷰를 작성하셨습니다."),
+
 
     // 500 Internal Server Error
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다."),

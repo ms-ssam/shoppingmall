@@ -4,7 +4,7 @@ import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRe
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.category.dto.CategoryTreeResponse;
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;

@@ -16,6 +16,7 @@ import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDe
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.*;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
+import com.example.elicesecondproject.mall.domain.order.repository.OrderItemRepository;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
 import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
 import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
@@ -42,6 +43,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final PermissionValidator permissionValidator;
+    private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
 
     // 장바구니 -> 주문서

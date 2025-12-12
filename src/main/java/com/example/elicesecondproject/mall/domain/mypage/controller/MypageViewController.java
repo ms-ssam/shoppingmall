@@ -4,15 +4,17 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordCha
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
+import com.example.elicesecondproject.mall.domain.product.dto.ReviewProductInfoDto;
 import com.example.elicesecondproject.mall.domain.product.dto.WishListProductResponse;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.domain.product.service.WishListService;
+import com.example.elicesecondproject.mall.domain.review.dto.request.CreateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
@@ -162,6 +164,44 @@ public class MypageViewController {
 
     ) {
         reviewService.softDeleteReview(reviewId, principal.getMember().getId());
+
+        return "redirect:/mypage/reviews";
+    }
+
+    @GetMapping("/orders/{orderItemId}/review")
+    public String createMyReviewForm(@PathVariable Long orderItemId,
+                                     @AuthenticationPrincipal MemberDetail principal,
+                                     Model model) {
+        ReviewProductInfoDto response =
+                reviewService.getReviewProductInfoForCreate(orderItemId, principal.getMember().getId());
+
+        model.addAttribute("product", response);
+        model.addAttribute("orderItemId", orderItemId);
+
+        return "mypage/mypage-review-create";
+    }
+
+    @PostMapping("/orders/{orderItemId}/review")
+    public String createMyReview(@PathVariable Long orderItemId,
+                                 @AuthenticationPrincipal MemberDetail principal,
+                                 @ModelAttribute @Valid CreateReviewRequest request,
+                                 BindingResult bindingResult,
+                                 @RequestParam(value = "image", required = false) MultipartFile image,
+                                 Model model) {
+        Long memberId = principal.getMember().getId();
+
+        if (bindingResult.hasErrors()) {
+            ReviewProductInfoDto product =
+                    reviewService.getReviewProductInfoForCreate(orderItemId, memberId);
+
+            model.addAttribute("product", product);
+            model.addAttribute("orderItemId", orderItemId); // ★ 폼에서 다시 쓰니까 같이 넣어주기
+
+            return "mypage/mypage-review-create";
+        }
+
+        // 이미지는 서비스에서 저장 + URL 생성
+        reviewService.createReview(orderItemId, memberId, request, image);
 
         return "redirect:/mypage/reviews";
     }

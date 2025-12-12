@@ -1,11 +1,11 @@
-package com.example.elicesecondproject.mall.global.jwt;
+package com.example.elicesecondproject.mall.global.security.jwt;
 
 import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,9 +24,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
 
         String token = resolveToken(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication); // SecurityContextHolder에 인증 정보 저장
+        if (token != null) {
+            try {
+                Authentication auth = jwtProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+            }
         }
 
         filterChain.doFilter(request, response);

@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.order.controller;
 
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;

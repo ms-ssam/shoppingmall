@@ -1,7 +1,6 @@
-package com.example.elicesecondproject.mall.domain.member.service;
+package com.example.elicesecondproject.mall.global.security.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

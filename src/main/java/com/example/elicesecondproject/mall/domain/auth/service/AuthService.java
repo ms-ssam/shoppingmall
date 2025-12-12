@@ -1,16 +1,15 @@
 package com.example.elicesecondproject.mall.domain.auth.service;
 
-import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
-import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
-import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
+import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import com.example.elicesecondproject.mall.domain.auth.store.DbOnlyRefreshTokenStore;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
-import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetailService;
+import com.example.elicesecondproject.mall.global.security.jwt.JwtProvider;
 import com.example.elicesecondproject.mall.global.util.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -73,23 +73,21 @@ public class AuthService {
 
 
     public String reissue(String refreshToken) {
+        // 1) refresh 토큰 검증(서명/만료 + token_type=REFRESH)
+        jwtProvider.validateRefreshToken(refreshToken);
 
-        // 1. 토큰 형식/서명/만료 검증
-        if (!jwtProvider.validateToken(refreshToken)) {
-            throw new BusinessException(ErrorCode.REFRESH_TOKEN_INVALID);
-        }
-
-        // 2. 토큰에서 username(subject) 꺼내기
+        // 2) subject(email)
         String email = jwtProvider.getUsername(refreshToken);
 
-        // 3. DB/Redis에서 refreshToken 해시 검증
+        // 3) DB에서 refresh 해시 검증
         String hash = HashUtil.sha256(refreshToken);
-        RefreshToken token = refreshTokenStore.findValidToken(hash)
+        refreshTokenStore.findValidToken(hash)
                 .orElseThrow(() -> new BusinessException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
-        // 4. 새 Access Token 발급 (여기서 권한은 UserDetailsService 통해 다시 조회 or member.role 사용)
+        // 4) 새 access 발급
         UserDetails userDetails = memberDetailService.loadUserByUsername(email);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         return jwtProvider.createAccessToken(authentication);
     }

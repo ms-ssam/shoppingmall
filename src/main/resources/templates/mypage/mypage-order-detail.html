@@ -24,6 +24,11 @@
         <!-- 카드 전체 박스 -->
         <div class="myorder-container myorder-detail-page">
 
+            <!-- 🔴 에러 메시지 영역 -->
+            <div th:if="${errorMessage}" class="myorder-alert-error">
+                <p th:text="${errorMessage}"></p>
+            </div>
+
             <!-- 상단 제목 + 상단 요약 -->
             <div class="myorder-detail-header">
                 <div>
@@ -149,9 +154,9 @@
                                     <span th:text="${item.quantity}">1</span>개
                                 </div>
                                 <div class="myorder-item-unitprice">
-                                    <span th:text="|${#numbers.formatInteger(item.unitPrice, 3, 'COMMA')}원|">
-                                        15,000원
-                                    </span>
+                        <span th:text="|${#numbers.formatInteger(item.unitPrice, 3, 'COMMA')}원|">
+                            15,000원
+                        </span>
                                 </div>
                             </div>
                             <!-- 둘째 줄: 옵션 (색 / 사이즈) -->
@@ -159,6 +164,15 @@
                                  th:text="${item.productOptionGroupName + ' / ' + item.optionDetail}">
                                 옵션명
                             </div>
+                        </div>
+
+                        <!-- 리뷰 쓰러 가기 버튼 (배송 완료일 때만) -->
+                        <div class="myorder-item-actions"
+                             th:if="${orderDetail.orderStatus.name() == 'DELIVERED'}">
+                            <a th:href="@{'/mypage/orders/' + ${item.id} + '/review'}"
+                               class="myorder-btn secondary myorder-review-btn">
+                                리뷰 쓰러 가기
+                            </a>
                         </div>
                     </div>
                 </div>
