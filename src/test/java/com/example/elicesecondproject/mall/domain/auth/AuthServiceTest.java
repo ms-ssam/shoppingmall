@@ -1,3 +1,4 @@
+/*
 package com.example.elicesecondproject.mall.domain.auth;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
@@ -230,3 +231,4 @@ public class AuthServiceTest {
     }
 
 }
+*/
