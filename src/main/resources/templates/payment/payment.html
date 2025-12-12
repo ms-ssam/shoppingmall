@@ -32,10 +32,12 @@
 <script th:inline="javascript">
     const clientKey = /*[[${clientKey}]]*/ "";
     const customerKey = /*[[${customerKey}]]*/ "";
-    const successUrl = /*[[${successUrl}]]*/ "";
-    const failUrl = /*[[${failUrl}]]*/ "";
 
-    const orderId = /*[[${order.orderId}]]*/ "";  // ✅ 이게 토스로 보내는 orderId
+    // 현재 브라우저가 보고 있는 도메인 기준으로 성공/실패 URL 생성
+    const successUrl = window.location.origin + /*[[@{/payments/toss/success}]]*/ "";
+    const failUrl = window.location.origin + /*[[@{/payments/toss/fail}]]*/ "";
+
+    const orderId = /*[[${order.orderId}]]*/ "";  // 이게 토스로 보내는 orderId
 
     const orderName = /*[[${order.mainProductName}]]*/ "주문";
     const amount = /*[[${order.totalPaymentFee}]]*/ 0;
