@@ -107,6 +107,8 @@ public class AuthViewController {
         return "redirect:/";
     }
 
+
+
     @PostMapping("/logout")
     public String logout(HttpServletResponse response) {
 
