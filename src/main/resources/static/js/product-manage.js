@@ -1,6 +1,15 @@
 // ========================================
-// 상품 관리 JavaScript (CSRF 없음)
+// 상품 관리 JavaScript
 // ========================================
+
+// 현재 URL에서 파라미터 가져오기
+function getCurrentParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+        keyword: urlParams.get('keyword') || '',
+        sortType: urlParams.get('sortType') || 'LATEST'
+    };
+}
 
 // ========================================
 // 1. 검색 기능
@@ -9,16 +18,16 @@ function searchProducts() {
     const input = document.getElementById('searchInput');
     const keyword = input.value.trim();
     const errorMsg = document.getElementById('searchError');
+    const sortType = document.getElementById('sortSelect').value;
 
-    // ✅ 검색어가 비어있으면 전체 검색
+    // 검색어가 비어있으면 전체 검색
     if (!keyword) {
         errorMsg.classList.add('hidden');
-        const sortType = document.getElementById('sortSelect').value;
         window.location.href = `/admin/products?sortType=${sortType}`;
         return;
     }
 
-    // ✅ 검색어가 2글자 미만이면 경고 표시
+    // 검색어가 2글자 미만이면 경고 표시
     if (keyword.length < 2) {
         errorMsg.innerHTML = `
             <i class="bi bi-exclamation-circle mr-1"></i>
@@ -26,20 +35,16 @@ function searchProducts() {
         `;
         errorMsg.classList.remove('hidden');
         input.focus();
-
-        // ✅ input 테두리 빨간색으로 강조
         input.classList.add('border-red-500', 'focus:ring-red-500');
         input.classList.remove('border-gray-300');
-
-        return; // ✅ 서버 요청 중단
+        return;
     }
 
-    // ✅ 검증 통과 시 에러 메시지 숨기고 검색 실행
+    // 검증 통과 시 에러 메시지 숨기고 검색 실행
     errorMsg.classList.add('hidden');
     input.classList.remove('border-red-500', 'focus:ring-red-500');
     input.classList.add('border-gray-300');
 
-    const sortType = document.getElementById('sortSelect').value;
     window.location.href = `/admin/products?keyword=${encodeURIComponent(keyword)}&sortType=${sortType}`;
 }
 
@@ -53,7 +58,7 @@ document.getElementById('searchInput')?.addEventListener('keypress', function(e)
     }
 });
 
-// ✅ 입력 중에 에러 메시지 자동 숨김 (글자 수 기준)
+// 입력 중에 에러 메시지 자동 숨김
 document.getElementById('searchInput')?.addEventListener('input', function() {
     const errorMsg = document.getElementById('searchError');
     if (!errorMsg.classList.contains('hidden')) {
@@ -65,14 +70,24 @@ document.getElementById('searchInput')?.addEventListener('input', function() {
     }
 });
 
-// 정렬 변경
-document.getElementById('sortSelect')?.addEventListener('change', searchProducts);
+// ========================================
+// 2. 정렬 변경 (검색어 유지)
+// ========================================
+document.getElementById('sortSelect')?.addEventListener('change', function() {
+    const params = getCurrentParams();
+    const sortType = this.value;
+
+    let url = `/admin/products?sortType=${sortType}`;
+    if (params.keyword) {
+        url += `&keyword=${encodeURIComponent(params.keyword)}`;
+    }
+
+    window.location.href = url;
+});
 
 // ========================================
-// 2. 체크박스 기능
+// 3. 체크박스 기능
 // ========================================
-
-// 전체 선택/해제
 document.getElementById('selectAll')?.addEventListener('change', function() {
     const checked = this.checked;
     document.querySelectorAll('.product-checkbox').forEach(cb => {
@@ -81,33 +96,29 @@ document.getElementById('selectAll')?.addEventListener('change', function() {
     updateSelectedCount();
 });
 
-// 개별 체크박스 변경
 document.querySelectorAll('.product-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', updateSelectedCount);
 });
 
-// 선택 개수 업데이트
 function updateSelectedCount() {
     const checkedCount = document.querySelectorAll('.product-checkbox:checked').length;
     const totalCount = document.querySelectorAll('.product-checkbox').length;
 
     document.getElementById('selectedCount').textContent = checkedCount;
 
-    // 전체 선택 체크박스 동기화
     const selectAll = document.getElementById('selectAll');
     if (selectAll) {
         selectAll.checked = (checkedCount === totalCount && totalCount > 0);
     }
 }
 
-// 선택된 상품 ID 배열 반환
 function getSelectedIds() {
     return Array.from(document.querySelectorAll('.product-checkbox:checked'))
         .map(cb => parseInt(cb.value));
 }
 
 // ========================================
-// 3. 단건 삭제 (CSRF 헤더 없음)
+// 4. 단건 삭제
 // ========================================
 document.querySelectorAll('.delete-btn').forEach(button => {
     button.addEventListener('click', async function() {
@@ -135,7 +146,7 @@ document.querySelectorAll('.delete-btn').forEach(button => {
 });
 
 // ========================================
-// 4. 일괄 삭제 (CSRF 헤더 없음)
+// 5. 일괄 삭제
 // ========================================
 document.getElementById('bulkDeleteBtn')?.addEventListener('click', async function() {
     const ids = getSelectedIds();
@@ -170,7 +181,7 @@ document.getElementById('bulkDeleteBtn')?.addEventListener('click', async functi
 });
 
 // ========================================
-// 5. 일괄 상태 변경 (CSRF 헤더 없음)
+// 6. 일괄 상태 변경
 // ========================================
 document.getElementById('bulkStatusBtn')?.addEventListener('click', async function() {
     const ids = getSelectedIds();
@@ -220,7 +231,7 @@ document.getElementById('bulkStatusBtn')?.addEventListener('click', async functi
 });
 
 // ========================================
-// 페이지 로드 시 초기 카운트 업데이트
+// 페이지 로드 시 초기화
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
     updateSelectedCount();

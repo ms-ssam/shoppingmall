@@ -1,0 +1,71 @@
+/* product-manage.css */
+
+/* 테이블 레이아웃 고정 - ellipsis 작동을 위해 필수 */
+.fixed-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* 테이블 기본 스타일 */
+.fixed-table th,
+.fixed-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 상품명 셀 - ellipsis 적용 */
+.fixed-table td:nth-child(2) {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 카테고리명 셀 - ellipsis 적용 */
+.fixed-table td:nth-child(3) {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 상품명 링크 스타일 유지 */
+.fixed-table td:nth-child(2) a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 체크박스 열 너비 고정 */
+.fixed-table th:nth-child(1),
+.fixed-table td:nth-child(1) {
+    width: 50px;
+}
+
+/* 관리 버튼 열 너비 고정 */
+.fixed-table th:nth-child(10),
+.fixed-table td:nth-child(10) {
+    width: 180px;
+}
+
+/* 반응형 처리 */
+@media (max-width: 1200px) {
+    .fixed-table td:nth-child(2) {
+        max-width: 150px;
+    }
+
+    .fixed-table td:nth-child(3) {
+        max-width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .fixed-table td:nth-child(2) {
+        max-width: 120px;
+    }
+
+    .fixed-table td:nth-child(3) {
+        max-width: 80px;
+    }
+}
