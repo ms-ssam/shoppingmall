@@ -169,8 +169,6 @@ public class AuthServiceTest {
 
         MemberDetail userDetails = new MemberDetail(member);
 
-        when(jwtProvider.validateToken(rawRefreshToken)).thenReturn(true);
-        when(jwtProvider.getUsername(rawRefreshToken)).thenReturn(email);
         when(refreshTokenStore.findValidToken(hash)).thenReturn(Optional.ofNullable(token));
         when(memberDetailService.loadUserByUsername(email)).thenReturn(userDetails);
         when(jwtProvider.createAccessToken(any(Authentication.class))).thenReturn("new-access-token");
@@ -195,7 +193,6 @@ public class AuthServiceTest {
         // given
         String rawRefreshToken = "invalid";
 
-        when(jwtProvider.validateToken(rawRefreshToken)).thenReturn(false);
 
         // when & then
         BusinessException exception = assertThrows(
@@ -216,7 +213,6 @@ public class AuthServiceTest {
         String email = "test@example.com";
         String hash = HashUtil.sha256(rawRefreshToken);
 
-        when(jwtProvider.validateToken(rawRefreshToken)).thenReturn(true);
         when(jwtProvider.getUsername(rawRefreshToken)).thenReturn(email);
         when(refreshTokenStore.findValidToken(hash)).thenReturn(Optional.empty());
 

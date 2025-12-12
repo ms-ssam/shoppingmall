@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>Header</title>
-    <link rel="stylesheet" th:href="@{/css/header.css}">
-</head>
-<body>
-<header th:fragment="topHeader(cartCount)" class="site-header">
+<header th:fragment="topHeader(cartCount)" class="site-header" xmlns:sec="http://www.w3.org/1999/xhtml">
 
     <div class="black-header">
         <!-- [1] 왼쪽 영역 -->
@@ -109,7 +99,5 @@
             }
         });
     </script>
-
 </header>
-</body>
-</html>
+

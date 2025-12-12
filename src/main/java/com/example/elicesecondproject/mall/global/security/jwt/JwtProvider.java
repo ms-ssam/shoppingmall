@@ -56,10 +56,11 @@ public class JwtProvider {
         Date validityDate = new Date(now + accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .subject(authentication.getName())                          // JWT의 Payload의 subject에 username을 넣음
-                .claim(MemberConstants.AUTH_CLAIM, authorities)     // JWT의 Payload에 role 정보를 넣음
-                .signWith(key)                                              // SecretKey를 넣음. (JWT가 변조 검증용)
-                .expiration(validityDate)                                   // JWT의 만료 시간 넣음
+                .subject(authentication.getName())
+                .claim(MemberConstants.AUTH_CLAIM, authorities)
+                .claim(MemberConstants.TOKEN_TYPE_CLAIM, MemberConstants.TOKEN_TYPE_ACCESS)
+                .signWith(key)
+                .expiration(validityDate)
                 .compact();
     }
 
@@ -70,6 +71,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .subject(authentication.getName())
+                .claim(MemberConstants.TOKEN_TYPE_CLAIM, MemberConstants.TOKEN_TYPE_REFRESH)
                 .signWith(key)
                 .expiration(validityDate)
                 .compact();
@@ -78,6 +80,8 @@ public class JwtProvider {
 
     // 토큰으로 인증된 유저 객체 가져오기 (accessToken용)
     public Authentication getAuthentication(String token) {
+        validateAccessToken(token);
+
         Claims claims = parseClaims(token);
 
         if (claims.get(MemberConstants.AUTH_CLAIM) == null) {
@@ -86,7 +90,6 @@ public class JwtProvider {
 
         // 권한을 GrantedAuthority 타입으로 변환해야 스프링 시큐리티에 사용 가능
         String email = claims.getSubject();
-
         UserDetails principal = memberDetailService.loadUserByUsername(email);
 
         return new UsernamePasswordAuthenticationToken(
@@ -96,20 +99,52 @@ public class JwtProvider {
         );
     }
 
-    public boolean validateToken(String token) {
+    // 공통: 서명/만료/형식 검증
+    public void validateToken(String token) {
+        Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
+    }
+
+    // Access 토큰인지까지 검증 (서명/만료 + token_type=ACCESS)
+    public void validateAccessToken(String token) {
         try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-            return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            validateToken(token);
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.info("만료된 ACCESS 토큰입니다.");
+            throw e;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.info("유효하지 않은 ACCESS 토큰입니다.");
+            throw e;
         }
-        return false;
+
+        Claims claims = parseClaims(token);
+        String type = claims.get(MemberConstants.TOKEN_TYPE_CLAIM, String.class);
+
+        if (!MemberConstants.TOKEN_TYPE_ACCESS.equals(type)) {
+            throw new JwtException("ACCESS 토큰이 아닙니다.");
+        }
+    }
+
+    // Refresh 토큰인지까지 검증 (서명/만료 + token_type=REFRESH)
+    public void validateRefreshToken(String token) {
+        try {
+            validateToken(token);
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 REFRESH 토큰입니다.");
+            throw e;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.info("유효하지 않은 REFRESH 토큰입니다.");
+            throw e;
+        }
+
+        Claims claims = parseClaims(token);
+        String type = claims.get(MemberConstants.TOKEN_TYPE_CLAIM, String.class);
+
+        if (!MemberConstants.TOKEN_TYPE_REFRESH.equals(type)) {
+            throw new JwtException("REFRESH 토큰이 아닙니다.");
+        }
     }
 
     // JWT의 Payload(Claims)를 꺼내오는 함수
