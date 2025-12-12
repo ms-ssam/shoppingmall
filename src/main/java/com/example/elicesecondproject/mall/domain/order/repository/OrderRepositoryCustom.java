@@ -15,5 +15,6 @@ public interface OrderRepositoryCustom {
                                Pageable pageable);
     Optional<Order> findWithItemsById(Long orderId);
 
+    // 주문의 주문번호(!= PK)로 주문과 관련된 주문 항목들 함께 조회
     Optional<Order> findWithItemsByOrderId(String orderId);
 }

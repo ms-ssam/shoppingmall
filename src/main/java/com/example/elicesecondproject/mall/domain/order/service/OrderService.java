@@ -2,7 +2,6 @@ package com.example.elicesecondproject.mall.domain.order.service;
 
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
-import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
@@ -14,13 +13,11 @@ import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetI
 import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
-import com.example.elicesecondproject.mall.domain.order.entity.DeliveryInfo;
-import com.example.elicesecondproject.mall.domain.order.entity.Order;
-import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
-import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
+import com.example.elicesecondproject.mall.domain.order.entity.*;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
-import com.example.elicesecondproject.mall.domain.order.repository.OrderItemRepository;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
+import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
@@ -39,12 +36,11 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class OrderService {
     private final CartItemRepository cartItemRepository;
-    private final CartService cartService;
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final PermissionValidator permissionValidator;
-    private final OrderItemRepository orderItemRepository;
+    private final PaymentRepository paymentRepository;
 
     // 장바구니 -> 주문서
     public OrderSheetResponse createOrderSheet(Long memberId, OrderSheetFromCartRequest request) {
@@ -113,7 +109,11 @@ public class OrderService {
             throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS_CHANGE);
         }
 
-        // 4) 주문 상태 및 결제 상태를 FAILED 로 변경 (결제 시도 실패/취소)
+        Payment payment = paymentRepository.findByOrderIdAndMemberIdAndPaymentStatus(order.getOrderId(), memberId, PaymentStatus.READY)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        // 4) 결제의 결제 상태와 주문의 주문 상태 및 결제 상태를 FAILED 로 변경 (결제 시도 실패/취소)
+        payment.markAsFailed();
         order.markAsFailed();
 
         // 5) 이 주문에 사용된 optionDetailId 모으기
