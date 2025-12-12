@@ -4,7 +4,7 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordCha
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;

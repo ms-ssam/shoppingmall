@@ -1,4 +1,4 @@
-package com.example.elicesecondproject.mall.global.jwt;
+package com.example.elicesecondproject.mall.global.security.jwt;
 
 import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import jakarta.servlet.FilterChain;

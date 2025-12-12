@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.review.controller;
 
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;

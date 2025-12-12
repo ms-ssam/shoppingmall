@@ -1,16 +1,15 @@
 package com.example.elicesecondproject.mall.domain.auth.service;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberStatus;
-import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetailService;
 import com.example.elicesecondproject.mall.domain.auth.dto.response.AuthTokens;
 import com.example.elicesecondproject.mall.domain.auth.dto.request.LoginRequest;
 import com.example.elicesecondproject.mall.domain.auth.entity.RefreshToken;
 import com.example.elicesecondproject.mall.domain.auth.store.DbOnlyRefreshTokenStore;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
-import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
+import com.example.elicesecondproject.mall.global.security.jwt.JwtProvider;
 import com.example.elicesecondproject.mall.global.util.HashUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

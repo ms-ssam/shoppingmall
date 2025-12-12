@@ -1,7 +1,7 @@
 package com.example.elicesecondproject.mall.global.config;
 
-import com.example.elicesecondproject.mall.global.jwt.JwtAuthenticationFilter;
-import com.example.elicesecondproject.mall.global.jwt.JwtProvider;
+import com.example.elicesecondproject.mall.global.security.jwt.JwtAuthenticationFilter;
+import com.example.elicesecondproject.mall.global.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

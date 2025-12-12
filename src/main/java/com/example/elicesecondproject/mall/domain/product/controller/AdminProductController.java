@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.product.controller;
 
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.product.dto.*;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;

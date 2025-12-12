@@ -1,6 +1,6 @@
 package com.example.elicesecondproject.mall.domain.payment.controller;
 
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.payment.service.TossPaymentService;
 import lombok.RequiredArgsConstructor;
