@@ -6,8 +6,11 @@ import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
+import com.example.elicesecondproject.mall.domain.order.entity.PaymentStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
+import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ import java.util.Map;
 public class TossPaymentService {
     private final OrderMapper orderMapper;
     private final CartItemRepository cartItemRepository;
+    private final PaymentRepository paymentRepository;
 
 
     @Value("${toss.payments.secret-key}")
@@ -43,28 +47,36 @@ public class TossPaymentService {
     @Transactional
     public UserOrderDetailResponse handleSuccess(String paymentKey, String orderId, Long amount, Long memberId) {
 
-        // 1) 우리 주문 조회 + 본인 검증
-        Order order = orderRepository.findWithItemsByOrderId(orderId)
+        // 1) 사용자가 시도했던 결제 정보와 동일한지 확인 + 결제 금액 검사
+        Payment payment = paymentRepository.findByOrderIdAndMemberIdAndPaymentStatus(orderId, memberId, PaymentStatus.READY)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        if(payment.getAmount() != amount) {
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
+
+        // 2) 실제 주문 조회 + 본인 검증
+        Order order = orderRepository.findWithItemsByOrderId(payment.getOrderId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         if (!order.getOwnerId().equals(memberId)) {
             throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
         }
 
-        // 2) 금액 검증 (권장)
-        if (order.getTotalPaymentFee() != amount) {
-            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
-        }
+        // 3) 토스 결제 승인 API 호출 (DB 값 사용)
+        confirm(paymentKey, payment.getOrderId(), (long) payment.getAmount());
 
-        // 3) 토스 결제 승인 API 호출
-        confirm(paymentKey, orderId, amount);
+        // 4) confirm 성공했다면 그 이후부터 paymentkey 값 신뢰라고 저장
+        payment.markAsCompleted(paymentKey);
 
-        // 4) 결제 성공 처리
+        // 5) 주문도 결제 성공 처리
         order.markAsPaid();
 
-        // 5) 장바구니 비우기
-        // TODO: 현재 방식이 동작하려면 CartItem 하나가 Cart 내에서 OD 기준으로 유일해야 한다는 전제가 필요.
-        //  즉, 같은 옵션을 장바구니에 두 번 담으면 수량만 증가하는 형태로 동작해야만 정상 동작
+        /*
+         6) 장바구니 비우기
+          현재 방식이 동작하려면 CartItem 하나가 Cart 내에서 OD 기준으로 유일해야 한다는 전제가 필요.
+           즉, 같은 옵션을 장바구니에 두 번 담으면 수량만 증가하는 형태로 동작해야만 정상 동작
+         */
         List<Long> optionDetailIds = order.getOrderItems().stream()
                 .map(OrderItem::getOptionDetailId)
                 .distinct()

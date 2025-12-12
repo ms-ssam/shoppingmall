@@ -64,6 +64,7 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD001", "해당 주문을 찾을 수 없습니다."),
     ORDER_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "OD006", "해당 주문 상품을 찾을 수 없습니다."),
 
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PM004", "해당 결제를 찾을 수 없습니다."),
 
     // 409 Conflict
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "C003", "이미 존재하는 데이터입니다."),
