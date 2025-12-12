@@ -4,7 +4,7 @@ import com.example.elicesecondproject.mall.domain.cart.dto.request.CartItemOptio
 import com.example.elicesecondproject.mall.domain.cart.dto.response.CartInfoResponseDto;
 import com.example.elicesecondproject.mall.domain.cart.dto.response.CartItemEditPopupResponse;
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

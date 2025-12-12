@@ -1,6 +1,6 @@
-package com.example.elicesecondproject.mall.global.jwt;
+package com.example.elicesecondproject.mall.global.security.jwt;
 
-import com.example.elicesecondproject.mall.domain.member.service.MemberDetailService;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetailService;
 import com.example.elicesecondproject.mall.global.common.MemberConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

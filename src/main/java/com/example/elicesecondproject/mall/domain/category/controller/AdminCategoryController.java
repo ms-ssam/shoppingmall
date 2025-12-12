@@ -4,7 +4,7 @@ import com.example.elicesecondproject.mall.domain.category.dto.CategoryResponse;
 import com.example.elicesecondproject.mall.domain.category.dto.CreateCategoryRequest;
 import com.example.elicesecondproject.mall.domain.category.dto.UpdateCategoryRequest;
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
 import jakarta.validation.Valid;

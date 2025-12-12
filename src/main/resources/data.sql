@@ -330,3 +330,52 @@ VALUES (
            '테스트 확인 완료되었습니다. 정상 작동합니다.',
            NOW(), NOW()
        );
+
+-- ==========================================
+-- 8. REVIEW (리뷰) 더미 데이터
+-- ==========================================
+
+INSERT INTO review (
+    product_id, member_id, rating, content, image_url,
+    created_at, updated_at, deleted_at
+) VALUES
+-- 상품 1: 베이직 반팔티
+(
+    1,
+    (SELECT id FROM members WHERE email='admin1@test.com'),
+    5,
+    '핏이 깔끔하고 재질도 좋아요. 데일리로 입기 딱입니다.',
+    '/images/reviews/review1.png',
+    NOW(), NOW(), NULL
+),
+-- 상품 3: 슬림핏 청바지
+(
+    3,
+    (SELECT id FROM members WHERE email='admin1@test.com'),
+    4,
+    '색감 좋고 라인도 예쁜데 허리가 살짝 타이트해요.',
+    NULL,
+    NOW(), NOW(), NULL
+),
+-- 상품 9: 숏패딩
+(
+    9,
+    (SELECT id FROM members WHERE email='admin1@test.com'),
+    5,
+    '가볍고 따뜻해서 만족! 배송도 빨랐어요.',
+    '/images/reviews/review2.png',
+    NOW(), NOW(), NULL
+);
+
+INSERT INTO review (
+    product_id, member_id, rating, content, image_url,
+    created_at, updated_at, deleted_at
+) VALUES
+    (
+        2,
+        (SELECT id FROM members WHERE email='admin1@test.com'),
+        4,
+        '테스트 리뷰입니다. 긴팔 기본템으로 무난합니다.',
+        NULL,
+        NOW(), NOW(), NULL
+    );

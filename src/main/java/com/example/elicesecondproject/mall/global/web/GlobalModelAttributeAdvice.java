@@ -1,7 +1,7 @@
 package com.example.elicesecondproject.mall.global.web;
 
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
-import com.example.elicesecondproject.mall.domain.member.entity.MemberDetail;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
