@@ -212,13 +212,23 @@
     </div>
 
     <div id="tab-qna" class="qna-section tab-content">
-        <div class="review-header">
+        <div class="review-header qna-header-row">
             <div class="review-title">상품문의</div>
+            <!-- 필요하면 더보기 링크도 여기 추가 가능 -->
+            <!-- <a class="qna-more" th:href="@{/products/{productId}/qna(productId=${product.id})}">더보기</a> -->
         </div>
 
         <!-- 추후 문의 리스트 붙이기 전까지는 기본 문구 -->
         <div class="review-empty">
             등록된 상품 문의가 없습니다.
+        </div>
+
+        <!-- ✅ 문의하기 버튼 (하단 풀폭) -->
+        <div class="qna-action">
+            <a class="qna-ask-btn"
+               th:href="@{/products/{productId}/question(productId=${product.id})}">
+                판매자에게 문의하기
+            </a>
         </div>
     </div>
 

@@ -10,7 +10,7 @@ INSERT INTO members (
     email_verified, provider, created_at, updated_at, deleted_at
 ) VALUES (
              'admin1@test.com',
-             '$2a$10$8.UnVuG9HHgffUDAlk8qfOpNa.hPayFybA6.u.y/0e/j1I9.k.x.W',
+             '$2a$10$fht00cRwZkOyZ.UJDQO0xOE8AxQd9KwJa/Ntzx1ChsxMd3F8eFwoO',
              '관리자', 'AdminUser', '010-0000-0000', 'ADMIN', 'ACTIVE',
              true, 'LOCAL', NOW(), NOW(), NULL
          );
@@ -21,7 +21,7 @@ INSERT INTO members (
     email_verified, provider, created_at, updated_at, deleted_at
 ) VALUES (
              'user1@test.com',
-             '$2a$10$8.UnVuG9HHgffUDAlk8qfOpNa.hPayFybA6.u.y/0e/j1I9.k.x.W',
+             '$2a$10$fht00cRwZkOyZ.UJDQO0xOE8AxQd9KwJa/Ntzx1ChsxMd3F8eFwoO',
              '일반유저', 'GeneralUser', '010-1111-1111', 'USER', 'ACTIVE',
              true, 'LOCAL', NOW(), NOW(), NULL
          );
@@ -282,7 +282,7 @@ INSERT INTO product_image (
 -- ==========================================
 
 -- 1. 관리자가 작성한 일반 문의 (상품 ID: 1)
-INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+INSERT INTO question (member_id, product_id, title, content, secret, answered, created_at, updated_at, deleted_at)
 VALUES (
            (SELECT id FROM members WHERE email='admin1@test.com'), -- 변경된 이메일로 ID 조회
            1,
@@ -294,7 +294,7 @@ VALUES (
        );
 
 -- 2. 관리자가 작성한 비밀 문의 (상품 ID: 2)
-INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+INSERT INTO question (member_id, product_id, title, content, secret, answered, created_at, updated_at, deleted_at)
 VALUES (
            (SELECT id FROM members WHERE email='admin1@test.com'),
            2,
@@ -306,7 +306,7 @@ VALUES (
        );
 
 -- 3. 관리자가 작성하고 답변 완료된 문의 (상품 ID: 3)
-INSERT INTO question (member_id, product_id, title, content, is_secret, answered, created_at, updated_at, deleted_at)
+INSERT INTO question (member_id, product_id, title, content, secret, answered, created_at, updated_at, deleted_at)
 VALUES (
            (SELECT id FROM members WHERE email='admin1@test.com'),
            3,
