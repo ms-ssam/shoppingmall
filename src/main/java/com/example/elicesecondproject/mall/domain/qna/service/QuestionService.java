@@ -9,6 +9,7 @@ import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.qna.dto.request.QnaCreateRequest;
 import com.example.elicesecondproject.mall.domain.qna.dto.response.QuestionResponse;
+import com.example.elicesecondproject.mall.domain.qna.dto.response.QuestionSummaryResponse;
 import com.example.elicesecondproject.mall.domain.qna.entity.Question;
 import com.example.elicesecondproject.mall.domain.qna.mapper.QuestionMapper;
 import com.example.elicesecondproject.mall.domain.qna.repository.QuestionRepository;
@@ -48,22 +49,32 @@ public class QuestionService {
         return productMapper.toQnaProductInfoResponse(product);
     }
 
+    // 사용자 문의 생성
     @Transactional
     public void createQuestion(Long productId, Long memberId, QnaCreateRequest request) {
         Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        Member member = getActiveMember(memberId);
 
-        Question question = Question.builder()
-                .product(product)
-                .member(member)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .secret(request.isSecret())
-                .build();
+        Question question = Question.of(member, product, request.getTitle(), request.getContent(), request.isSecret());
 
         questionRepository.save(question);
+    }
+
+    public Page<QuestionSummaryResponse> getQuestionListByMember(Long memberId, Pageable pageable) {
+        if (!memberRepository.existsByIdAndStatus(memberId, MemberStatus.ACTIVE)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Page<Question> questions =
+                questionRepository.findByMemberIdAndDeletedAtIsNull(memberId, pageable);
+
+        return questions.map(questionMapper::toQuestionSummaryResponse);
+    }
+
+    private Member getActiveMember(Long memberId) {
+        return memberRepository.findByIdAndStatus(memberId, MemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }
