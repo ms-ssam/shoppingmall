@@ -43,12 +43,24 @@ public class Question extends SoftDeletableBaseEntity {
     private Answer answer;
 
     @Builder
-    public Question(Member member, Product product, String title, String content, boolean secret) {
-        this.member = member;
+    private Question(Product product, String title, String content, boolean secret) {
         this.product = product;
         this.title = title;
         this.content = content;
         this.secret = secret;
+    }
+
+    public static Question of(Member member, Product product, String title, String content, boolean secret){
+        Question question = Question.builder()
+                .product(product)
+                .title(title)
+                .content(content)
+                .secret(secret)
+                .build();
+
+        member.addQuestion(question);
+
+        return question;
     }
 
 
@@ -57,6 +69,10 @@ public class Question extends SoftDeletableBaseEntity {
         answer.setQuestion(this);
         // 필드 추가
         this.answered = true;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 
     // 답변 삭제시 매서드

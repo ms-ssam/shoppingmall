@@ -1,0 +1,217 @@
+/* =========================
+   컨테이너
+   ========================= */
+.qna-container { width: 100%; }
+
+.qna-header {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.qna-empty {
+    padding: 60px 0;
+    text-align: center;
+    opacity: 0.85;
+}
+
+/* =========================
+   카드
+   ========================= */
+.qna-card {
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+    transition: transform .12s ease, border-color .12s ease;
+}
+
+.qna-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(120,160,255,0.30);
+}
+
+/* 답변 완료 카드 강조 */
+.qna-card--answered {
+    border-color: rgba(0,200,120,0.25);
+}
+
+/* =========================
+   카드 헤더 (상품 정보)
+   ========================= */
+.qna-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.qna-head-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.qna-head-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: rgba(255,255,255,0.06);
+    flex-shrink: 0;
+}
+
+.qna-head-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.qna-head-name {
+    font-size: 15px;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qna-head-date {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.qna-card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* =========================
+   상태 배지
+   ========================= */
+.qna-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.qna-badge.answered {
+    background: rgba(0, 200, 120, 0.15);
+    border: 1px solid rgba(0, 200, 120, 0.35);
+}
+
+.qna-badge.pending {
+    background: rgba(255, 170, 0, 0.15);
+    border: 1px solid rgba(255, 170, 0, 0.35);
+}
+
+/* =========================
+   상품 ↔ 문의 단순 구분선 (선 하나)
+   ========================= */
+.qna-simple-divider {
+    border: none;
+    height: 1px;
+    margin: 18px 0 16px;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* =========================
+   Q / A 본문
+   ========================= */
+.qna-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.qna-block {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.qna-label {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+.qna-content { flex: 1; }
+
+.qna-title {
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.qna-text {
+    opacity: 0.9;
+    line-height: 1.55;
+    white-space: pre-line;
+}
+
+/* =========================
+   A (답변) 강조
+   ========================= */
+.qna-block.answer {
+    background: rgba(80, 120, 255, 0.08);
+    border: 1px solid rgba(80, 120, 255, 0.35);
+    margin-top: 12px;
+    margin-left: 34px;
+}
+
+.qna-block.answer .qna-label {
+    background: rgba(80, 120, 255, 0.9);
+    color: #fff;
+    border: none;
+}
+
+.qna-block.answer .qna-title { color: #3f5fff; }
+.qna-block.answer .qna-text { opacity: 1; }
+
+/* =========================
+   페이지네이션
+   ========================= */
+.qna-pagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.qna-page-btn {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.03);
+    text-decoration: none;
+}
+
+.qna-page-btn.active {
+    font-weight: 900;
+    background: rgba(255,255,255,0.10);
+}

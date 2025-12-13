@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.member.entity;
 
 import com.example.elicesecondproject.mall.domain.address.entity.Address;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
+import com.example.elicesecondproject.mall.domain.qna.entity.Question;
 import com.example.elicesecondproject.mall.domain.review.entity.Review;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
@@ -11,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -73,6 +75,9 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
 
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<Question> questions = new ArrayList<>();
+
     // ----------
     @Builder
     public Member(String email,
@@ -128,6 +133,11 @@ public class Member extends SoftDeletableBaseEntity implements UserDetails {
     public void assignCart(Cart cart) {
         this.cart = cart;
         cart.setMember(this);
+    }
+
+    public void addQuestion(Question question) {
+        questions.add(question);
+        question.setMember(this);
     }
 
     // --- UserDetails 구현 ---

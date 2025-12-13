@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 문의 내역</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-questions.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
+<div class="mypage-container">
+    <div th:replace="~{fragments/mypage-sidebar :: mypageSidebar}"></div>
+
+    <div class="mypage-content">
+        <section class="qna-container">
+
+            <h2 class="qna-header">내 문의 내역</h2>
+
+            <div class="qna-empty" th:if="${questions == null or questions.empty}">
+                아직 작성한 문의가 없습니다.
+            </div>
+
+            <div th:if="${questions != null and !questions.empty}">
+                <article th:each="q : ${questions.content}"
+                         th:classappend="${q.answered} ? ' qna-card--answered' : ''"
+                         class="qna-card">
+
+                    <!-- 상품 헤더 -->
+                    <header class="qna-card-head">
+                        <div class="qna-head-left">
+                            <img class="qna-head-thumb"
+                                 th:src="${q.product.thumbnailUrl != null}
+                                         ? ${q.product.thumbnailUrl}
+                                         : @{/images/product-default.png}">
+                            <div class="qna-head-meta">
+                                <div class="qna-head-name" th:text="${q.product.name}">상품명</div>
+                                <div class="qna-head-date"
+                                     th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}">
+                                    2025.12.06
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="qna-card-actions">
+                            <span th:if="${q.answered}" class="qna-badge answered">답변 완료</span>
+                            <span th:if="${!q.answered}" class="qna-badge pending">답변 대기</span>
+                        </div>
+                    </header>
+
+                    <!-- 🔽 선 하나 -->
+                    <hr class="qna-simple-divider">
+
+                    <!-- Q / A -->
+                    <div class="qna-body">
+                        <div class="qna-block">
+                            <div class="qna-label">Q</div>
+                            <div class="qna-content">
+                                <div class="qna-title" th:text="${q.title}">문의 제목</div>
+                                <div class="qna-text" th:text="${q.content}">문의 내용</div>
+                            </div>
+                        </div>
+
+                        <div class="qna-block answer"
+                             th:if="${q.answered and q.answer != null}">
+                            <div class="qna-label">A</div>
+                            <div class="qna-content">
+                                <div class="qna-title"
+                                     th:text="${q.answer.admin != null
+                                               ? '(판매자) ' + q.answer.admin.nickname
+                                               : '판매자 답변'}">
+                                    판매자 답변
+                                </div>
+                                <div class="qna-text" th:text="${q.answer.content}">답변 내용</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+
+            <div class="qna-pagination"
+                 th:if="${questions != null and questions.totalPages > 1}">
+                <a th:if="${questions.hasPrevious()}"
+                   th:href="@{|/mypage/questions?page=${questions.number - 1}|}"
+                   class="qna-page-btn">&laquo;</a>
+
+                <a th:each="i : ${#numbers.sequence(0, questions.totalPages - 1)}"
+                   th:href="@{|/mypage/questions?page=${i}|}"
+                   th:text="${i + 1}"
+                   th:classappend="${questions.number == i} ? 'active' : ''"
+                   class="qna-page-btn"></a>
+
+                <a th:if="${questions.hasNext()}"
+                   th:href="@{|/mypage/questions?page=${questions.number + 1}|}"
+                   class="qna-page-btn">&raquo;</a>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+</body>
+</html>

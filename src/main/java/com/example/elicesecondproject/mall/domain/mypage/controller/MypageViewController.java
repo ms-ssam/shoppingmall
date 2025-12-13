@@ -4,7 +4,6 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordCha
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.domain.order.dto.request.UserOrderSearchCondition;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderDetailResponse;
@@ -14,12 +13,15 @@ import com.example.elicesecondproject.mall.domain.product.dto.ReviewProductInfoD
 import com.example.elicesecondproject.mall.domain.product.dto.WishListProductResponse;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
 import com.example.elicesecondproject.mall.domain.product.service.WishListService;
+import com.example.elicesecondproject.mall.domain.qna.dto.response.QuestionSummaryResponse;
+import com.example.elicesecondproject.mall.domain.qna.service.QuestionService;
 import com.example.elicesecondproject.mall.domain.review.dto.request.CreateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.request.UpdateReviewRequest;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewDetailResponse;
 import com.example.elicesecondproject.mall.domain.review.dto.response.MyReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,6 +46,7 @@ public class MypageViewController {
     private final OrderService orderService;
     private final ProductService productService;
     private final WishListService wishListService;
+    private final QuestionService questionService;
 
     @GetMapping
     public String mypageIndex(@AuthenticationPrincipal MemberDetail principal,
@@ -325,5 +328,16 @@ public class MypageViewController {
         model.addAttribute("wishList", wishList);
 
         return "mypage/mypage-wish-list";
+    }
+    // TODO : 뷰 지금 잘 안나옴
+    @GetMapping("/questions")
+    public String getMyQuestionList(@AuthenticationPrincipal MemberDetail principal,
+                                    Pageable pageable,
+                                    Model model) {
+        Page<QuestionSummaryResponse> responses = questionService.getQuestionListByMember(principal.getMember().getId(), pageable);
+
+        model.addAttribute("questions", responses);
+
+        return "mypage/mypage-question-list";
     }
 }
