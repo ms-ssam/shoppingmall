@@ -8,7 +8,6 @@ import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.mapper.ProductMapper;
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.qna.dto.request.QnaCreateRequest;
-import com.example.elicesecondproject.mall.domain.qna.dto.response.QuestionResponse;
 import com.example.elicesecondproject.mall.domain.qna.dto.response.QuestionSummaryResponse;
 import com.example.elicesecondproject.mall.domain.qna.entity.Question;
 import com.example.elicesecondproject.mall.domain.qna.mapper.QuestionMapper;
@@ -31,15 +30,6 @@ public class QuestionService {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
     private final ProductMapper productMapper;
-
-
-    // 관리자 문의(Q) 목록 조회
-    public Page<QuestionResponse> getAllQuestions(Pageable pageable) {
-        // 1. Repository에서 Fetch Join된 데이터 가져오기
-        Page<Question> questions = questionRepository.findAllWithDetails(pageable);
-
-        return questions.map(questionMapper::toQuestionResponse);
-    }
 
     // 사용자 문의 제품 가져오기
     public QnaProductInfoResponse getProductInfo(Long productId) {
