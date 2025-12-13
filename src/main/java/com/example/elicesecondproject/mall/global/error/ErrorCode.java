@@ -63,6 +63,7 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV001", "해당 리뷰를 찾을 수 없습니다."),
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "OD001", "해당 주문을 찾을 수 없습니다."),
     ORDER_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "OD006", "해당 주문 상품을 찾을 수 없습니다."),
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QT001", "해당 문의를 찾을 수 없습니다."),
 
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PM004", "해당 결제를 찾을 수 없습니다."),
 
@@ -74,6 +75,7 @@ public enum ErrorCode {
     INVALID_STOCK_QUANTITY(HttpStatus.CONFLICT, "I002", "재고 수량이 유효하지 않습니다."),
     CART_ITEM_PRODUCT_MISMATCH(HttpStatus.CONFLICT, "CI002", "해당 상품의 옵션이 아닙니다."),
     REVIEW_ALREADY_WRITTEN(HttpStatus.CONFLICT, "RV004", "이미 해당 상품에 대한 리뷰를 작성하셨습니다."),
+    ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "QT002", "이미 답변이 등록된 문의입니다."),
 
 
     // 500 Internal Server Error

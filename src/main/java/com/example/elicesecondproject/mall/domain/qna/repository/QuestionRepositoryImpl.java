@@ -1,8 +1,10 @@
 package com.example.elicesecondproject.mall.domain.qna.repository;
 
+import com.example.elicesecondproject.mall.domain.qna.dto.request.QuestionSearchCondition;
 import com.example.elicesecondproject.mall.domain.qna.entity.Question;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -18,47 +22,86 @@ import static com.example.elicesecondproject.mall.domain.qna.entity.QAnswer.answ
 import static com.example.elicesecondproject.mall.domain.member.entity.QMember.member;
 import static com.example.elicesecondproject.mall.domain.product.entity.QProduct.product;
 
+@Repository
 @RequiredArgsConstructor
 public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Question> findAllWithDetails(Pageable pageable) {
+    public Page<Question> findAllWithDetails(
+            QuestionSearchCondition condition,
+            Pageable pageable
+    ) {
 
-        // 1. 데이터 조회 쿼리 (Fetch Join 적용)
+        BooleanExpression whereCondition = question.deletedAt.isNull()
+                .and(productNameContains(condition.getProductName()))
+                .and(answeredEq(condition.getAnswered()));
+
+        // 1️⃣ content 조회
         List<Question> content = queryFactory
                 .selectFrom(question)
-                .leftJoin(question.member, member).fetchJoin()   // 작성자 정보 즉시 로딩
-                .leftJoin(question.product, product).fetchJoin() // 상품 정보 즉시 로딩
+                .leftJoin(question.member, member).fetchJoin()
+                .leftJoin(question.product, product).fetchJoin()
                 .leftJoin(question.answer, answer).fetchJoin()
-                .where(question.deletedAt.isNull()) // Soft Delete 된 데이터 제외
+                .where(whereCondition)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifier(pageable)) // 동적 정렬 적용
+                .orderBy(getOrderSpecifier(pageable))
                 .fetch();
 
-
+        // 2️⃣ count 조회
         JPAQuery<Long> countQuery = queryFactory
                 .select(question.count())
                 .from(question)
-                .where(question.deletedAt.isNull());
+                .leftJoin(question.product, product)
+                .leftJoin(question.answer, answer)
+                .where(whereCondition);
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(
+                content,
+                pageable,
+                countQuery::fetchOne
+        );
     }
 
-    // Pageable의 Sort를 QueryDSL 정렬로 변환하는 헬퍼 메서드
+    /**
+     * 상품명 키워드 검색 (부분 일치)
+     */
+    private BooleanExpression productNameContains(String productName) {
+        if (!StringUtils.hasText(productName)) return null;
+        return product.name.containsIgnoreCase(productName.trim());
+    }
+
+    /**
+     * answered == null  → 전체
+     * answered == true  → 답변 있음
+     * answered == false → 답변 없음
+     */
+    private BooleanExpression answeredEq(Boolean answered) {
+        if (answered == null) return null;
+        return answered ? answer.id.isNotNull() : answer.id.isNull();
+    }
+
+    /**
+     * Pageable Sort → QueryDSL OrderSpecifier
+     */
     private OrderSpecifier<?> getOrderSpecifier(Pageable pageable) {
         if (!pageable.getSort().isEmpty()) {
-            for (Sort.Order order : pageable.getSort()) {
-                Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
-                // 정렬 기준이 되는 필드명에 따라 분기
-                switch (order.getProperty()) {
-                    case "createdAt": return new OrderSpecifier<>(direction, question.createdAt);
-                    case "title": return new OrderSpecifier<>(direction, question.title);
+            for (Sort.Order sort : pageable.getSort()) {
+                Order direction = sort.getDirection().isAscending()
+                        ? Order.ASC
+                        : Order.DESC;
+
+                switch (sort.getProperty()) {
+                    case "createdAt":
+                        return new OrderSpecifier<>(direction, question.createdAt);
+                    case "title":
+                        return new OrderSpecifier<>(direction, question.title);
                 }
             }
         }
-        return new OrderSpecifier<>(Order.DESC, question.createdAt); // 기본값
+        // 기본 정렬
+        return new OrderSpecifier<>(Order.DESC, question.createdAt);
     }
 }

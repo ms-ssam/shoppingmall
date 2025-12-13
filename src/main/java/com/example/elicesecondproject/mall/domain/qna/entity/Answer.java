@@ -25,7 +25,7 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "admin_id",  nullable = false)
     private Member admin; // 답변 관리자
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String content;
 
     @Builder
@@ -34,7 +34,7 @@ public class Answer extends BaseEntity {
         this.content = content;
     }
 
-    public static Answer create(Question question, Member admin, String content) {
+    public static Answer of(Question question, Member admin, String content) {
         Answer answer = Answer.builder()
                 .admin(admin)
                 .content(content)
