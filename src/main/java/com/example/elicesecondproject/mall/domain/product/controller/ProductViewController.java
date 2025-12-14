@@ -4,14 +4,17 @@ import com.example.elicesecondproject.mall.domain.cart.dto.request.AddCartItemRe
 import com.example.elicesecondproject.mall.domain.cart.service.CartService;
 import com.example.elicesecondproject.mall.domain.category.dto.CategoryTreeResponse;
 import com.example.elicesecondproject.mall.domain.category.service.CategoryService;
-import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductDetailResponse;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSortType;
 import com.example.elicesecondproject.mall.domain.product.dto.ProductSummaryDto;
 import com.example.elicesecondproject.mall.domain.product.service.ProductService;
+import com.example.elicesecondproject.mall.domain.qna.dto.response.ProductQuestionResponse;
+import com.example.elicesecondproject.mall.domain.qna.service.QuestionService;
 import com.example.elicesecondproject.mall.domain.review.dto.response.ReviewResponse;
 import com.example.elicesecondproject.mall.domain.review.service.ReviewService;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +38,7 @@ public class ProductViewController {
     private final CategoryService categoryService;
     private final ReviewService reviewService;
     private final CartService cartService;
+    private final QuestionService questionService;
 
 
     @GetMapping
@@ -99,11 +103,14 @@ public class ProductViewController {
      */
     @GetMapping("/{productId}")
     public String productDetail(@PathVariable Long productId, Model model, @AuthenticationPrincipal MemberDetail memberDetail, Pageable pageable) {
+        Member member = (memberDetail != null) ? memberDetail.getMember() : null;
         Long memberId = (memberDetail != null) ? memberDetail.getMember().getId() : null;
         ProductDetailResponse product = productService.getProduct(productId, memberId);
         model.addAttribute("product", product);
         Page<ReviewResponse> reviews = reviewService.getReviewsByProduct(productId, pageable);
         model.addAttribute("reviews", reviews);
+        Page<ProductQuestionResponse> questions = questionService.getQuestionsByProduct(productId, member, pageable);
+        model.addAttribute("questions", questions);
         return "product/detail";
     }
 

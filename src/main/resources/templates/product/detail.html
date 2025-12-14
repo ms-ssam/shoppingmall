@@ -147,7 +147,10 @@
         <li class="tab-item" data-target="review">
             구매후기 (<span th:text="${product.reviewCount}">0</span>)
         </li>
-        <li class="tab-item" data-target="qna">상품문의</li>
+        <li class="tab-item" data-target="qna">
+            상품문의 (<span th:text="${questions != null ? questions.totalElements : 0}">0</span>)
+        </li>
+
     </ul>
 
     <!-- 상세 이미지 영역 (상세정보 탭) -->
@@ -214,13 +217,103 @@
     <div id="tab-qna" class="qna-section tab-content">
         <div class="review-header qna-header-row">
             <div class="review-title">상품문의</div>
-            <!-- 필요하면 더보기 링크도 여기 추가 가능 -->
-            <!-- <a class="qna-more" th:href="@{/products/{productId}/qna(productId=${product.id})}">더보기</a> -->
+            <div class="review-count">
+                총 <span th:text="${questions != null ? questions.totalElements : 0}">0</span>개
+            </div>
         </div>
 
-        <!-- 추후 문의 리스트 붙이기 전까지는 기본 문구 -->
-        <div class="review-empty">
+        <!-- 문의가 없을 때 -->
+        <div class="review-empty" th:if="${questions == null or questions.empty}">
             등록된 상품 문의가 없습니다.
+        </div>
+
+        <!-- 문의가 있을 때 -->
+        <div th:if="${questions != null and !questions.empty}" class="qna-list">
+
+            <th:block th:each="q : ${questions}">
+
+                <!-- 🔒 비밀글 + 권한 없음(마스킹) : details 없이 한 줄로만 -->
+                <div class="qna-acc no-toggle"
+                     th:if="${q.secret and q.content == '비밀글입니다.'}">
+
+                    <div class="qna-acc-summary no-toggle">
+                        <div class="qna-sum-left">
+                            <span class="qna-sum-title">비밀글입니다.</span>
+                        </div>
+
+                        <div class="qna-sum-meta">
+                            <span class="qna-sum-status waiting">답변대기</span>
+                            <span class="qna-sum-writer" th:text="${q.member.nickname}">닉네임</span>
+                            <span class="qna-sum-date"
+                                  th:text="${#temporals.format(q.createdAt, 'yy.MM.dd')}">25.12.13</span>
+
+                            <span class="qna-sum-lock">
+                    <i class="bi bi-lock-fill"></i>
+                </span>
+                        </div>
+
+                        <!-- ✅ 화살표(더보기) 없음 -->
+                    </div>
+                </div>
+
+                <!-- ✅ 일반글 / 권한 있는 비밀글 : details(더보기) 사용 -->
+                <details class="qna-acc"
+                         th:if="${!(q.secret and q.content == '비밀글입니다.')}">
+
+                    <summary class="qna-acc-summary">
+                        <div class="qna-sum-left">
+                <span class="qna-sum-title"
+                      th:text="${q.title != null ? q.title : '상품 문의'}">구매하려는데</span>
+                        </div>
+
+                        <div class="qna-sum-meta">
+                <span class="qna-sum-status"
+                      th:text="${q.answered ? '답변완료' : '답변대기'}"
+                      th:classappend="${q.answered} ? ' done' : ' waiting'">
+                    답변대기
+                </span>
+
+                            <span class="qna-sum-writer" th:text="${q.member.nickname}">닉네임</span>
+                            <span class="qna-sum-date"
+                                  th:text="${#temporals.format(q.createdAt, 'yy.MM.dd')}">25.12.13</span>
+
+                            <span class="qna-sum-lock" th:if="${q.secret}">
+                    <i class="bi bi-lock-fill"></i>
+                </span>
+                        </div>
+
+                        <span class="qna-sum-arrow">
+                <i class="bi bi-chevron-down"></i>
+            </span>
+                    </summary>
+
+                    <div class="qna-acc-body">
+                        <div class="qna-question-block">
+                            <div class="qna-block-title">문의 내용</div>
+                            <div class="qna-content" th:text="${q.content}">문의 내용</div>
+                        </div>
+
+                        <div class="qna-answer-block" th:if="${q.answered and q.answer != null}">
+                            <div class="qna-block-title">
+                                답변
+                                <span class="qna-admin"
+                                      th:if="${q.answer.admin != null}"
+                                      th:text="|(${ '판매자' }) ${q.answer.admin.nickname}|">
+                                    (판매자) 닉네임
+                                </span>
+                            </div>
+                            <div class="qna-answer-content" th:text="${q.answer.content}">답변 내용</div>
+                        </div>
+
+                        <div class="qna-answer-block empty" th:if="${!q.answered or q.answer == null}">
+                            <div class="qna-block-title">답변</div>
+                            <div class="qna-answer-content" style="color:#999;">아직 답변이 등록되지 않았습니다.</div>
+                        </div>
+                    </div>
+                </details>
+
+            </th:block>
+
         </div>
 
         <!-- ✅ 문의하기 버튼 (하단 풀폭) -->

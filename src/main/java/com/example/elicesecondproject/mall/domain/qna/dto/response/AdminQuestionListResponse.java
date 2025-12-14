@@ -16,6 +16,7 @@ public class AdminQuestionListResponse {
     private String title;
     private boolean secret;
     private LocalDateTime createdAt;
+    private LocalDateTime deletedAt;
 
     // 답변 여부 추가
     private boolean answered;

@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.qna.entity;
 
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.global.common.Ownable;
 import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Question extends SoftDeletableBaseEntity {
+public class Question extends SoftDeletableBaseEntity implements Ownable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -77,8 +78,17 @@ public class Question extends SoftDeletableBaseEntity {
 
     // 답변 삭제시 매서드
     public void removeAnswer(){
+        if (this.answer == null) return;
+
+        Answer old = this.answer;
         this.answer = null;
+        old.setQuestion(null); // 객체 그래프 정리
         this.answered = false;
+    }
+
+    @Override
+    public Long getOwnerId() {
+        return member.getId();
     }
 }
 /*

@@ -48,6 +48,15 @@
                         <div class="qna-card-actions">
                             <span th:if="${q.answered}" class="qna-badge answered">답변 완료</span>
                             <span th:if="${!q.answered}" class="qna-badge pending">답변 대기</span>
+
+                            <!--  삭제 버튼 -->
+                            <form th:action="@{|/mypage/questions/${q.id}|}" method="post"
+                                  class="qna-delete-form"
+                                  onsubmit="return confirm('문의글을 삭제할까요?');">
+
+                                <input type="hidden" name="_method" value="delete"/>
+                                <button type="submit" class="qna-delete-btn">삭제</button>
+                            </form>
                         </div>
                     </header>
 
