@@ -26,6 +26,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -329,15 +331,23 @@ public class MypageViewController {
 
         return "mypage/mypage-wish-list";
     }
-    // TODO : 뷰 지금 잘 안나옴
+
     @GetMapping("/questions")
     public String getMyQuestionList(@AuthenticationPrincipal MemberDetail principal,
-                                    Pageable pageable,
+                                    @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                     Model model) {
         Page<QuestionSummaryResponse> responses = questionService.getQuestionListByMember(principal.getMember().getId(), pageable);
 
         model.addAttribute("questions", responses);
 
         return "mypage/mypage-question-list";
+    }
+
+    @DeleteMapping("/questions/{questionId}")
+    public String deleteMyQuestion(@PathVariable Long questionId,
+                                    @AuthenticationPrincipal MemberDetail principal) {
+        questionService.deleteMyQuestion(questionId, principal.getMember());
+
+        return "redirect:/mypage/questions";
     }
 }

@@ -77,4 +77,22 @@ public class AdminQnaViewController {
         adminAnswerService.createAnswer(questionId, principal.getMember(), answerRequest);
         return "redirect:/admin/inquiries/" + questionId;
     }
+
+    @DeleteMapping("/{questionId}")
+    public String deleteQuestion(@PathVariable Long questionId,
+                                 @AuthenticationPrincipal MemberDetail principal) {
+
+        adminQuestionService.deleteQuestionByAdmin(questionId, principal.getMember());
+
+        return "redirect:/admin/inquiries";
+    }
+
+    @DeleteMapping("/{questionId}/answer")
+    public String deleteAnswer(@PathVariable Long questionId,
+                               @AuthenticationPrincipal MemberDetail principal) {
+
+        adminQuestionService.deleteAnswerByAdmin(questionId, principal.getMember());
+
+        return "redirect:/admin/inquiries/" + questionId;
+    }
 }

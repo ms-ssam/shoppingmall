@@ -8,4 +8,5 @@ import lombok.Setter;
 public class QuestionSearchCondition {
     private Boolean answered;
     private String productName;
+    private Boolean deleted;
 }

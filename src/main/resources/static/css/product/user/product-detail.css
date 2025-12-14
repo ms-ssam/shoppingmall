@@ -574,3 +574,107 @@
     background: #fff;
     padding-top: 12px;
 }
+
+/* QNA Accordion */
+.qna-acc {
+    border-top: 1px solid #eee;
+    padding: 14px 0;
+}
+
+.qna-acc:last-child {
+    border-bottom: 1px solid #eee;
+}
+
+.qna-acc-summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.qna-acc-summary::-webkit-details-marker {
+    display: none;
+}
+
+.qna-sum-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.qna-sum-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qna-sum-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.qna-sum-status {
+    font-size: 13px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+}
+
+.qna-sum-status.waiting { color: #666; }
+.qna-sum-status.done { color: #111; border-color: #111; }
+
+.qna-sum-lock i { font-size: 14px; color: #666; }
+
+.qna-sum-arrow {
+    margin-left: auto;
+    color: #666;
+    transition: transform .2s ease;
+}
+
+.qna-acc[open] .qna-sum-arrow {
+    transform: rotate(180deg);
+}
+
+.qna-acc-body {
+    padding: 14px 0 4px;
+}
+
+.qna-block-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qna-content,
+.qna-answer-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #222;
+    white-space: pre-line;
+}
+
+.qna-answer-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed #eee;
+}
+
+.qna-admin {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.qna-acc-summary.no-toggle {
+    cursor: default;
+}
