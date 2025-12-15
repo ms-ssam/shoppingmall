@@ -26,6 +26,6 @@ public class AdminCategoryViewController {
         model.addAttribute("pageTitle", "카테고리 관리");
         model.addAttribute("menu", "category");
 
-        return "admin/category-manage";
+        return "admin/category/category-manage";
     }
 }

@@ -51,7 +51,7 @@ public class AdminProductViewController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("sortType", sortType);
 
-        return "admin/product-manage";
+        return "admin/product/product-manage";
     }
 
 
@@ -65,7 +65,7 @@ public class AdminProductViewController {
         model.addAttribute("pageTitle", "상품 등록");
         model.addAttribute("menu", "product");
 
-        return "admin/product-form";
+        return "admin/product/product-form";
     }
 
 
@@ -81,6 +81,6 @@ public class AdminProductViewController {
         model.addAttribute("pageTitle", "상품 수정");
         model.addAttribute("menu", "product");
 
-        return "admin/product-form";
+        return "admin/product/product-form";
     }
 }

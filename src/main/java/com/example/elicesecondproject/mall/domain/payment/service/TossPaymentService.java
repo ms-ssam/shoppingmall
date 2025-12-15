@@ -9,6 +9,7 @@ import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.PaymentStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.domain.payment.dto.TossConfirmResponse;
 import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
 import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
@@ -64,10 +65,14 @@ public class TossPaymentService {
         }
 
         // 3) 토스 결제 승인 API 호출 (DB 값 사용)
-        confirm(paymentKey, payment.getOrderId(), (long) payment.getAmount());
+        TossConfirmResponse confirmResponse = confirm(paymentKey, payment.getOrderId(), (long) payment.getAmount());
+
+        if(!confirmResponse.getStatus().equals("DONE")) {
+            throw new BusinessException(ErrorCode.PAYMENT_CONFIRM_FAILED);
+        }
 
         // 4) confirm 성공했다면 그 이후부터 paymentkey 값 신뢰라고 저장
-        payment.markAsCompleted(paymentKey);
+        payment.markAsCompleted(confirmResponse.getPaymentKey(), confirmResponse.getMethod(), confirmResponse.getApprovedAt());
 
         // 5) 주문도 결제 성공 처리
         order.markAsPaid();
@@ -96,7 +101,7 @@ public class TossPaymentService {
         return orderMapper.toUserOrderDetailResponse(order);
     }
 
-    public void confirm(String paymentKey, String orderId, Long amount) {
+    public TossConfirmResponse confirm(String paymentKey, String orderId, Long amount) {
         String url = "https://api.tosspayments.com/v1/payments/confirm";
 
         HttpHeaders headers = new HttpHeaders();
@@ -115,12 +120,35 @@ public class TossPaymentService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response =
-                restTemplate.postForEntity(url, entity, String.class);
+        ResponseEntity<TossConfirmResponse> response =
+                restTemplate.postForEntity(url, entity, TossConfirmResponse.class);
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new BusinessException(ErrorCode.PAYMENT_CONFIRM_FAILED);
         }
+
+        return response.getBody();
     }
 
+    public Long handleFail(String orderId, Long memberId) {
+        // 실제로 넘겨받은 주문번호에 해당하고 준비 상태인 사용자의 결제 건이 존재하는지 확인
+        Payment payment = paymentRepository.findByOrderIdAndMemberIdAndPaymentStatus(orderId, memberId, PaymentStatus.READY)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        // 주문 조회
+        Order order = orderRepository.findByOrderId(payment.getOrderId())
+                .orElseThrow(() ->  new BusinessException(ErrorCode.ORDER_NOT_FOUND));
+
+        // 소유주 확인
+        if(!order.getOwnerId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        // 주문, 결제 실패 처리
+        payment.markAsFailed();
+        order.markAsFailed();
+
+        // PK 반환해서 redirect에 사용
+        return order.getId();
+    }
 }
