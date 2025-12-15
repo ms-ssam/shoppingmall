@@ -59,7 +59,6 @@ public class ProductServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // data.sql이 없으므로 여기서 생성하는 카테고리가 ID 1번이 되며 충돌 없이 저장됨
         Category category = Category.builder()
                 .name("INTEGRATION_TEST_CATEGORY")
                 .slug("test-slug-" + UUID.randomUUID())
@@ -164,7 +163,7 @@ public class ProductServiceIntegrationTest {
     // 3. Edge Case
     @Test
     @Transactional
-    @DisplayName("[엣지] 지원하지 않는 파일 확장자(.exe)를 업로드하면 예외가 발생한다.")
+    @DisplayName("[엣지] 지원하지 않는 파일 확장자(예시:.exe)를 업로드하면 예외가 발생한다.")
     void createProductEdgeTest() {
         // given
         CreateProductRequest request = createDefaultRequest();
@@ -182,7 +181,6 @@ public class ProductServiceIntegrationTest {
 
     // 4. Error Handling (롤백 테스트)
     @Test
-    // @Transactional 없음 (실제 서비스의 트랜잭션 롤백 동작 검증을 위해)
     @DisplayName("[에러처리] 파일 저장 중 IO 에러가 발생하면 DB 저장 내용도 롤백되어야 한다.")
     void createProductRollbackTest() throws Exception {
         // given

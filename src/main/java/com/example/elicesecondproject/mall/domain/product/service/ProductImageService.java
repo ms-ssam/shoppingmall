@@ -31,6 +31,7 @@ public class ProductImageService {
         List<String> uploadedPaths = new ArrayList<>();
 
         try {
+//            if (true) throw new RuntimeException("강제 롤백 테스트");
             // 1. MAIN 이미지 처리
             if (main != null && !main.isEmpty()) {
                 String url = fileService.saveImage(product.getId(), main, FileService.UploadTarget.MAIN);
