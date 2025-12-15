@@ -2,6 +2,7 @@ package com.example.elicesecondproject.mall.domain.payment.service;
 
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
+import com.example.elicesecondproject.mall.domain.order.entity.PaymentStatus;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
 import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
 import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
@@ -19,7 +20,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public Payment createReadyPayment(String orderId, Long memberId, int amount) {
+    public Payment getOrCreateReadyPayment(String orderId, Long memberId, int amount) {
         Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -27,6 +28,7 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.ORDER_PAYMENT_CONFLICT);
         }
 
-        return paymentRepository.save(Payment.createReadyPayment(orderId, memberId, amount));
+        return paymentRepository.findByOrderIdAndMemberIdAndPaymentStatus(orderId, memberId, PaymentStatus.READY)
+                .orElseGet(() -> paymentRepository.save(Payment.createReadyPayment(orderId, memberId, amount)));
     }
 }
