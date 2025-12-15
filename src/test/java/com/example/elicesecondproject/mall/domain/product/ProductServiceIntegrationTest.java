@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
+import org.springframework.test.context.TestPropertySource; // 추가됨
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileSystemUtils;
 
@@ -42,6 +43,8 @@ import static org.springframework.test.context.TestConstructor.AutowireMode.ALL;
 @ActiveProfiles("local")
 @TestConstructor(autowireMode = ALL)
 @RequiredArgsConstructor
+// 👇 [핵심] data.sql 실행을 막아서 ID 충돌 방지 (깨끗한 DB에서 시작)
+@TestPropertySource(properties = "spring.sql.init.mode=never")
 public class ProductServiceIntegrationTest {
 
     private final ProductService productService;
@@ -56,20 +59,19 @@ public class ProductServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // [수정] Category 엔티티 수정에 맞춰 path와 depth를 명시적으로 설정
+        // data.sql이 없으므로 여기서 생성하는 카테고리가 ID 1번이 되며 충돌 없이 저장됨
         Category category = Category.builder()
                 .name("INTEGRATION_TEST_CATEGORY")
                 .slug("test-slug-" + UUID.randomUUID())
                 .displayOrder(999)
                 .isVisible(true)
-                .path("/")   // [필수] H2 DB Not Null 제약조건 준수
-                .depth(0)    // [필수] H2 DB Not Null 제약조건 준수
+                .path("/")
+                .depth(0)
                 .build();
 
-        // 1. 카테고리 저장
         Category savedCategory = categoryRepository.save(category);
 
-        // 2. 경로 완성 (필요 시) - path가 이미 "/"로 설정되어 있어 필수는 아님
+        // 경로 완성 (선택)
         savedCategory.completePath();
         categoryRepository.save(savedCategory);
 
@@ -184,7 +186,6 @@ public class ProductServiceIntegrationTest {
     @DisplayName("[에러처리] 파일 저장 중 IO 에러가 발생하면 DB 저장 내용도 롤백되어야 한다.")
     void createProductRollbackTest() throws Exception {
         // given
-        // 데이터 충돌 방지를 위해 고유 이름 사용
         String uniqueName = "ROLLBACK_CHECK_" + UUID.randomUUID();
 
         CreateProductRequest request = CreateProductRequest.builder()
@@ -207,7 +208,6 @@ public class ProductServiceIntegrationTest {
                 .isInstanceOf(BusinessException.class);
 
         // then
-        // 롤백 확인: DB에 해당 상품이 존재하면 안 됨
         boolean exists = productRepository.findAll().stream()
                 .anyMatch(p -> p.getName().equals(uniqueName));
         assertThat(exists).isFalse();
