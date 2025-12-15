@@ -37,4 +37,9 @@ public interface QuestionRepository extends JpaRepository<Question,Long>, Questi
         order by q.createdAt desc
     """)
     Page<Question> findByProductId(@Param("productId") Long productId, Pageable pageable);
+
+
+    // 가장 최근 문의한 건
+    Optional<Question> findTopByMemberIdAndProductIdOrderByIdDesc(Long memberId, Long productId);
+
 }
