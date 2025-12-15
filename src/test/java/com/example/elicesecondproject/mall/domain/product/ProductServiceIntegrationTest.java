@@ -56,6 +56,8 @@ public class ProductServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // [수정됨] Category 엔티티의 생성자 Builder 패턴에 맞춤
+        // path, depth, children은 생성자 내부에서 자동 초기화되므로 빌더에서 제외
         Category category = Category.builder()
                 .name("INTEGRATION_TEST_CATEGORY")
                 .slug("test-slug-" + UUID.randomUUID())
@@ -63,12 +65,19 @@ public class ProductServiceIntegrationTest {
                 .isVisible(true)
                 .build();
 
+        // 1. 카테고리 저장 (ID 생성 및 path="/" 초기화됨)
         Category savedCategory = categoryRepository.save(category);
+
+        // 2. 경로 완성 로직 수행 (선택사항: 비즈니스 로직상 필요하다면)
+        savedCategory.completePath();
+        categoryRepository.save(savedCategory); // 변경사항(path) 업데이트
+
         this.savedCategoryId = savedCategory.getId();
     }
 
     @AfterEach
     void tearDown() {
+        // 1. 파일 정리
         Path productsPath = Paths.get(fileConfig.getBasePath(), fileConfig.getProductPath());
         if (Files.exists(productsPath)) {
             try {
@@ -77,8 +86,17 @@ public class ProductServiceIntegrationTest {
                 System.out.println("테스트 파일 삭제 실패: " + e.getMessage());
             }
         }
+
+        // 2. 데이터 정리 (외래키 제약조건 준수: 자식 -> 부모 순서 삭제)
+        try {
+            productRepository.deleteAll();  // 자식 삭제
+            categoryRepository.deleteAll(); // 부모 삭제
+        } catch (Exception e) {
+            System.out.println("데이터 정리 중 오류 발생 (무시 가능): " + e.getMessage());
+        }
     }
 
+    // 1. 성공 케이스
     @Test
     @Transactional
     @DisplayName("[성공] 정상적인 상품 정보와 이미지를 입력하면 등록에 성공한다.")
@@ -98,6 +116,7 @@ public class ProductServiceIntegrationTest {
         assertThat(Files.exists(filePath)).isTrue();
     }
 
+    // 2. Boundary Test
     @Test
     @Transactional
     @DisplayName("[경계값] 할인율이 0보다 작거나 100보다 크면 예외가 발생한다.")
@@ -139,6 +158,7 @@ public class ProductServiceIntegrationTest {
                 });
     }
 
+    // 3. Edge Case
     @Test
     @Transactional
     @DisplayName("[엣지] 지원하지 않는 파일 확장자(.exe)를 업로드하면 예외가 발생한다.")
@@ -157,10 +177,13 @@ public class ProductServiceIntegrationTest {
                 });
     }
 
+    // 4. Error Handling (롤백 테스트)
     @Test
+    // @Transactional 없음 (실제 서비스의 트랜잭션 롤백 동작 검증을 위해)
     @DisplayName("[에러처리] 파일 저장 중 IO 에러가 발생하면 DB 저장 내용도 롤백되어야 한다.")
     void createProductRollbackTest() throws Exception {
         // given
+        // 데이터 충돌 방지를 위해 고유 이름 사용
         String uniqueName = "ROLLBACK_CHECK_" + UUID.randomUUID();
 
         CreateProductRequest request = CreateProductRequest.builder()
@@ -174,6 +197,7 @@ public class ProductServiceIntegrationTest {
 
         MockMultipartFile image = createMockImage("main.jpg", "image/jpeg");
 
+        // Spy를 통해 강제 에러 주입
         doThrow(new IOException("디스크 에러 시뮬레이션"))
                 .when(fileService).saveImage(any(), any(), any());
 
@@ -182,11 +206,13 @@ public class ProductServiceIntegrationTest {
                 .isInstanceOf(BusinessException.class);
 
         // then
+        // 롤백 확인: DB에 해당 상품이 존재하면 안 됨
         boolean exists = productRepository.findAll().stream()
                 .anyMatch(p -> p.getName().equals(uniqueName));
         assertThat(exists).isFalse();
     }
 
+    // --- Helper Methods ---
     private CreateProductRequest createDefaultRequest() {
         return CreateProductRequest.builder()
                 .name("테스트 상품")
