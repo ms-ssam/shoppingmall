@@ -9,7 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,8 +34,9 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    private LocalDateTime approvedAt;
-    // TODO: 결제 수단, 등의 정보 저장하고 싶다면 어떻게? confirm() 메서드 return 값이 있나? Toss의 Payment 객체? 그럼 그 안에 해당 정보 존재?
+    private OffsetDateTime approvedAt;  // OffsetDateTime
+
+    private String method;
 
     public static Payment createReadyPayment(String orderId, Long memberId, int amount) {
         Payment payment = new Payment();
@@ -47,10 +48,11 @@ public class Payment extends BaseEntity {
         return payment;
     }
 
-    public void markAsCompleted(String paymentKey) {
+    public void markAsCompleted(String paymentKey, String method, String approvedAt) {
         this.paymentKey = paymentKey;
+        this.method = method;
+        this.approvedAt = OffsetDateTime.parse(approvedAt);
         changePaymentStatus(PaymentStatus.COMPLETED);
-        approvedAt = LocalDateTime.now();
     }
 
     public void markAsFailed() {
