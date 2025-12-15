@@ -30,7 +30,7 @@ public class PaymentPageController {
 
         UserOrderInfoResponse order = orderService.getOrderForMember(orderId, memberId);
 
-        Payment payment = paymentService.createReadyPayment(order.getOrderId(), memberId, order.getTotalPaymentFee());
+        Payment payment = paymentService.getOrCreateReadyPayment(order.getOrderId(), memberId, order.getTotalPaymentFee());
 
         model.addAttribute("order", order);
         model.addAttribute("clientKey", widgetClientKey);
