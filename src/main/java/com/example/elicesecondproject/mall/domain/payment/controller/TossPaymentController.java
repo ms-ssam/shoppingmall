@@ -23,14 +23,22 @@ public class TossPaymentController {
                           @RequestParam String orderId,  // 토스가 넘겨주는 orderId가 orderCode임
                           @RequestParam Long amount,
                           @AuthenticationPrincipal MemberDetail memberDetail,
-                          Model model) {
+                          Model model, RedirectAttributes redirectAttributes) {
         Long memberId = memberDetail.getMember().getId();
 
-        UserOrderDetailResponse order = tossPaymentService.handleSuccess(paymentKey, orderId, amount, memberId);
+        try {
+            UserOrderDetailResponse order = tossPaymentService.handleSuccess(paymentKey, orderId, amount, memberId);
 
-        model.addAttribute("order", order);
+            model.addAttribute("order", order);
 
-        return "order/order-complete";
+            return "order/order-complete";
+        } catch(Exception e) {  // FIXME: Exception으로 잡는 건 좋지 않음
+            Long orderPk = tossPaymentService.handleFail(orderId, memberId);
+
+            redirectAttributes.addFlashAttribute("errorMessage", "결제 처리 중 오류가 발생했습니다.");
+
+            return "redirect:/orders/" + orderPk + "/sheet";
+        }
     }
 
     @GetMapping("/fail")

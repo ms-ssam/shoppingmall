@@ -76,6 +76,7 @@ public enum ErrorCode {
     CART_ITEM_PRODUCT_MISMATCH(HttpStatus.CONFLICT, "CI002", "해당 상품의 옵션이 아닙니다."),
     REVIEW_ALREADY_WRITTEN(HttpStatus.CONFLICT, "RV004", "이미 해당 상품에 대한 리뷰를 작성하셨습니다."),
     ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "QT002", "이미 답변이 등록된 문의입니다."),
+    ORDER_PAYMENT_CONFLICT(HttpStatus.CONFLICT, "OD007", "현재 주문 상태에서는 결제를 진행할 수 없습니다."),
 
 
     // 500 Internal Server Error

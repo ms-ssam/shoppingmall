@@ -1,10 +1,10 @@
 package com.example.elicesecondproject.mall.domain.payment.controller;
 
-import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.order.dto.response.UserOrderInfoResponse;
 import com.example.elicesecondproject.mall.domain.order.service.OrderService;
 import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
 import com.example.elicesecondproject.mall.domain.payment.service.PaymentService;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
