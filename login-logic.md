@@ -75,7 +75,7 @@ sequenceDiagram
         FE -->> U: 정상 응답 표시
     end
 ```
-### [refreshToken 재발급]
+### [accessToken 재발급]
 ```mermaid
 sequenceDiagram
     autonumber
