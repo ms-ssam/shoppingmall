@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ELICE MALL</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <!-- 상품 리스트(카드) 공통 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/product/user/list.css}">
+    <!-- 메인 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+
+<!-- 상단바 플래그먼트 -->
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
+<!-- 메인 컨텐츠 -->
+<main class="main-container">
+    <!-- 히어로 영역 -->
+    <section class="hero">
+        <div class="hero-left">
+            <div class="hero-badge">NEW SEASON</div>
+            <div class="hero-title">당신의 코디를 완성하는 쇼핑몰</div>
+            <div class="hero-sub">
+                오늘 입고 싶은 스타일을 검색해 보고,<br>
+                나만의 옷장을 채워보세요.
+            </div>
+            <a th:href="@{/products}" class="hero-btn">SHOP 바로가기</a>
+        </div>
+        <div class="hero-right">
+            <img src="/images/main-hero-banner.jpg"
+                 alt="메인 배너 이미지"
+                 class="hero-image">
+        </div>
+    </section>
+
+
+    <!-- 신규 상품 영역 -->
+    <section>
+        <div class="section-title">New Arrivals</div>
+
+        <div class="grid">
+            <div th:if="${products.isEmpty()}" class="no-data">
+                등록된 상품이 없습니다.
+            </div>
+
+            <div class="card" th:each="product : ${products.content}">
+
+                <div class="img-box"
+                     th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">
+                    <img th:src="${product.mainImageUrl} ?: '/images/default.jpg'"
+                         alt="Product Image">
+                </div>
+
+                <div class="title" th:text="${product.name}"
+                     th:onclick="|location.href='@{/products/{id}(id=${product.id})}'|">상품명</div>
+
+                <div class="price-row">
+                <span class="discount-rate"
+                      th:if="${product.discountRate > 0}"
+                      th:text="${product.discountRate} + '%'">10%</span>
+
+                    <span class="sale"
+                          th:text="${#numbers.formatInteger(product.salePrice, 0, 'COMMA')} + '원'">28,000원</span>
+
+                    <span class="origin"
+                          th:if="${product.discountRate > 0}"
+                          th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')} + '원'">35,000원</span>
+                </div>
+
+            </div>
+        </div>
+
+    </section>
+</main>
+</body>
+</html>
