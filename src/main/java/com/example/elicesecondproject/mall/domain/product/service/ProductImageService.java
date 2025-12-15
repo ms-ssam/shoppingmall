@@ -6,29 +6,35 @@ import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.domain.product.entity.ProductImage;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
-import com.example.elicesecondproject.mall.global.service.ProductImageFileService;
+import com.example.elicesecondproject.mall.global.service.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional // 부모 트랜잭션에 참여
 public class ProductImageService {
 
-    private final ProductImageFileService productImageFileService;
+    private final FileService fileService;
 
     public void uploadAndSaveImages(Product product, MultipartFile main, List<MultipartFile> sliders, List<MultipartFile> descs) {
+        // 업로드 성공한 파일 경로들을 추적하기 위한 리스트 (롤백 시 삭제용)
+        List<String> uploadedPaths = new ArrayList<>();
+
         try {
             // 1. MAIN 이미지 처리
             if (main != null && !main.isEmpty()) {
-                String url = productImageFileService.saveImage(product.getId(), main, ProductImageFileService.UploadTarget.MAIN);
+                String url = fileService.saveImage(product.getId(), main, FileService.UploadTarget.MAIN);
+                uploadedPaths.add(url); // 성공 시 리스트에 추가
 
                 product.addImage(ProductImage.builder()
                         .imageUrl(url)
@@ -43,7 +49,9 @@ public class ProductImageService {
             // 2. SLIDER 이미지 처리
             if (sliders != null && !sliders.isEmpty()) {
                 for (int i = 0; i < sliders.size(); i++) {
-                    String url = productImageFileService.saveImage(product.getId(), sliders.get(i), ProductImageFileService.UploadTarget.SLIDER);
+                    String url = fileService.saveImage(product.getId(), sliders.get(i), FileService.UploadTarget.SLIDER);
+                    uploadedPaths.add(url); // 성공 시 리스트에 추가
+
                     product.addImage(ProductImage.builder()
                             .imageUrl(url)
                             .imageType(ImageType.SLIDER)
@@ -55,7 +63,9 @@ public class ProductImageService {
             // 3. DESCRIPTION 이미지 처리
             if (descs != null && !descs.isEmpty()) {
                 for (int i = 0; i < descs.size(); i++) {
-                    String url = productImageFileService.saveImage(product.getId(), descs.get(i), ProductImageFileService.UploadTarget.DESCRIPTION);
+                    String url = fileService.saveImage(product.getId(), descs.get(i), FileService.UploadTarget.DESCRIPTION);
+                    uploadedPaths.add(url); // 성공 시 리스트에 추가
+
                     product.addImage(ProductImage.builder()
                             .imageUrl(url)
                             .imageType(ImageType.DESCRIPTION)
@@ -63,13 +73,30 @@ public class ProductImageService {
                             .build());
                 }
             }
-        } catch (IOException e) {
-            // 체크 예외를 런타임 예외로 감싸서 서비스 계층 밖으로 던짐 (트랜잭션 롤백 유도)
+        } catch (IllegalArgumentException e) {
+            // [수정] 파일 확장자 오류 등(400 Bad Request)은 500 에러로 변환하지 않고 그대로 던짐
+            // 단, 이미 업로드된 파일이 있다면 지워야 함 (보상 트랜잭션)
+            if (!uploadedPaths.isEmpty()) {
+                log.warn("[ProductImageService] 잘못된 요청으로 인한 파일 삭제: {}", uploadedPaths.size());
+                fileService.deleteImages(uploadedPaths);
+            }
+            throw e;
+
+        } catch (Exception e) {
+            // 그 외 시스템 오류(IO 등)는 500 에러로 변환 및 파일 삭제
+            if (!uploadedPaths.isEmpty()) {
+                log.error("[ProductImageService] 이미지 저장 중 오류 발생. 업로드된 파일 {}개를 삭제합니다.", uploadedPaths.size());
+                fileService.deleteImages(uploadedPaths);
+            }
+
+            // 비즈니스 예외라면 그대로 던지고, 아니라면 INTERNAL_SERVER_ERROR로 변환
+            if (e instanceof BusinessException) {
+                throw (BusinessException) e;
+            }
+            log.error("[ProductImageService] 시스템 오류: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     public void updateImages(Product product, List<ProductImageDto> requestImages) {
         List<String> currentUrls = product.getImages().stream().map(ProductImage::getImageUrl).toList();
@@ -82,7 +109,7 @@ public class ProductImageService {
                 .toList();
 
         if (!deleteTargets.isEmpty()) {
-            productImageFileService.deleteImages(deleteTargets);
+            fileService.deleteImages(deleteTargets);
         }
 
         if (requestImages == null || requestImages.isEmpty()) {
