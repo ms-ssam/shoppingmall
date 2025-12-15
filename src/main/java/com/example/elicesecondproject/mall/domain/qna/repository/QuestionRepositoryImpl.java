@@ -29,41 +29,48 @@ public class QuestionRepositoryImpl implements QuestionRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Question> findAllWithDetails(
-            QuestionSearchCondition condition,
-            Pageable pageable
-    ) {
+    public Page<Question> findAllWithDetails(QuestionSearchCondition condition, Pageable pageable) {
 
-        BooleanExpression whereCondition = question.deletedAt.isNull()
-                .and(productNameContains(condition.getProductName()))
-                .and(answeredEq(condition.getAnswered()));
-
-        // 1️⃣ content 조회
         List<Question> content = queryFactory
                 .selectFrom(question)
                 .leftJoin(question.member, member).fetchJoin()
                 .leftJoin(question.product, product).fetchJoin()
                 .leftJoin(question.answer, answer).fetchJoin()
-                .where(whereCondition)
+                .where(
+                        deletedEq(condition.getDeleted()),
+                        productNameContains(condition.getProductName()),
+                        answeredEq(condition.getAnswered())
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifier(pageable))
                 .fetch();
 
-        // 2️⃣ count 조회
         JPAQuery<Long> countQuery = queryFactory
                 .select(question.count())
                 .from(question)
                 .leftJoin(question.product, product)
                 .leftJoin(question.answer, answer)
-                .where(whereCondition);
+                .where(
+                        deletedEq(condition.getDeleted()),
+                        productNameContains(condition.getProductName()),
+                        answeredEq(condition.getAnswered())
+                );
 
-        return PageableExecutionUtils.getPage(
-                content,
-                pageable,
-                countQuery::fetchOne
-        );
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
+
+    /**
+     * deleted == null  -> 전체
+     * deleted == false -> 삭제 안 됨
+     * deleted == true  -> 삭제 됨
+     */
+    private BooleanExpression deletedEq(Boolean deleted) {
+        if (deleted == null) return null; // 전체
+        return deleted ? question.deletedAt.isNotNull()
+                : question.deletedAt.isNull();
+    }
+
 
     /**
      * 상품명 키워드 검색 (부분 일치)

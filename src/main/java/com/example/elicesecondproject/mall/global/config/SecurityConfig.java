@@ -116,6 +116,7 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/error", "/error/**").permitAll()
                         .requestMatchers("/login", "/signup", "/").permitAll()
+                        .requestMatchers("/products/*/question").authenticated()
                         .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/products/*/cart").authenticated()
                         .requestMatchers("/api/admin/**", "/admin/**").hasRole("ADMIN")

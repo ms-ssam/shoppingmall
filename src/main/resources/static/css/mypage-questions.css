@@ -90,10 +90,28 @@
     opacity: 0.75;
 }
 
-.qna-card-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+.qna-card-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.qna-delete-form{
+    margin:0;
+}
+
+.qna-delete-btn{
+    padding:6px 10px;
+    border:1px solid #ff4d4f;
+    color:#ff4d4f;
+    background:#fff;
+    border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.qna-delete-btn:hover{
+    background:#fff1f0;
 }
 
 /* =========================
