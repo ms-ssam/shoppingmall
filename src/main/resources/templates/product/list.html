@@ -109,77 +109,13 @@
     /*<![CDATA[*/
     const currentCategoryId = /*[[${categoryId}]]*/ null;
     /*]]>*/
-
-    // 정렬 변경 함수
-    function changeSort() {
-        const sortType = document.getElementById('sortSelect').value;
-        let url = '/products?sortType=' + sortType;
-
-        // 현재 카테고리가 있다면 URL에 포함 (필터 유지)
-        if (currentCategoryId) {
-            url += '&categoryId=' + currentCategoryId;
-        }
-        location.href = url;
-    }
-
-    // 찜 토글 함수
-    function toggleWish(event, productId) {
-        event.stopPropagation(); // 카드 클릭 이동 방지
-
-        const iconBox = event.currentTarget;
-        const icon = iconBox.querySelector('i');
-        const isActive = iconBox.classList.contains('active');
-
-        const csrfToken = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
-        const csrfHeader = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
-
-        const method = isActive ? 'DELETE' : 'POST';
-        const url = isActive ? `/api/products/${productId}/wish` : `/api/products/${productId}/wishList`;
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (csrfHeader && csrfToken) {
-            headers[csrfHeader] = csrfToken;
-        }
-
-        fetch(url, { method: method, headers: headers })
-            .then(response => {
-                if (response.ok) {
-                    iconBox.classList.toggle('active');
-                    if (isActive) {
-                        icon.className = 'bi bi-heart';
-                    } else {
-                        icon.className = 'bi bi-heart-fill';
-                    }
-                } else if (response.status === 401) {
-                    if(confirm('로그인이 필요한 서비스입니다. 로그인 하시겠습니까?')) {
-                        location.href = '/login';
-                    }
-                } else {
-                    alert('오류가 발생했습니다.');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-    // 이미지 처리
-    function setupImageErrorHandling() {
-        document.querySelectorAll('img').forEach(img => {
-            if (!img.dataset.errorBound) {
-                img.dataset.errorBound = 'true';
-                img.addEventListener('error', handleImageError);
-            }
-        });
-    }
-
-    function handleImageError(event) {
-        const img = event.target;
-        if (!img.dataset.errorHandled) {
-            img.dataset.errorHandled = 'true';
-            img.src = '/images/default.jpg';
-            img.alt = '이미지를 불러올 수 없습니다';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', setupImageErrorHandling);
+    <script th:src="@{/js/product-list.js}"></script>
+<script>
+    // select 태그의 onchange 이벤트 수정 필요
+    document.getElementById('sortSelect')?.addEventListener('change', function() {
+        changeSort(currentCategoryId);
+    });
+</script>
 </script>
 
 </body>
