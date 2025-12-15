@@ -56,16 +56,20 @@ public class ProductServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // [수정] Category 엔티티 수정에 맞춰 path와 depth를 명시적으로 설정
         Category category = Category.builder()
                 .name("INTEGRATION_TEST_CATEGORY")
                 .slug("test-slug-" + UUID.randomUUID())
                 .displayOrder(999)
                 .isVisible(true)
+                .path("/")   // [필수] H2 DB Not Null 제약조건 준수
+                .depth(0)    // [필수] H2 DB Not Null 제약조건 준수
                 .build();
 
+        // 1. 카테고리 저장
         Category savedCategory = categoryRepository.save(category);
 
-        // 2. 경로 완성 (필요 시)
+        // 2. 경로 완성 (필요 시) - path가 이미 "/"로 설정되어 있어 필수는 아님
         savedCategory.completePath();
         categoryRepository.save(savedCategory);
 
@@ -180,6 +184,7 @@ public class ProductServiceIntegrationTest {
     @DisplayName("[에러처리] 파일 저장 중 IO 에러가 발생하면 DB 저장 내용도 롤백되어야 한다.")
     void createProductRollbackTest() throws Exception {
         // given
+        // 데이터 충돌 방지를 위해 고유 이름 사용
         String uniqueName = "ROLLBACK_CHECK_" + UUID.randomUUID();
 
         CreateProductRequest request = CreateProductRequest.builder()
@@ -202,6 +207,7 @@ public class ProductServiceIntegrationTest {
                 .isInstanceOf(BusinessException.class);
 
         // then
+        // 롤백 확인: DB에 해당 상품이 존재하면 안 됨
         boolean exists = productRepository.findAll().stream()
                 .anyMatch(p -> p.getName().equals(uniqueName));
         assertThat(exists).isFalse();
