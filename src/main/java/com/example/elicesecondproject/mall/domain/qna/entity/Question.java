@@ -91,15 +91,3 @@ public class Question extends SoftDeletableBaseEntity implements Ownable {
         return member.getId();
     }
 }
-/*
-관리 페이지
-관리자가 답변 질문에 답변을 하는 식
-조회
-질문 id/ 질문한 사람이랑, id/ 제목 / 상품 이름이랑 옵션, id / 등록일 / 숨김 여부 / 추가하면 답변여부? boolen?
-- 상태 넣으면 상태 변경도 일괄, 단건 있나? -> 추후로 빼고
-
-등록
-- 사용자 등록 -Q
-
-- 관리자 등록 -A
-*/
