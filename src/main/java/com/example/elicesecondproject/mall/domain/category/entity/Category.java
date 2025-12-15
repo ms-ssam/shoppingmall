@@ -72,7 +72,6 @@ public class Category extends SoftDeletableBaseEntity {
     }
 
 
-    // 서비스 대신 엔티티가 스스로 수정 (객체지향적 설계)
     public void updateDetails(String name, String slug, Boolean isVisible, Integer displayOrder) {
         if (name != null && !name.isBlank()) { this.name = name; }
         if (slug != null && !slug.isBlank()) { this.slug = slug; }

@@ -56,8 +56,6 @@ public class ProductServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // [수정됨] Category 엔티티의 생성자 Builder 패턴에 맞춤
-        // path, depth, children은 생성자 내부에서 자동 초기화되므로 빌더에서 제외
         Category category = Category.builder()
                 .name("INTEGRATION_TEST_CATEGORY")
                 .slug("test-slug-" + UUID.randomUUID())
@@ -65,12 +63,11 @@ public class ProductServiceIntegrationTest {
                 .isVisible(true)
                 .build();
 
-        // 1. 카테고리 저장 (ID 생성 및 path="/" 초기화됨)
         Category savedCategory = categoryRepository.save(category);
 
-        // 2. 경로 완성 로직 수행 (선택사항: 비즈니스 로직상 필요하다면)
+        // 2. 경로 완성 (필요 시)
         savedCategory.completePath();
-        categoryRepository.save(savedCategory); // 변경사항(path) 업데이트
+        categoryRepository.save(savedCategory);
 
         this.savedCategoryId = savedCategory.getId();
     }
@@ -87,10 +84,10 @@ public class ProductServiceIntegrationTest {
             }
         }
 
-        // 2. 데이터 정리 (외래키 제약조건 준수: 자식 -> 부모 순서 삭제)
+        // 2. 데이터 정리
         try {
-            productRepository.deleteAll();  // 자식 삭제
-            categoryRepository.deleteAll(); // 부모 삭제
+            productRepository.deleteAll();
+            categoryRepository.deleteAll();
         } catch (Exception e) {
             System.out.println("데이터 정리 중 오류 발생 (무시 가능): " + e.getMessage());
         }
@@ -183,7 +180,6 @@ public class ProductServiceIntegrationTest {
     @DisplayName("[에러처리] 파일 저장 중 IO 에러가 발생하면 DB 저장 내용도 롤백되어야 한다.")
     void createProductRollbackTest() throws Exception {
         // given
-        // 데이터 충돌 방지를 위해 고유 이름 사용
         String uniqueName = "ROLLBACK_CHECK_" + UUID.randomUUID();
 
         CreateProductRequest request = CreateProductRequest.builder()
@@ -206,7 +202,6 @@ public class ProductServiceIntegrationTest {
                 .isInstanceOf(BusinessException.class);
 
         // then
-        // 롤백 확인: DB에 해당 상품이 존재하면 안 됨
         boolean exists = productRepository.findAll().stream()
                 .anyMatch(p -> p.getName().equals(uniqueName));
         assertThat(exists).isFalse();
