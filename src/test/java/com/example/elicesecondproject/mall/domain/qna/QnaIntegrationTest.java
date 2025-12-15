@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestConstructor;
+import org.springframework.test.context.TestPropertySource; // [필수] 추가
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -28,20 +29,22 @@ import static org.springframework.test.context.TestConstructor.AutowireMode.ALL;
 @SpringBootTest
 @TestConstructor(autowireMode = ALL)
 @RequiredArgsConstructor
-@Transactional // [추가] 테스트 종료 후 데이터 롤백을 위해 추가
+@Transactional
+// 👇 [핵심 해결책] data.sql 자동 실행 방지 (깨끗한 DB에서 시작)
+@TestPropertySource(properties = "spring.sql.init.mode=never")
 public class QnaIntegrationTest {
 
     private final QuestionService questionService;
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository; // [추가] 카테고리 저장을 위해 필요
+    private final CategoryRepository categoryRepository;
 
     private Long testMemberId;
     private Long testProductId;
 
     @BeforeEach
-    void setUp() {
+    void setUp(){
         // 1. 회원 저장
         Member testMember = Member.builder()
                 .email("test@example.com")
@@ -53,6 +56,7 @@ public class QnaIntegrationTest {
                 .build();
         testMemberId = memberRepository.save(testMember).getId();
 
+        // 2. 카테고리 저장 (H2 제약조건 준수: path, depth 포함)
         Category category = Category.builder()
                 .name("QnA 테스트 카테고리")
                 .slug("qna-test-slug-" + UUID.randomUUID())
@@ -63,13 +67,13 @@ public class QnaIntegrationTest {
                 .build();
         Category savedCategory = categoryRepository.save(category);
 
-        // 3. [수정] 상품 생성 시 저장된 카테고리 주입
+        // 3. 상품 저장 (카테고리 주입)
         Product testProduct = new Product(
                 "테스트 상품",
                 10000,
                 10,
                 "테스트 상품 설명",
-                savedCategory,
+                savedCategory, // 생성된 카테고리 주입
                 ProductStatus.SELLING
         );
         testProductId = productRepository.save(testProduct).getId();
@@ -77,7 +81,7 @@ public class QnaIntegrationTest {
 
     @Test
     @DisplayName("[성공]: 정상적인 문의 생성")
-    void CreateQuestionSuccessTest() {
+    void CreateQuestionSuccessTest(){
         //given
         QnaCreateRequest request = new QnaCreateRequest();
         request.setTitle("상품 문의 드립니다");
