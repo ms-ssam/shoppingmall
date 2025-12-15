@@ -63,14 +63,6 @@ public class FileConfig {
     }
 
     /**
-     * resized 하위 디렉터리
-     * 예: .../main/resized
-     */
-    public Path getResizedDir(Path base) {
-        return base.resolve("resized");
-    }
-
-    /**
      * thumbnail 하위 디렉터리
      * 예: .../main/thumbnail
      */
