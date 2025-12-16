@@ -48,44 +48,42 @@ VALUES (
 -- 1. CATEGORY 초기 데이터
 -- ========================================
 INSERT INTO category (
-    id, parent_id, name, slug, path, depth,
-    display_order, is_visible, created_at, updated_at
+    id, parent_id, name, slug, depth, display_order, is_visible, created_at, updated_at
 ) VALUES
--- 대분류
-(1, NULL, '상의', 'tops', '/', 0, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, NULL, '하의', 'bottoms', '/', 0, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, NULL, '아우터', 'outer', '/', 0, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(4, NULL, '기타', 'etc', '/', 0, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- 대분류 (depth: 0)
+(1, NULL, '상의', 'tops', 0, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, NULL, '하의', 'bottoms', 0, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, NULL, '아우터', 'outer', 0, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, NULL, '기타', 'etc', 0, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
--- 소분류 - 상의
-(5, 1, '민소매', 'sleeveless', '/1/', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(6, 1, '반팔', 'short-sleeve', '/1/', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(7, 1, '긴팔', 'long-sleeve', '/1/', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(8, 1, '맨투맨', 'mtm', '/1/', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(9, 1, '후드티', 'hoodie', '/1/', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(10, 1, '셔츠', 'shirt', '/1/', 1, 6, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(11, 1, '니트', 'knit', '/1/', 1, 7, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- 소분류 - 상의 (depth: 1, parent_id: 1)
+(5, 1, '민소매', 'sleeveless', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(6, 1, '반팔', 'short-sleeve', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(7, 1, '긴팔', 'long-sleeve', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(8, 1, '맨투맨', 'mtm', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(9, 1, '후드티', 'hoodie', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(10, 1, '셔츠', 'shirt', 1, 6, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(11, 1, '니트', 'knit', 1, 7, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
--- 소분류 - 하의
-(12, 2, '청바지', 'jeans', '/2/', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(13, 2, '면바지', 'cotton-pants', '/2/', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(14, 2, '반바지', 'shorts', '/2/', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(15, 2, '조거/트레이닝', 'jogger', '/2/', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- 소분류 - 하의 (depth: 1, parent_id: 2)
+(12, 2, '청바지', 'jeans', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(13, 2, '면바지', 'cotton-pants', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(14, 2, '반바지', 'shorts', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(15, 2, '조거/트레이닝', 'jogger', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
--- 소분류 - 아우터
-(16, 3, '자켓', 'jacket', '/3/', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(17, 3, '코트', 'coat', '/3/', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(18, 3, '패딩', 'padded', '/3/', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(19, 3, '후드집업', 'hood-zipup', '/3/', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(20, 3, '가디건', 'cardigan', '/3/', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- 소분류 - 아우터 (depth: 1, parent_id: 3)
+(16, 3, '자켓', 'jacket', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(17, 3, '코트', 'coat', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(18, 3, '패딩', 'padded', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(19, 3, '후드집업', 'hood-zipup', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(20, 3, '가디건', 'cardigan', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
--- 소분류 - 기타
-(21, 4, '모자', 'hat', '/4/', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(22, 4, '벨트', 'belt', '/4/', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(23, 4, '아이웨어', 'eyewear', '/4/', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(24, 4, '양말', 'socks', '/4/', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(25, 4, '장갑', 'gloves', '/4/', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
+-- 소분류 - 기타 (depth: 1, parent_id: 4)
+(21, 4, '모자', 'hat', 1, 1, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(22, 4, '벨트', 'belt', 1, 2, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(23, 4, '아이웨어', 'eyewear', 1, 3, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(24, 4, '양말', 'socks', 1, 4, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(25, 4, '장갑', 'gloves', 1, 5, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ========================================
 -- 2. PRODUCT 초기 데이터 (total_stock 추가)
