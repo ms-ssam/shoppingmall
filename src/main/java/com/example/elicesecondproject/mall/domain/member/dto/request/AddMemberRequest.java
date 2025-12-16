@@ -29,18 +29,19 @@ public class AddMemberRequest {
     private String password;
 
     @NotBlank(message = "비밀번호를 한번 더 입력해주세요.")
-    private String confirmPassword;
+    private String passwordConfirm;
 
     @NotBlank(message = "이름을 입력해주세요.")
-    @Pattern(regexp = "^[a-zA-Z가-힣]+$",
-            message = "이름은 한글 또는 영문만 입력할 수 있습니다.")
+    @Pattern(regexp = "^[a-zA-Z가-힣]{2,}$",
+            message = "이름은 한글 또는 영문 2글자 이상이어야 합니다.")
     private String name;
 
     @NotBlank(message = "닉네임을 입력해주세요.")
+    @Size(min=2, max=20, message = "닉네임은 2~20자여야 합니다.")
     private String nickname;
 
     @NotBlank(message = "전화번호를 입력해주세요.")
-    @Pattern(regexp = "^[0-9]{10,11}$",
-            message = "전화번호는 숫자만 입력하며 10~11자리여야 합니다.")
+    @Pattern(regexp = "^010[0-9]{8}$",
+            message = "전화번호는 010으로 시작하며 숫자만 입력한 11자리여야 합니다.")
     private String phone;
 }
