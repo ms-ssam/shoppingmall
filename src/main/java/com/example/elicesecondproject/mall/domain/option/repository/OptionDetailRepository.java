@@ -3,6 +3,8 @@ package com.example.elicesecondproject.mall.domain.option.repository;
 import com.example.elicesecondproject.mall.domain.option.entity.OptionDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface OptionDetailRepository extends JpaRepository<OptionDetail, Long> {
 
     // SKU 중복 체크
@@ -10,4 +12,5 @@ public interface OptionDetailRepository extends JpaRepository<OptionDetail, Long
 
     boolean existsBySkuAndIdNot(String sku, Long id);
 
+    List<OptionDetail> findByIdIn(List<Long> optionIds);
 }

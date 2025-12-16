@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -117,6 +120,53 @@ public class CartService {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
+        // 반복문으로 하나 씩 조회하지 말고 한번에 조회하도록
+        // 옵션 디테일을 먼저 조회해서 리스트로 들고있고
+        // 리스트 사이즈랑 리퀘스트에서 넘어온 아이디 리스트 사이즈랑 다르면 선택불가 옵션있는거임
+
+        List<Long> optionIds = request.getOptionDetailIds();
+        List<OptionDetail> optionDetails = optionalDetailRepository.findByIdIn(optionIds);
+        if(optionDetails.size() != optionIds.size()) {
+            throw new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND);
+        }
+        Map<Long, OptionDetail> optionMap = optionDetails.stream()
+                .collect(Collectors.toMap(
+                        OptionDetail::getId,
+                        Function.identity()
+                ));
+
+        // 카트 아이템도 한번에 조회
+        List<CartItem> cartItems = cartItemRepository.findByCartIdAndProductOptionDetailIdIn(cart.getId(), optionIds);
+        Map<Long, CartItem> cartItemMap = cartItems.stream()
+                .collect(Collectors.toMap(
+                        ci -> ci.getProductOptionDetail().getId(), // key: optionDetailId
+                        Function.identity()                        // value: CartItem
+                ));
+
+        for (int i = 0; i < optionIds.size(); i++) {
+            Long optionId = optionIds.get(i);
+            int quantity = request.getQuantities().get(i);
+
+            OptionDetail optionDetail = optionMap.get(optionId); // 바로 꺼냄
+            CartItem cartItem = cartItemMap.get(optionId);       // 바로 꺼냄(있으면 기존)
+
+            int totalQuantity = quantity + (cartItem != null ? cartItem.getQuantity() : 0);
+
+            if (optionDetail.getStockQuantity() < totalQuantity) {
+                throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
+            }
+
+            if (cartItem != null) {
+                cartItem.increaseQuantity(quantity);
+            } else {
+                CartItem newItem = CartItem.of(optionDetail, quantity);
+                cart.addItem(newItem);
+            }
+        }
+
+
+/*
+
         for (int i = 0; i < request.getOptionDetailIds().size(); i++) {
 
             Long optionDetailId = request.getOptionDetailIds().get(i);
@@ -148,6 +198,7 @@ public class CartService {
                 cart.addItem(newItem);
             }
         }
+*/
     }
 
     // 개별 장바구니 항목 삭제
