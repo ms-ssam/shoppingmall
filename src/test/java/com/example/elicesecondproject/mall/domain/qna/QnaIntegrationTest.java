@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 import org.springframework.test.context.TestPropertySource; // [필수] 추가
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import static org.springframework.test.context.TestConstructor.AutowireMode.ALL;
 
 @SpringBootTest
 @TestConstructor(autowireMode = ALL)
+@ActiveProfiles("test")
 @RequiredArgsConstructor
 @Transactional
 // 👇 [핵심 해결책] data.sql 자동 실행 방지 (깨끗한 DB에서 시작)

@@ -40,7 +40,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.context.TestConstructor.AutowireMode.ALL;
 
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles("test")
 @TestConstructor(autowireMode = ALL)
 @RequiredArgsConstructor
 // 👇 [핵심] data.sql 실행을 막아서 ID 충돌 방지 (깨끗한 DB에서 시작)
