@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,11 +95,10 @@ public class OrderFlowIntegrationTest {
                 .slug(slug)
                 .displayOrder(1)
                 .isVisible(true)
+                .depth(0) // 루트니까 명시해도 좋고, 없어도 builder에서 기본 0 들어감
                 .build();
 
-        Category saved = categoryRepository.save(category); // id 생성
-        ReflectionTestUtils.setField(saved, "path", "/" + saved.getId() + "/");                              // "/{id}/" 형태로 완성
-        return categoryRepository.save(saved);              // path 업데이트 반영
+        return categoryRepository.save(category);
     }
 
     private OptionDetail saveSellingProductWithOption(Category category) {
