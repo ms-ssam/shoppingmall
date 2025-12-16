@@ -64,14 +64,12 @@ public class ProductServiceIntegrationTest {
                 .slug("test-slug-" + UUID.randomUUID())
                 .displayOrder(999)
                 .isVisible(true)
-                .path("/")
                 .depth(0)
                 .build();
 
         Category savedCategory = categoryRepository.save(category);
 
         // 경로 완성 (선택)
-        savedCategory.completePath();
         categoryRepository.save(savedCategory);
 
         this.savedCategoryId = savedCategory.getId();
