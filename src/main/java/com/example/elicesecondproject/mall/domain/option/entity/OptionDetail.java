@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "option_details")
 public class OptionDetail extends SoftDeletableBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

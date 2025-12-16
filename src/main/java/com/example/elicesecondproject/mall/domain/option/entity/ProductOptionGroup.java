@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "product_option_groups")
 public class ProductOptionGroup extends SoftDeletableBaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
