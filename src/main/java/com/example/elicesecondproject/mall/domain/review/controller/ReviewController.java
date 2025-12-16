@@ -26,24 +26,6 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.success(reviews));
     }
 
-    /*@PostMapping("/products/{productId}/reviews") //FIXME: 경로 /mypage/orders/{orderItemId}/review 이걸로 수정
-    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(@PathVariable Long productId,
-                                                                    @Valid @RequestBody CreateReviewRequest request,
-                                                                    @AuthenticationPrincipal MemberDetail principal
-    ) {
-        ReviewResponse response = reviewService.createReview(productId, request, principal.getMember().getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
-    }*/
-
-    /*@PutMapping("/products/{productId}/reviews/{reviewId}")
-    public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(@PathVariable Long reviewId,
-                                                                    @Valid @RequestBody UpdateReviewRequest request,
-                                                                    @AuthenticationPrincipal MemberDetail principal
-    ) {
-        ReviewResponse response = reviewService.updateReview(reviewId, request, principal.getMember().getId());
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }*/
-
     @DeleteMapping("/products/{productId}/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId,
                                              @AuthenticationPrincipal MemberDetail principal) {
@@ -52,13 +34,4 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    // 마이 페이지
-
-    /*@GetMapping("/mypage/reviews")
-    public ResponseEntity<ApiResponse<Page<MyReviewResponse>>> getMyReviews(Pageable pageable,
-                                                                        @AuthenticationPrincipal MemberDetail principal
-    ){
-        Page<MyReviewResponse> reviews = reviewService.getReviewsByMember(principal.getMember().getId(), pageable);
-        return ResponseEntity.ok(ApiResponse.success(reviews));
-    }*/
 }
