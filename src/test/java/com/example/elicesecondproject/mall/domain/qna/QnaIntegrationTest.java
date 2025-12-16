@@ -64,7 +64,6 @@ public class QnaIntegrationTest {
                 .slug("qna-test-slug-" + UUID.randomUUID())
                 .displayOrder(1)
                 .isVisible(true)
-                .path("/")
                 .depth(0)
                 .build();
         Category savedCategory = categoryRepository.save(category);
