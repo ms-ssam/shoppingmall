@@ -10,4 +10,6 @@ public interface PaymentRepository extends JpaRepository<Payment,Long> {
 
     // 주문번호와 사용자 Id, 결제 상태로 결제 기록을 조회
     Optional<Payment> findByOrderIdAndMemberIdAndPaymentStatus(String orderId, Long memberId, PaymentStatus paymentStatus);
+
+    Optional<Payment> findByOrderIdAndMemberId(String orderId, Long memberId);
 }
