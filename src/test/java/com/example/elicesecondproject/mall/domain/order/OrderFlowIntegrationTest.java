@@ -3,7 +3,6 @@ package com.example.elicesecondproject.mall.domain.order;
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
 import com.example.elicesecondproject.mall.domain.cart.entity.CartItem;
 import com.example.elicesecondproject.mall.domain.cart.repository.CartItemRepository;
-import com.example.elicesecondproject.mall.domain.cart.repository.CartRepository;
 import com.example.elicesecondproject.mall.domain.category.entity.Category;
 import com.example.elicesecondproject.mall.domain.category.repository.CategoryRepository;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
@@ -50,8 +49,6 @@ public class OrderFlowIntegrationTest {
 
     @Autowired
     MemberRepository memberRepository;
-    @Autowired
-    CartRepository cartRepository;
     @Autowired
     CartItemRepository cartItemRepository;
     @Autowired

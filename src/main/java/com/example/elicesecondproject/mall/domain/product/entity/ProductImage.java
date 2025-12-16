@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "product_images")
 public class ProductImage extends SoftDeletableBaseEntity {
 
     @Id
