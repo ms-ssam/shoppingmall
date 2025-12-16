@@ -48,4 +48,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
           and ci.productOptionDetail.id in :optionDetailIds
         """)
     Set<Long> findExistingOptionDetailIdsInCart(Long memberId, List<Long> optionDetailIds);
+
+    List<CartItem> findByCartIdAndProductOptionDetailIdIn(Long id, List<Long> optionIds);
 }
