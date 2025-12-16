@@ -98,9 +98,6 @@ public class ProductViewController {
         return "product/list";
     }
 
-    /**
-     * 상품 상세 페이지
-     */
     @GetMapping("/{productId}")
     public String productDetail(@PathVariable Long productId, Model model, @AuthenticationPrincipal MemberDetail memberDetail, Pageable pageable) {
         Member member = (memberDetail != null) ? memberDetail.getMember() : null;
