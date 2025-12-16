@@ -4,121 +4,77 @@
     <meta charset="UTF-8">
     <title>Sign Up</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 40px auto 0;
-            padding: 0 24px;
-        }
-
-        h1 {
-            font-size: 40px;
-            font-weight: 700;
-            margin-bottom: 32px;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .input-box {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #d9d9d9;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 18px;
-            background: #f9f9f9;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 16px 0;
-            border-radius: 999px;
-            background: black;
-            color: white;
-            border: none;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.85;
-        }
-
-        #signupError {
-            margin-top: 8px;
-            color: #ff4d4f;
-            font-size: 13px;
-        }
-
-        #signupSuccess {
-            margin-top: 8px;
-            color: #52c41a;
-            font-size: 13px;
-        }
-
-        .to-login {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            margin-bottom: 40px;
-        }
-
-        .to-login a {
-            text-decoration: none;
-            color: #555;
-        }
-    </style>
+    <!-- 공통 헤더 -->
     <link rel="stylesheet" th:href="@{/css/header.css}">
+
+    <!-- ✅ signup 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/signup.css}">
 </head>
 <body>
-<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
 <div class="container">
     <h1>Sign up</h1>
 
-    <!-- ✅ 여기 수정: /signup 으로 POST 전송 -->
-    <form th:action="@{/signup}" method="post" id="signupForm">
-        <label for="email">Email</label>
-        <input id="email" class="input-box" type="email" name="email" required>
+    <form th:action="@{/signup}" th:object="${form}" method="post" id="signupForm">
+        <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" class="input-box" type="email" th:field="*{email}" name="email" required>
+            <div class="error"
+                 th:if="${#fields.hasErrors('email')}"
+                 th:errors="*{email}">이메일 오류</div>
+        </div>
 
-        <label for="password">Password</label>
-        <input id="password" class="input-box" type="password" name="password" required>
+        <div class="form-row">
+            <label for="password">Password</label>
+            <input id="password" class="input-box" type="password" th:field="*{password}" name="password" required>
+            <div class="error"
+                 th:if="${#fields.hasErrors('password')}"
+                 th:errors="*{password}">비밀번호 오류</div>
+        </div>
 
-        <label for="passwordConfirm">Password Check</label>
-        <!-- 서버에는 굳이 안 보내도 되면 name 안 줘도 됨 -->
-        <input id="passwordConfirm" class="input-box" type="password" required>
+        <div class="form-row">
+            <label for="passwordConfirm">Password Check</label>
+            <input id="passwordConfirm" class="input-box" type="password" th:field="*{passwordConfirm}" name="passwordConfirm" required>
+            <div class="error"
+                 th:if="${#fields.hasErrors('passwordConfirm')}"
+                 th:errors="*{passwordConfirm}">비밀번호 확인 오류</div>
+        </div>
 
-        <label for="name">Name</label>
-        <input id="name" class="input-box" type="text" name="name" required>
+        <div class="form-row">
+            <label for="name">Name</label>
+            <input id="name" class="input-box" type="text" th:field="*{name}" name="name" required>
+            <div class="error"
+                 th:if="${#fields.hasErrors('name')}"
+                 th:errors="*{name}">이름 오류</div>
+        </div>
 
-        <label for="nickname">Nickname</label>
-        <input id="nickname" class="input-box" type="text" name="nickname" required>
+        <div class="form-row">
+            <label for="nickname">Nickname</label>
+            <input id="nickname" class="input-box" type="text" th:field="*{nickname}" name="nickname" required>
+            <div class="error"
+                 th:if="${#fields.hasErrors('nickname')}"
+                 th:errors="*{nickname}">닉네임 오류</div>
+        </div>
 
-        <label for="phone">Phone</label>
-        <input id="phone" class="input-box" type="tel" name="phone"
-               required placeholder="01012345678">
+        <div class="form-row">
+            <label for="phone">Phone</label>
+            <input id="phone" class="input-box" type="tel" th:field="*{phone}" name="phone" required placeholder="01012345678">
+            <div class="error"
+                 th:if="${#fields.hasErrors('phone')}"
+                 th:errors="*{phone}">전화번호 오류</div>
+        </div>
 
         <button type="submit" class="btn-primary">회원가입</button>
     </form>
 
-    <!-- 비밀번호 불일치 등 클라이언트 측 에러 -->
-    <p id="signupError" style="display:none;"></p>
+<!--
+    <p id="signupError" class="signup-error" style="display:none;"></p>
+-->
 
-    <!-- 서버에서 넘겨준 successMessage (회원가입 완료 메시지 표시) -->
     <p th:if="${successMessage}"
        th:text="${successMessage}"
-       style="margin-top:10px; color:#52c41a; font-size:14px;">
+       class="signup-success">
     </p>
 
     <div class="to-login">
@@ -127,24 +83,7 @@
     </div>
 </div>
 
-<script>
-    const signupForm = document.getElementById('signupForm');
-    const signupError = document.getElementById('signupError');
-
-    signupForm.addEventListener('submit', (e) => {
-        const password = document.getElementById('password').value;
-        const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-        signupError.style.display = 'none';
-        signupError.textContent = '';
-
-        if (password !== passwordConfirm) {
-            e.preventDefault(); // 서버로 전송 막기
-            signupError.textContent = '비밀번호가 일치하지 않습니다.';
-            signupError.style.display = 'block';
-        }
-    });
-</script>
-
+<!-- ✅ signup 전용 JS -->
+<script th:src="@{/js/signup.js}"></script>
 </body>
 </html>
