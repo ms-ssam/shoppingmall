@@ -4,93 +4,16 @@
     <meta charset="UTF-8">
     <title>Login</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 40px auto 0;
-            padding: 0 24px;
-        }
-
-        h1 {
-            font-size: 46px;
-            font-weight: 700;
-            margin-bottom: 40px;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .input-box {
-            width: 100%;
-            padding: 16px 14px;
-            border: 1px solid #d9d9d9;
-            font-size: 14px;
-            margin-bottom: 24px;
-            background: #f9f9f9;
-        }
-
-        .input-box::placeholder {
-            color: #aaa;
-        }
-
-        .sub-links {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: #808080;
-            margin-bottom: 30px;
-        }
-
-        .sub-links a {
-            color: #808080;
-            text-decoration: none;
-        }
-
-        .sub-links a:hover {
-            text-decoration: underline;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 16px 0;
-            border-radius: 999px;
-            border: none;
-            font-size: 15px;
-            background: black;
-            color: white;
-            cursor: pointer;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.85;
-        }
-
-        #loginError {
-            color: #ff4d4f;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-    </style>
     <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
 
 <body>
 <div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
 <div class="container">
     <h1>LOGIN</h1>
 
-    <!-- ✅ 여기 수정: form을 /login POST로 보냄 -->
     <form th:action="@{/login}" method="post">
         <label for="email">ID</label>
         <input id="email" class="input-box" type="text"
@@ -111,11 +34,10 @@
         <button type="submit" class="btn-primary">로그인</button>
     </form>
 
-    <!-- 에러 메시지 표시용 (선택사항: 컨트롤러에서 model에 error 넣어줄 때 사용) -->
-    <p class="error-message" id="loginError"
-       th:if="${param.error}" th:text="${param.error}"></p>
+    <p class="error-message"
+       th:if="${param.error}"
+       th:text="${param.error}">
+    </p>
 </div>
-
-<!-- ✅ JS fetch 로그인은 이제 필요 없음, 전부 서버에서 처리하니까 스크립트 삭제 -->
 </body>
 </html>
