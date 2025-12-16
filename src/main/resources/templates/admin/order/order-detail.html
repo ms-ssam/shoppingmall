@@ -46,7 +46,7 @@
 
                 <div class="flex justify-between items-center">
                     <span class="text-gray-500">주문상태</span>
-                    <span th:switch="${orderDetail.orderStatus}">
+                    <span th:switch="${orderDetail.orderStatus != null ? orderDetail.orderStatus.name() : 'NONE'}">
                         <span th:case="'PENDING'"
                               class="inline-flex px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-semibold">
                             결제대기
@@ -265,15 +265,27 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">결제방법</span>
-                <span class="text-gray-400">- (추후 추가 예정)</span>
+                <span th:text="${orderDetail.paymentInfo != null && orderDetail.paymentInfo.method != null}
+                ? ${orderDetail.paymentInfo.method}
+                : '-'">
+                    - (추후 추가 예정)
+                </span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">거래번호</span>
-                <span class="text-gray-400">- (추후 추가 예정)</span>
+                <span th:text="${orderDetail.paymentInfo != null && orderDetail.paymentInfo.paymentKey != null}
+               ? ${orderDetail.paymentInfo.paymentKey}
+               : '-'">
+                    - (추후 추가 예정)
+                </span>
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">결제일시</span>
-                <span class="text-gray-400">- (추후 추가 예정)</span>
+                <span th:text="${orderDetail.paymentInfo != null && orderDetail.paymentInfo.approvedAt != null}
+               ? ${#temporals.format(orderDetail.paymentInfo.approvedAt, 'yyyy-MM-dd HH:mm')}
+               : '-'">
+                    - (추후 추가 예정)
+                </span>
             </div>
         </div>
     </section>

@@ -70,16 +70,6 @@ public class AdminProductController {
         return ResponseEntity.ok(ApiResponse.success("상품 판매 중지 처리 성공", null));
     }
 
-    // [관리자] 상품의 모든 이미지 조회
-    @GetMapping("/{productId}/images")
-    public ResponseEntity<ApiResponse<List<ProductImageDto>>> getAllImages(
-            @AuthenticationPrincipal MemberDetail principal,
-            @PathVariable @Min(1) Long productId) {
-
-        permissionValidator.validateAdminOnly(principal.getMember());
-        List<ProductImageDto> images = productService.getAllImages(productId);
-        return ResponseEntity.ok(ApiResponse.success("이미지 목록 조회 성공", images));
-    }
 
     // 다건 삭제
     @DeleteMapping("/bulk")

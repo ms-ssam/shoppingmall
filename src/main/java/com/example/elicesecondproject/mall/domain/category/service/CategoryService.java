@@ -51,16 +51,13 @@ public class CategoryService {
                 throw new BusinessException(ErrorCode.CATEGORY_DEPTH_EXCEEDED);
             }
 
-            category.setParent(parent);  // setParent 안에서 depth, path, children 연동
+            category.setParent(parent);
         } else {
             category.setParent(null);    // 최상위 카테고리
         }
 
         // 4. 저장
         categoryRepository.save(category);
-
-        // 5. 경로 완성 (ID가 생성된 후 처리) -> ✅path 삭제로 주석처리
-        //category.completePath();
 
         return categoryMapper.toResponse(category);
     }
@@ -107,7 +104,7 @@ public class CategoryService {
                 //category.completePath();
 
                 // [핵심] 하위 카테고리들도 재귀적으로 경로 업데이트
-                updateChildrenPath(category);
+                updateChildrenDepth(category);
             }
         }
         // 부모를 제거하여 최상위로 만드는 경우 (request.getParentId()가 0 또는 특정 값일 때 처리 필요 시 추가)
@@ -115,22 +112,15 @@ public class CategoryService {
         return categoryMapper.toResponse(category);
     }
 
-    // 재귀적으로 자식들의 Path(삭제)와 Depth를 갱신하는 메서드
-    private void updateChildrenPath(Category parent) {
+    // 재귀적으로 Depth를 갱신하는 메서드
+    private void updateChildrenDepth(Category parent) {
         List<Category> children = parent.getChildren();
         if (children == null || children.isEmpty()) {
             return;
         }
 
         for (Category child : children) {
-            // 부모(parent)의 바뀐 path와 depth를 기반으로 자식 갱신
-            child.setParent(parent);
-
-            //✅path 삭제
-            //child.completePath();
-
-            // 손자, 증손자 등 하위로 계속 전파
-            updateChildrenPath(child);
+            updateChildrenDepth(child);
         }
     }
 
@@ -219,6 +209,32 @@ public class CategoryService {
     }
 
     //
+
+    public List<CategoryTreeResponse> getSubCategories(Long currentCategoryId) {
+        if (currentCategoryId == null) {
+            return null;
+        }
+
+        List<CategoryTreeResponse> categoryTree = getCategoryTree();
+
+        for (CategoryTreeResponse root : categoryTree) {
+            // 1. 현재 선택된 게 대분류인 경우 -> 그 자식들을 반환
+            if (root.getId().equals(currentCategoryId)) {
+                return root.getChildren();
+            }
+
+            // 2. 자식들(소분류) 중에 현재 선택된 게 있는지 확인
+            if (root.getChildren() != null) {
+                for (CategoryTreeResponse child : root.getChildren()) {
+                    if (child.getId().equals(currentCategoryId)) {
+                        // 소분류를 선택했더라도, 같은 레벨의 메뉴를 보여주기 위해 root의 자식들을 반환
+                        return root.getChildren();
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 
 }

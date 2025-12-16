@@ -3,6 +3,8 @@ package com.example.elicesecondproject.mall.domain.order.dto.response;
 import com.example.elicesecondproject.mall.domain.order.entity.Order;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.entity.PaymentStatus;
+import com.example.elicesecondproject.mall.domain.payment.dto.PaymentInfoResponse;
+import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +15,8 @@ import java.util.List;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdminOrderDetailResponse {
-    private final Long orderId;
+    private final Long id;
+    private final String orderId;
     private final List<AdminOrderItemDetailResponse> items;
     private final LocalDateTime orderDate;
     private final OrderStatus orderStatus;
@@ -29,15 +32,17 @@ public class AdminOrderDetailResponse {
     private final DeliveryInfoResponse deliveryInfo;
 
     private final PaymentStatus paymentStatus;
-    // TODO: 결제 정보 추후 추가
 
-    public static AdminOrderDetailResponse of(Order order) {
+    private final PaymentInfoResponse paymentInfo;
+
+    public static AdminOrderDetailResponse of(Order order, Payment payment) {
         List<AdminOrderItemDetailResponse> items = order.getOrderItems().stream()
                 .map(AdminOrderItemDetailResponse::of)
                 .toList();
 
         return new AdminOrderDetailResponse(
                 order.getId(),
+                order.getOrderId(),
                 items,
                 order.getOrderDate(),
                 order.getOrderStatus(),
@@ -48,7 +53,9 @@ public class AdminOrderDetailResponse {
                 order.getDeliveryFee(),
                 order.getTotalPaymentFee(),
                 DeliveryInfoResponse.of(order.getDeliveryInfo()),
-                order.getPaymentStatus());
+                order.getPaymentStatus(),
+                PaymentInfoResponse.of(payment)
+        );
     }
 }
 
