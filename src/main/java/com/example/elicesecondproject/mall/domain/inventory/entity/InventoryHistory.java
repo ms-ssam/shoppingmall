@@ -16,7 +16,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-        name = "inventory_history",
+        name = "inventory_historys",
         indexes = {
                 @Index(name = "idx_option_detail_created", columnList = "option_detail_id, created_at"),
                 @Index(name = "idx_change_type_created", columnList = "change_type, created_at"),
