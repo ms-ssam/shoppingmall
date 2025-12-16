@@ -27,7 +27,7 @@ public class MemberService {
 
     @Transactional
     public Long save(AddMemberRequest dto) {
-        if (memberRepository.findByEmail(dto.getEmail()).isPresent()) {
+        if (memberRepository.existsByEmail(dto.getEmail())) {
             throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
 

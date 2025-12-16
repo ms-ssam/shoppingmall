@@ -18,48 +18,42 @@
 
     <form th:action="@{/signup}" th:object="${form}" method="post" id="signupForm">
         <div class="form-row">
-            <label for="email">Email</label>
-            <input id="email" class="input-box" type="email" th:field="*{email}" name="email" required>
+            <label>Email <input class="input-box" type="email" th:field="*{email}" required></label>
             <div class="error"
                  th:if="${#fields.hasErrors('email')}"
                  th:errors="*{email}">이메일 오류</div>
         </div>
 
         <div class="form-row">
-            <label for="password">Password</label>
-            <input id="password" class="input-box" type="password" th:field="*{password}" name="password" required>
+            <label>Password <input class="input-box" type="password" th:field="*{password}" required></label>
             <div class="error"
                  th:if="${#fields.hasErrors('password')}"
                  th:errors="*{password}">비밀번호 오류</div>
         </div>
 
         <div class="form-row">
-            <label for="passwordConfirm">Password Check</label>
-            <input id="passwordConfirm" class="input-box" type="password" th:field="*{passwordConfirm}" name="passwordConfirm" required>
+            <label>Password Check <input class="input-box" type="password" th:field="*{passwordConfirm}" required></label>
             <div class="error"
                  th:if="${#fields.hasErrors('passwordConfirm')}"
                  th:errors="*{passwordConfirm}">비밀번호 확인 오류</div>
         </div>
 
         <div class="form-row">
-            <label for="name">Name</label>
-            <input id="name" class="input-box" type="text" th:field="*{name}" name="name" required>
+            <label>Name <input class="input-box" type="text" th:field="*{name}" required></label>
             <div class="error"
                  th:if="${#fields.hasErrors('name')}"
                  th:errors="*{name}">이름 오류</div>
         </div>
 
         <div class="form-row">
-            <label for="nickname">Nickname</label>
-            <input id="nickname" class="input-box" type="text" th:field="*{nickname}" name="nickname" required>
+            <label>Nickname <input class="input-box" type="text" th:field="*{nickname}" required></label>
             <div class="error"
                  th:if="${#fields.hasErrors('nickname')}"
                  th:errors="*{nickname}">닉네임 오류</div>
         </div>
 
         <div class="form-row">
-            <label for="phone">Phone</label>
-            <input id="phone" class="input-box" type="tel" th:field="*{phone}" name="phone" required placeholder="01012345678">
+            <label>Phone <input class="input-box" type="tel" th:field="*{phone}" required placeholder="01012345678"></label>
             <div class="error"
                  th:if="${#fields.hasErrors('phone')}"
                  th:errors="*{phone}">전화번호 오류</div>
