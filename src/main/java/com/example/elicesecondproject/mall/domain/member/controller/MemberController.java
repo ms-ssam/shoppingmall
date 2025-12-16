@@ -4,15 +4,14 @@ import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordCha
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import com.example.elicesecondproject.mall.domain.member.service.MemberService;
 import com.example.elicesecondproject.mall.global.response.ApiResponse;
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "회원 API", description = "로그인 및 회원가입 API")
@@ -40,12 +39,8 @@ public class MemberController {
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<Void>> updateMyProfile(
             @AuthenticationPrincipal MemberDetail memberDetail,
-            @Valid @RequestBody UpdateMemberRequest request,
-            BindingResult result
+            @Valid @RequestBody UpdateMemberRequest request
     ){
-        if(result.hasErrors()){
-            System.err.println(result.getAllErrors());
-        }
         Long memberId = memberDetail.getMember().getId();
         memberService.updateMyProfile(memberId, request);
         return ResponseEntity.ok(

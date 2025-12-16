@@ -22,7 +22,6 @@ public class PasswordChangeRequest {
             regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).{8,}$",
             message = "영문, 숫자, 특수문자(@$!%*#?&)를 최소 1개씩 포함해야 합니다."
     )
-    //@ValidPassword
     private String newPassword;
 
     @NotBlank(message = "새 비밀번호 확인은 필수입니다.")
