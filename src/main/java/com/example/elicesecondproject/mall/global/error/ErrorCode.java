@@ -34,9 +34,9 @@ public enum ErrorCode {
 
     REVIEW_ORDER_STATUS_INVALID(HttpStatus.BAD_REQUEST, "RV003", "현재 주문 상태에서는 리뷰를 작성할 수 없습니다."),
 
-
     INVALID_PAYMENT_STATUS_CHANGE(HttpStatus.BAD_REQUEST, "PM003", "허용되지 않은 결제 상태 변경입니다."),
 
+    DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "M002","이미 존재하는 이메일입니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
