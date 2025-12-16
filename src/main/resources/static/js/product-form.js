@@ -578,7 +578,7 @@ function submitProduct() {
     }
 
     const formData = createFormData({ name, price: regularPrice, discountRate, description, categoryId: parseInt(categoryId), status, optionGroups });
-    submitFormData(formData);
+    submitProductData(formData);
 }
 
 function validateProductData(name, categoryId, price) {
@@ -646,7 +646,7 @@ function createFormData(requestData) {
     return formData;
 }
 
-function submitFormData(formData) {
+function submitProductData(formData) {
     const url = isEditMode ? `/api/admin/products/${productId}` : '/api/admin/products';
     const method = isEditMode ? 'PUT' : 'POST';
 

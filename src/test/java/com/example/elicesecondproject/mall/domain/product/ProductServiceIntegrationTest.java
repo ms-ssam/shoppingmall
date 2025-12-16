@@ -40,7 +40,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.context.TestConstructor.AutowireMode.ALL;
 
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles("test")
 @TestConstructor(autowireMode = ALL)
 @RequiredArgsConstructor
 // 👇 [핵심] data.sql 실행을 막아서 ID 충돌 방지 (깨끗한 DB에서 시작)
@@ -64,14 +64,12 @@ public class ProductServiceIntegrationTest {
                 .slug("test-slug-" + UUID.randomUUID())
                 .displayOrder(999)
                 .isVisible(true)
-                .path("/")
                 .depth(0)
                 .build();
 
         Category savedCategory = categoryRepository.save(category);
 
         // 경로 완성 (선택)
-        savedCategory.completePath();
         categoryRepository.save(savedCategory);
 
         this.savedCategoryId = savedCategory.getId();

@@ -1,5 +1,5 @@
 // ==================== 전역 변수 ====================
-let categoryData = [];
+let categoryTreeData = []; // [변경] 평면 데이터가 아닌 트리 데이터를 그대로 저장
 let selectedCategoryId = null;
 let selectedParentIdForChild = null;
 let expandedParents = new Set();
@@ -18,94 +18,41 @@ const koreanToEnglish = {
 // ==================== 초기화 ====================
 function initializeCategoryManager(initialCategoryTree) {
     console.log('초기 카테고리 트리:', initialCategoryTree);
-    categoryData = flattenCategoryTree(initialCategoryTree);
-    console.log('평면화된 카테고리 데이터:', categoryData);
+    // [변경] 평면화(flatten) 과정 삭제. 서버 데이터를 그대로 사용.
+    categoryTreeData = initialCategoryTree || [];
     renderCategoryTree();
 }
 
-// ==================== 트리 → 평면 리스트 변환 ====================
-function flattenCategoryTree(tree) {
-    const result = [];
-    tree.forEach(parent => {
-        result.push({
-            id: parent.id,
-            name: parent.name,
-            slug: parent.slug,
-            parentId: null,
-            depth: parent.depth,
-            displayOrder: parent.displayOrder,
-            isVisible: parent.isVisible
-        });
+// ==================== Slug 자동 생성 (공통 로직 분리) ====================
+function createSlug(name) {
+    if (!name) return '';
+    if (koreanToEnglish[name]) return koreanToEnglish[name];
 
-        if (parent.children && parent.children.length > 0) {
-            parent.children.forEach(child => {
-                result.push({
-                    id: child.id,
-                    name: child.name,
-                    slug: child.slug,
-                    parentId: parent.id,
-                    depth: child.depth,
-                    displayOrder: child.displayOrder,
-                    isVisible: child.isVisible
-                });
-            });
-        }
-    });
-    return result;
+    return name
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .toLowerCase()
+        .replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '') || 'category';
 }
 
-// ==================== Slug 자동 생성 ====================
 function generateSlug() {
     const name = document.getElementById('categoryName').value.trim();
-    const slugInput = document.getElementById('categorySlug');
-
-    if (!name) {
-        slugInput.value = '';
-        return;
-    }
-
-    if (koreanToEnglish[name]) {
-        slugInput.value = koreanToEnglish[name];
-    } else {
-        let slug = name
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .toLowerCase()
-            .replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
-        slugInput.value = slug || 'category';
-    }
+    document.getElementById('categorySlug').value = createSlug(name);
 }
 
 function generateModalSlug(type) {
     const nameInputId = type === 'parent' ? 'newParentName' : 'newChildName';
     const slugInputId = type === 'parent' ? 'newParentSlug' : 'newChildSlug';
-
     const name = document.getElementById(nameInputId).value.trim();
-    const slugInput = document.getElementById(slugInputId);
-
-    if (!name) {
-        slugInput.value = '';
-        return;
-    }
-
-    if (koreanToEnglish[name]) {
-        slugInput.value = koreanToEnglish[name];
-    } else {
-        let slug = name
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .toLowerCase()
-            .replace(/[ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
-        slugInput.value = slug || 'category';
-    }
+    document.getElementById(slugInputId).value = createSlug(name);
 }
 
-// ==================== 카테고리 트리 렌더링 ====================
+// ==================== 카테고리 트리 렌더링 (핵심 로직 변경) ====================
 function renderCategoryTree() {
     const container = document.getElementById('categoryTree');
     container.innerHTML = '';
 
-    if (categoryData.length === 0) {
+    if (categoryTreeData.length === 0) {
         container.innerHTML = `
             <div class="text-center py-8 text-gray-500">
                 <i class="bi bi-inbox text-4xl mb-2"></i>
@@ -115,23 +62,20 @@ function renderCategoryTree() {
         return;
     }
 
-    const parents = categoryData.filter(c => c.depth === 0).sort((a, b) => a.displayOrder - b.displayOrder);
-    const children = categoryData.filter(c => c.depth === 1);
-
-    parents.forEach(parent => {
+    // [변경] 평면 리스트를 필터링하는 것이 아니라, 트리 구조를 직접 순회합니다.
+    categoryTreeData.forEach(parent => {
+        // 1. 상위 카테고리 그리기
         const parentDiv = createParentCategoryItem(parent);
         container.appendChild(parentDiv);
 
-        const parentChildren = children.filter(c => c.parentId === parent.id)
-            .sort((a, b) => a.displayOrder - b.displayOrder);
-
-        if (parentChildren.length > 0) {
+        // 2. 하위 카테고리 그리기 (children 배열 사용)
+        if (parent.children && parent.children.length > 0) {
             const childContainer = document.createElement('div');
             childContainer.className = 'ml-6 mt-1 space-y-1';
             childContainer.id = `children-${parent.id}`;
             childContainer.style.display = expandedParents.has(parent.id) ? 'block' : 'none';
 
-            parentChildren.forEach(child => {
+            parent.children.forEach(child => {
                 const childDiv = createChildCategoryItem(child);
                 childContainer.appendChild(childDiv);
             });
@@ -143,7 +87,8 @@ function renderCategoryTree() {
 
 function createParentCategoryItem(category) {
     const div = document.createElement('div');
-    const hasChildren = categoryData.filter(c => c.parentId === category.id).length > 0;
+    // [변경] children 배열 존재 여부로 자식 확인
+    const hasChildren = category.children && category.children.length > 0;
     const isExpanded = expandedParents.has(category.id);
 
     div.className = `category-item p-3 border border-gray-200 rounded transition bg-white font-medium ${
@@ -154,7 +99,7 @@ function createParentCategoryItem(category) {
         ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">노출</span>'
         : '<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">숨김</span>';
 
-    const childCount = categoryData.filter(c => c.parentId === category.id).length;
+    const childCount = category.children ? category.children.length : 0;
     const childBadge = childCount > 0
         ? `<span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded ml-1">${childCount}개</span>`
         : '';
@@ -163,9 +108,12 @@ function createParentCategoryItem(category) {
         ? `<i class="bi bi-chevron-${isExpanded ? 'down' : 'right'} toggle-icon text-gray-600 mr-2" style="cursor: pointer;" onclick="event.stopPropagation(); toggleChildren(${category.id});"></i>`
         : '<span class="w-5 inline-block mr-2"></span>';
 
+    // JSON.stringify 사용 시 따옴표 충돌 방지 처리
+    const categoryJson = JSON.stringify(category).replace(/'/g, "&#39;");
+
     div.innerHTML = `
         <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 flex-1 cursor-pointer" onclick="selectCategory(${JSON.stringify(category).replace(/"/g, '&quot;')})">
+            <div class="flex items-center gap-2 flex-1 cursor-pointer" onclick='selectCategory(${categoryJson})'>
                 ${toggleIcon}
                 <i class="bi bi-folder-fill text-teal-600"></i>
                 <span>${category.name}</span>
@@ -187,6 +135,8 @@ function createChildCategoryItem(category) {
     div.className = `category-item p-3 border border-gray-200 rounded cursor-pointer transition bg-gray-50 ${
         selectedCategoryId === category.id ? 'ring-2 ring-teal-500 bg-teal-50 category-selected' : 'hover:bg-teal-50'
     }`;
+
+    const categoryJson = JSON.stringify(category).replace(/'/g, "&#39;");
     div.onclick = () => selectCategory(category);
 
     const statusBadge = category.isVisible
@@ -233,22 +183,30 @@ function selectCategory(category) {
     document.getElementById('categoryName').value = category.name;
     document.getElementById('categorySlug').value = category.slug;
     document.getElementById('displayOrder').value = category.displayOrder;
-    document.getElementById('isVisible').value = category.isVisible;
+    // select value는 문자열
+    document.getElementById('isVisible').value = category.isVisible.toString();
 
-    const isParent = category.depth === 0;
-    document.getElementById('categoryLevel').textContent = isParent ? '최상위 카테고리 (대분류)' : '하위 카테고리 (소분류)';
+    // [변경] 부모/자식 판별 로직
+    // categoryTreeData(최상위 목록)에 현재 ID가 있는지 확인
+    const isRoot = categoryTreeData.some(p => p.id === category.id);
 
-    if (!isParent && category.parentId) {
-        document.getElementById('categoryParentId').value = category.parentId;
-        document.getElementById('parentCategorySection').classList.remove('hidden');
-        const parent = categoryData.find(p => p.id === category.parentId);
-        document.getElementById('parentCategoryDisplay').textContent = parent ? parent.name : '-';
+    document.getElementById('categoryLevel').textContent = isRoot ? '최상위 카테고리 (대분류)' : '하위 카테고리 (소분류)';
+
+    if (!isRoot) {
+        // [변경] 자식 카테고리라면, 트리 전체를 뒤져서 부모를 찾아야 함
+        const parent = categoryTreeData.find(p => p.children && p.children.some(c => c.id === category.id));
+
+        if (parent) {
+            document.getElementById('categoryParentId').value = parent.id;
+            document.getElementById('parentCategoryDisplay').textContent = parent.name;
+            document.getElementById('parentCategorySection').classList.remove('hidden');
+        }
     } else {
         document.getElementById('parentCategorySection').classList.add('hidden');
         document.getElementById('categoryParentId').value = '';
     }
 
-    document.getElementById('addChildBtn').classList.toggle('hidden', !isParent);
+    document.getElementById('addChildBtn').classList.toggle('hidden', !isRoot);
     renderCategoryTree();
 }
 
@@ -301,14 +259,15 @@ function saveCategory() {
 
 function deleteCategory() {
     const id = document.getElementById('categoryId').value;
-    const name = document.getElementById('categoryName').value;
-    const childCount = categoryData.filter(c => c.parentId == id).length;
 
-    if (childCount > 0) {
-        alert(`하위 카테고리가 ${childCount}개 있습니다.\n먼저 하위 카테고리를 삭제해주세요.`);
+    // [변경] 삭제 전 자식 확인 로직 (트리 데이터 사용)
+    const parentNode = categoryTreeData.find(p => p.id == id);
+    if (parentNode && parentNode.children && parentNode.children.length > 0) {
+        alert(`하위 카테고리가 ${parentNode.children.length}개 있습니다.\n먼저 하위 카테고리를 삭제해주세요.`);
         return;
     }
 
+    const name = document.getElementById('categoryName').value;
     if (!confirm(`"${name}" 카테고리를 삭제하시겠습니까?`)) return;
 
     fetch(`/api/admin/categories/${id}`, { method: 'DELETE' })
@@ -331,7 +290,11 @@ function deleteCategory() {
 function openAddParentModal() {
     document.getElementById('newParentName').value = '';
     document.getElementById('newParentSlug').value = '';
-    const maxOrder = Math.max(...categoryData.filter(c => c.depth === 0).map(c => c.displayOrder), 0);
+
+    // [변경] 트리 데이터에서 max 순서 찾기
+    const maxOrder = categoryTreeData.length > 0
+        ? Math.max(...categoryTreeData.map(c => c.displayOrder))
+        : 0;
     document.getElementById('newParentOrder').value = maxOrder + 1;
 
     const modal = document.getElementById('addParentModal');
@@ -386,12 +349,18 @@ function openAddChildModal() {
     }
 
     selectedParentIdForChild = parentId;
-    const childCount = categoryData.filter(c => c.parentId == parentId).length;
+
+    // [변경] 해당 부모 노드를 찾아 자식들의 max 순서 계산
+    const parentNode = categoryTreeData.find(p => p.id == parentId);
+    let nextOrder = 1;
+    if (parentNode && parentNode.children && parentNode.children.length > 0) {
+        nextOrder = Math.max(...parentNode.children.map(c => c.displayOrder)) + 1;
+    }
 
     document.getElementById('selectedParentName').textContent = parentName;
     document.getElementById('newChildName').value = '';
     document.getElementById('newChildSlug').value = '';
-    document.getElementById('newChildOrder').value = childCount + 1;
+    document.getElementById('newChildOrder').value = nextOrder;
 
     const modal = document.getElementById('addChildModal');
     modal.classList.remove('hidden');

@@ -22,16 +22,6 @@ public class AdminCategoryController {
     private final CategoryService categoryService;
     private final PermissionValidator permissionValidator;
 
-    // [수정]뷰 컨트롤러에서 Thymeleaf로 전달
-    /*
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategoriesForAdmin(
-            @AuthenticationPrincipal MemberDetail memberDetail) {
-        permissionValidator.validateAdminOnly(memberDetail.getMember());
-        List<CategoryResponse> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(ApiResponse.success("카테고리 목록 조회 성공", categories));
-    }
-    */
 
     // [관리자] 카테고리 생성
     @PostMapping
@@ -80,14 +70,4 @@ public class AdminCategoryController {
         return ResponseEntity.ok(ApiResponse.success("카테고리 노출 상태 변경 성공", null));
     }
 
-    /* ✅ 제거 (PermissionValidator로 대체)
-    private void validateAdminPermission(MemberDetail memberDetail) {
-        if (memberDetail == null || memberDetail.getMember() == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-        if (memberDetail.getMember().getRole() != Role.ADMIN) {
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-        }
-    }
-    */
 }
