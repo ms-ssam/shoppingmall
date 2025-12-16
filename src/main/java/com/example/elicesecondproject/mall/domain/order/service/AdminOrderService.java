@@ -10,6 +10,8 @@ import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.order.entity.OrderStatus;
 import com.example.elicesecondproject.mall.domain.order.mapper.OrderMapper;
 import com.example.elicesecondproject.mall.domain.order.repository.OrderRepository;
+import com.example.elicesecondproject.mall.domain.payment.entity.Payment;
+import com.example.elicesecondproject.mall.domain.payment.repository.PaymentRepository;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
 import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class AdminOrderService {
     private final OrderRepository orderRepository;
     private final OptionDetailRepository optionDetailRepository;
     private final OrderMapper orderMapper;
+    private final PaymentRepository paymentRepository;
 
     public Page<AdminOrderInfoResponse> searchOrders(AdminOrderSearchCondition condition, Pageable pageable) {
         Page<Order> orders = orderRepository.searchOrders(condition, pageable);
@@ -40,7 +43,10 @@ public class AdminOrderService {
         Order order = orderRepository.findWithItemsById(orderId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-        return AdminOrderDetailResponse.of(order);
+        Payment payment = paymentRepository.findByOrderIdAndMemberId(order.getOrderId(), order.getMemberId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        return AdminOrderDetailResponse.of(order, payment);
     }
 
     @Transactional

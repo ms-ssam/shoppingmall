@@ -39,9 +39,6 @@ public class Category extends SoftDeletableBaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String slug;
 
-    @Column(nullable = false)
-    private String path;
-
     @NotNull(message = "깊이 정보는 필수입니다.")
     @Min(0)
     @Column(nullable = false)
@@ -55,15 +52,13 @@ public class Category extends SoftDeletableBaseEntity {
     @Column(nullable = false)
     private Boolean isVisible;
 
-    // [수정] path와 depth를 파라미터로 받도록 변경 (테스트 용이성 확보)
     @Builder
-    public Category(String name, String slug, Integer displayOrder, Boolean isVisible, String path, Integer depth) {
+    public Category(String name, String slug, Integer displayOrder, Boolean isVisible, Integer depth) {
         this.name = name;
         this.slug = slug;
         this.displayOrder = displayOrder;
         this.isVisible = isVisible != null ? isVisible : true;
         // 입력값이 있으면 사용하고, 없으면 기본값 설정
-        this.path = (path != null) ? path : "/";
         this.depth = (depth != null) ? depth : 0;
 
         this.children = new ArrayList<>();
@@ -81,10 +76,8 @@ public class Category extends SoftDeletableBaseEntity {
 
         if (parent == null) {
             this.depth = 0;
-            this.path = "/";
         } else {
             this.depth = parent.getDepth() + 1;
-            this.path = parent.getPath();
 
             if (!parent.getChildren().contains(this)) {
                 parent.getChildren().add(this);
@@ -92,9 +85,5 @@ public class Category extends SoftDeletableBaseEntity {
         }
     }
 
-    public void completePath() {
-        this.path = (this.parent == null)
-                ? "/" + this.id + "/"
-                : this.parent.getPath() + this.id + "/";
-    }
+
 }
