@@ -220,5 +220,31 @@ public class CategoryService {
 
     //
 
+    public List<CategoryTreeResponse> getSubCategories(Long currentCategoryId) {
+        if (currentCategoryId == null) {
+            return null;
+        }
+
+        List<CategoryTreeResponse> categoryTree = getCategoryTree();
+
+        for (CategoryTreeResponse root : categoryTree) {
+            // 1. 현재 선택된 게 대분류인 경우 -> 그 자식들을 반환
+            if (root.getId().equals(currentCategoryId)) {
+                return root.getChildren();
+            }
+
+            // 2. 자식들(소분류) 중에 현재 선택된 게 있는지 확인
+            if (root.getChildren() != null) {
+                for (CategoryTreeResponse child : root.getChildren()) {
+                    if (child.getId().equals(currentCategoryId)) {
+                        // 소분류를 선택했더라도, 같은 레벨의 메뉴를 보여주기 위해 root의 자식들을 반환
+                        return root.getChildren();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

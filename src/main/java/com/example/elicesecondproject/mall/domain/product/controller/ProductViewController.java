@@ -43,57 +43,32 @@ public class ProductViewController {
 
     @GetMapping
     public String productList(
-            @RequestParam(required = false) String keyword, // [추가] 검색어
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false, defaultValue = "LATEST") ProductSortType sortType,
             @PageableDefault(size = 12) Pageable pageable,
             @AuthenticationPrincipal MemberDetail memberDetail,
             Model model
     ) {
+        // 1. 회원 ID 추출
         Long memberId = (memberDetail != null) ? memberDetail.getMember().getId() : null;
-        Page<ProductSummaryDto> products;
 
-        // [로직 분기]
-        if (keyword != null && !keyword.isBlank()) {
-            // 1. 검색어가 있으면 검색 서비스 호출
-            products = productService.searchProducts(keyword, sortType, pageable);
-        } else if (categoryId != null) {
-            // 2. 카테고리가 있으면 카테고리별 조회
-            products = productService.getProductsByCategory(categoryId, true, sortType, pageable, memberId);
-        } else {
-            // 3. 둘 다 없으면 전체 조회
-            products = productService.getAllProducts(pageable, memberId, sortType);
-        }
+        // 2. 상품 목록 조회
+        Page<ProductSummaryDto> products = productService.getProductList(
+                keyword, categoryId, sortType, pageable, memberId
+        );
 
-        // 카테고리 네비게이션 데이터
+        // 3. 카테고리 네비게이션 데이터 조회
         List<CategoryTreeResponse> categoryTree = categoryService.getCategoryTree();
-        List<CategoryTreeResponse> subCategories = null;
-
-        // 카테고리 선택 시 서브 카테고리 찾기 로직 (기존 유지)
-        if (categoryId != null) {
-            for (CategoryTreeResponse root : categoryTree) {
-                if (root.getId().equals(categoryId)) {
-                    subCategories = root.getChildren();
-                    break;
-                }
-                if (root.getChildren() != null) {
-                    for (CategoryTreeResponse child : root.getChildren()) {
-                        if (child.getId().equals(categoryId)) {
-                            subCategories = root.getChildren();
-                            break;
-                        }
-                    }
-                }
-                if (subCategories != null) break;
-            }
-        }
+        List<CategoryTreeResponse> subCategories = categoryService.getSubCategories(categoryId);
 
         model.addAttribute("products", products);
         model.addAttribute("categoryTree", categoryTree);
         model.addAttribute("subCategories", subCategories);
+
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("sortType", sortType);
-        model.addAttribute("keyword", keyword); // [추가] 검색어 유지용
+        model.addAttribute("keyword", keyword);
 
         return "product/list";
     }

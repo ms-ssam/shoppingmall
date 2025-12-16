@@ -42,6 +42,30 @@ public class ProductService {
     private final ProductOptionService productOptionService;
     private final ProductImageService productImageService;
 
+
+
+
+    public Page<ProductSummaryDto> getProductList(
+            String keyword,
+            Long categoryId,
+            ProductSortType sortType,
+            Pageable pageable,
+            Long memberId
+    ) {
+        // 1. 검색어가 있는 경우 (최우선)
+        if (StringUtils.hasText(keyword)) {
+            return searchProducts(keyword, sortType, pageable);
+        }
+
+        // 2. 카테고리가 선택된 경우 (하위 카테고리 포함 여부는 true로 고정)
+        if (categoryId != null) {
+            return getProductsByCategory(categoryId, true, sortType, pageable, memberId);
+        }
+
+        // 3. 조건이 없는 경우 전체 조회
+        return getAllProducts(pageable, memberId, sortType);
+    }
+
     //PROD-F-02
     public Page<ProductSummaryDto> getProductsByCategory(
             Long categoryId,
