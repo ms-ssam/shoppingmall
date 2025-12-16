@@ -93,7 +93,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="order : ${orders.content}">
-                            <td th:text="${order.id}"></td>
+                            <td th:text="${order.orderId}"></td>
                             <td th:text="${order.mainProductName}"></td>
                             <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'"></td>

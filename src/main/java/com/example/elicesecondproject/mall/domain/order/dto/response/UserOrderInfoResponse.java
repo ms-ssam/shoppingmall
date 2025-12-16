@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 public class UserOrderInfoResponse {
     private Long id;
-    private String orderId;  // TODO: 관련 html 수정
+    private String orderId;
     private String ordererName;
     private String ordererPhoneNumber;
     private String ordererEmail;
