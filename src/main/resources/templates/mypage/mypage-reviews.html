@@ -77,7 +77,7 @@
                            class="myreview-product-link">
 
                             <img class="myreview-product-thumb"
-                                 th:src="@{/images/product-default.png}"
+                                 th:src="${review.product.thumbnailUrl}"
                                  alt="상품 이미지">
 
                             <span class="myreview-product-title"
@@ -88,8 +88,9 @@
                     <!-- 2) 리뷰 영역 -->
                     <div class="myreview-item-body">
 
-                        <div class="myreview-review-image-wrapper">
-                            <img th:src="${review.imageUrl != null} ? ${review.imageUrl} : @{/images/review-default.png}"
+                        <div class="myreview-review-image-wrapper"
+                             th:if="${review.imageUrl != null}">
+                            <img th:src="${review.imageUrl}"
                                  alt="리뷰 이미지">
                         </div>
 
