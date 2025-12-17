@@ -144,14 +144,40 @@
 
 /* 기본 버튼 스타일 */
 .myreview-btn {
-    font-size: 13px;
-    padding: 6px 14px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+    height: 36px;              /* ⬅ myorder 버튼 체감 높이 */
+    padding: 0 14px;           /* ⬅ myorder padding(8px 16px)과 유사 */
+    border-radius: 8px;        /* ⬅ 동일 */
+    border: 1px solid #d0d0d0;
     background-color: #ffffff;
     cursor: pointer;
     text-decoration: none;
     color: #333;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;           /* ⬅ myorder와 동일 */
+    font-weight: 500;
+    box-sizing: border-box;
+}
+
+.myreview-btn.filter {
+    background-color: #2a6ef2; /* myorder primary 색 */
+    border-color: #2a6ef2;
+    color: #fff;
+}
+
+.myreview-btn.filter:hover {
+    filter: brightness(0.97);
+}
+
+.myreview-btn.secondary {
+    background-color: #f1f1f1;
+    border-color: #f1f1f1;
+    color: #444;
+}
+
+.myreview-btn.secondary:hover {
+    filter: brightness(0.98);
 }
 
 .myreview-btn:hover {
@@ -160,28 +186,65 @@
 
 /* 상단 미니 버튼용 */
 .myreview-btn.mini {
-    font-size: 13px;           /* 기존 12px → 13px */
+    height: auto;
     padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
 }
-
-.myreview-filter-form {
-    margin-bottom: 20px;
-}
+/* ===== 기간 필터 ===== */
+.myreview-filter-form { margin-bottom: 20px; }
 
 .filter-row {
     display: flex;
-    align-items: flex-end;
-    gap: 20px;
-}
-
-/* 버튼 그룹만 간격 좁게 */
-.filter-buttons {
-    display: flex;
-    gap: 6px; /* ← 검색 ↔ 초기화 사이가 붙도록 작은 gap */
+    align-items: flex-end;   /* ✅ 버튼/인풋 하단 기준 정렬 */
+    gap: 24px;
+    flex-wrap: wrap;
 }
 
 .filter-row label {
     display: flex;
-    flex-direction: column; /* label 위, input 아래 레이아웃 */
+    flex-direction: column;
+    gap: 8px;
     font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.filter-row input[type="date"] {
+    width: 200px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 13px;       /* ⬅ 14px → 13px */
+    box-sizing: border-box;
+}
+
+.filter-row input[type="date"]:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* ===== 버튼 hover 충돌 방지 ===== */
+.myreview-btn:hover {
+    border-color: #bbb;
+}
+
+/* 검색 버튼은 hover 시 border 유지 */
+.myreview-btn.filter:hover {
+    border-color: #1a73e8;
+    filter: brightness(0.97);
+}
+
+/* 초기화 버튼도 border 유지 */
+.myreview-btn.secondary:hover {
+    border-color: #f3f4f6;
+    filter: brightness(0.98);
 }

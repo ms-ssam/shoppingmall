@@ -9,7 +9,12 @@
         <div class="sidebar-section-title">계정 관리</div>
         <ul class="sidebar-menu">
             <li><a th:href="@{/mypage/profile}">회원 상세 정보</a></li>
-            <li><a th:href="@{/mypage/addresses}">배송지 관리</a></li>
+            <li>
+                <a th:href="@{/mypage/addresses}"
+                   onclick="alert('준비 중입니다.'); return false;">
+                    배송지 관리(준비 중)
+                </a>
+            </li>
         </ul>
     </section>
 
