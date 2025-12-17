@@ -1,0 +1,22 @@
+.payment-header-actions {
+    margin-bottom: 16px;
+}
+
+.payment-summary {
+    margin-bottom: 20px;
+}
+
+.payment-main-product {
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.payment-amount-line {
+    margin: 0;
+}
+
+.pay-button {
+    margin-top: 16px;
+    padding: 10px 14px;
+    cursor: pointer;
+}
