@@ -18,6 +18,7 @@ public class AddCartItemRequest {
 
     @NotEmpty(message = "수량 정보는 필수입니다.")
     private List<
+            @NotNull(message = "수량은 필수입니다.")
             @Min(value = 1, message = "수량은 1개 이상이여야 합니다.")
                     Integer> quantities;
 }
