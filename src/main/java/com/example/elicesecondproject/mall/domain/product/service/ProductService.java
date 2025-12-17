@@ -52,7 +52,7 @@ public class ProductService {
             Pageable pageable,
             Long memberId
     ) {
-        // 1. 검색어가 있는 경우 (최우선)
+        // 1. 검색어가 있는 경우
         if (StringUtils.hasText(keyword)) {
             return searchProducts(keyword, sortType, pageable);
         }

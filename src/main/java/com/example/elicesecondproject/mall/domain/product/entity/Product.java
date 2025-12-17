@@ -17,7 +17,13 @@ import org.hibernate.annotations.BatchSize;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
+@Table(name = "product", indexes = {
+        @Index(name = "idx_product_category_id", columnList = "category_id"),
+        @Index(name = "idx_product_status", columnList = "status"),
+        @Index(name = "idx_product_name", columnList = "name")
+})
 @Getter
 @NoArgsConstructor
 public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeletable로 수정했습니다.
