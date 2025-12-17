@@ -7,12 +7,14 @@ import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepos
 import com.example.elicesecondproject.mall.domain.product.repository.ProductRepository;
 import com.example.elicesecondproject.mall.domain.product.repository.WishListRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitialize implements CommandLineRunner {
 
     private final MemberRepository memberRepository;
@@ -41,7 +43,7 @@ public class DataInitialize implements CommandLineRunner {
 
             memberRepository.save(admin);
 
-            System.out.println(">>> 관리자 계정 생성 완료: admin@test.com / 1234");
+            log.info("관리자 계정 생성 완료: admin@test.com / 1234");
         }
 
         // 2. 일반 사용자 계정 생성 + Cart 할당
@@ -62,7 +64,7 @@ public class DataInitialize implements CommandLineRunner {
 
             memberRepository.save(user);
 
-            System.out.println(">>> 일반 사용자 계정 생성 완료: user@test.com / 1234");
+            log.info("일반 사용자 계정 생성 완료: user@test.com / 1234");
         }
 
         /*// 3. WishList 초기 데이터 생성
