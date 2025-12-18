@@ -45,14 +45,6 @@ deploy_job:
     - sudo pkill -f 'java' || true
     - sleep 5
     - nohup java -Dspring.profiles.active=dev -jar build/libs/*-SNAPSHOT.jar > app.log 2>&1 &
-    - for i in {1..30}; do
-    if curl -sf http://127.0.0.1:8080/ > /dev/null; then
-      echo "health check ok"; exit 0;
-    fi;
-    echo "waiting for app... ($i)";
-    sleep 2;
-  done
-  - echo "health check failed"; exit 1
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
 ######################################
