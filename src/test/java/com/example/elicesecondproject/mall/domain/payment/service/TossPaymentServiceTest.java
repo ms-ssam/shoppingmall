@@ -153,42 +153,12 @@ class TossPaymentServiceTest {
         return payment;
     }
 
-//    // 주문 + 주문 항목(+옵션) stub
-//    private Order stubOrderWithItems(Long ownerId, String orderId, List<Long> optionDetailIds) {
-//        Order order = mock(Order.class);
-//        when(orderRepository.findWithItemsByOrderId(orderId)).thenReturn(Optional.of(order));
-//        when(order.getOwnerId()).thenReturn(ownerId);
-//
-//        List<OrderItem> items = optionDetailIds.stream().map(odId -> {
-//            OrderItem item = mock(OrderItem.class);
-//            when(item.getOptionDetailId()).thenReturn(odId);
-//            return item;
-//        }).toList();
-//
-//        when(order.getOrderItems()).thenReturn(items);
-//
-//        return order;
-//    }
     private Order stubOrder(Long memberId, String orderId) {
         Order order = mock(Order.class);
         when(orderRepository.findWithItemsByOrderId(orderId)).thenReturn(Optional.of(order));
 
         return order;
     }
-
-    // 장바구니 삭제 대상 cartItem들 stub
-//    private List<CartItem> stubCartItemsToDelete(Long memberId, List<Long> cartItemIds) {
-//        List<CartItem> cartItems = cartItemIds.stream().map(id -> {
-//            CartItem ci = mock(CartItem.class);
-//            when(ci.getId()).thenReturn(id);
-//            return ci;
-//        }).toList();
-//
-//        when(cartItemRepository.findAllByCartMemberIdAndProductOptionDetailIdIn(eq(memberId), anyList()))
-//                .thenReturn(cartItems);
-//
-//        return cartItems;
-//    }
 
     // confirm() 외부 통신 메서드를 spy로 덮어쓰기
     private TossPaymentService spyConfirmDone(String paymentKey, String orderId, Long amount, TossConfirmResponse confirmDone) {
