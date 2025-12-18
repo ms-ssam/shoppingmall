@@ -83,46 +83,11 @@ public class CategoryService {
             updateChildrenVisibility(category, request.getIsVisible());
         }
 
-        // 2. 부모 카테고리 변경 감지 및 처리
-        if (request.getParentId() != null) {
-            // 기존 부모 ID와 요청된 부모 ID가 다를 경우에만 로직ㅁ 수행
-            Long currentParentId = category.getParent() != null ? category.getParent().getId() : null;
-
-            if (!Objects.equals(currentParentId, request.getParentId())) {
-                // 자기 자신을 부모로 설정하는 경우 예외 처리
-                if (category.getId().equals(request.getParentId())) {
-                    throw new BusinessException(ErrorCode.CATEGORY_CANNOT_BE_ITS_OWN_PARENT);
-                }
-
-                Category newParent = categoryRepository.findById(request.getParentId())
-                        .orElseThrow(() -> new BusinessException(ErrorCode.CATEGORY_NOT_FOUND));
-
-                // 부모 변경 및 경로 갱신
-                category.setParent(newParent);
-
-                //✅path 삭제
-                //category.completePath();
-
-                // [핵심] 하위 카테고리들도 재귀적으로 경로 업데이트
-                updateChildrenDepth(category);
-            }
-        }
-        // 부모를 제거하여 최상위로 만드는 경우 (request.getParentId()가 0 또는 특정 값일 때 처리 필요 시 추가)
 
         return categoryMapper.toResponse(category);
     }
 
     // 재귀적으로 Depth를 갱신하는 메서드
-    private void updateChildrenDepth(Category parent) {
-        List<Category> children = parent.getChildren();
-        if (children == null || children.isEmpty()) {
-            return;
-        }
-
-        for (Category child : children) {
-            updateChildrenDepth(child);
-        }
-    }
 
     // 카테고리 삭제 (Soft Delete)
     @Transactional
