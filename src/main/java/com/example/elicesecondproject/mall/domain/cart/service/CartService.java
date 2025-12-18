@@ -23,7 +23,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
@@ -41,7 +46,7 @@ public class CartService {
         Cart cart = cartRepository.findWithItemsAndProductInfoByMemberId(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
 
-        permissionValidator.validate(cart, cart.getMember());
+        validateCartOwner(cart);
 
         return CartInfoResponseDto.of(cart);
     }
@@ -89,8 +94,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
 
-        OptionDetail newOptionDetail = optionalDetailRepository.findById(request.getOptionDetailId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+        OptionDetail newOptionDetail = getOptionDetailOrThrow(request.getOptionDetailId());
 
         OptionDetail currentOptionDetail = cartItem.getProductOptionDetail();
 
@@ -112,55 +116,69 @@ public class CartService {
     @Transactional
     public void addItemToCart(Long memberId, AddCartItemRequest request) {
 
-        Cart cart = cartRepository.findByMemberId(memberId)
-                .orElseThrow(()-> new BusinessException(ErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(memberId);
 
-        if (request.getOptionDetailIds().size() != request.getQuantities().size()) {
+        List<Long> optionIds = request.getOptionDetailIds();
+        List<Integer> quantities = request.getQuantities();
+
+        if (optionIds.size() != quantities.size()) {
             throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
-        for (int i = 0; i < request.getOptionDetailIds().size(); i++) {
+        // 1) 요청 정규화: optionId별 수량 합산 (중복 optionId 처리)
+        Map<Long, Integer> qtyByOptionId = new LinkedHashMap<>();
+        for (int i = 0; i < optionIds.size(); i++) {
+            qtyByOptionId.merge(optionIds.get(i), quantities.get(i), Integer::sum);
+        }
 
-            Long optionDetailId = request.getOptionDetailIds().get(i);
-            int quantity = request.getQuantities().get(i);
+        List<Long> normalizedOptionIds = new ArrayList<>(qtyByOptionId.keySet()); // 유니크 optionId
 
-            OptionDetail optionDetail = optionalDetailRepository
-                    .findById(optionDetailId)
-                    .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+        // 2) 옵션 디테일 벌크 조회 + 존재 검증
+        List<OptionDetail> optionDetails = optionalDetailRepository.findByIdIn(normalizedOptionIds);
+        if (optionDetails.size() != normalizedOptionIds.size()) {
+            throw new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND);
+        }
 
-            // 이미 장바구니에 있는지 조회
-            CartItem cartItem = cartItemRepository
-                    .findByCartIdAndProductOptionDetailId(cart.getId(), optionDetailId)
-                    .orElse(null);
+        Map<Long, OptionDetail> optionMap = optionDetails.stream()
+                .collect(Collectors.toMap(OptionDetail::getId, Function.identity()));
 
-            // 이번에 장바구니에 들어가게 될 총 수량 = 기존수량 + 새로 담는 수량
-            int totalQuantity = quantity;
-            if (cartItem != null) {
-                totalQuantity += cartItem.getQuantity();
-            }
+        // 3) 카트 아이템 벌크 조회
+        List<CartItem> cartItems = cartItemRepository
+                .findByCartIdAndProductOptionDetailIdIn(cart.getId(), normalizedOptionIds);
 
-            // 재고보다 많이 담으려고 하면 에러
-            if (optionDetail.getStockQuantity() < totalQuantity) {
+        Map<Long, CartItem> cartItemMap = cartItems.stream()
+                .collect(Collectors.toMap(
+                        ci -> ci.getProductOptionDetail().getId(),
+                        Function.identity()
+                ));
+
+        // 4) 유니크 optionId 기준으로 재고 체크 + 담기 (루프에서 쿼리 없음)
+        for (Map.Entry<Long, Integer> entry : qtyByOptionId.entrySet()) {
+            Long optionId = entry.getKey();
+            int addQty = entry.getValue();
+
+            OptionDetail optionDetail = optionMap.get(optionId);
+            CartItem cartItem = cartItemMap.get(optionId);
+
+            int totalQty = addQty + (cartItem == null ? 0 : cartItem.getQuantity());
+            if (optionDetail.getStockQuantity() < totalQty) {
                 throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
             }
 
-            // 실제 담기
             if (cartItem != null) {
-                cartItem.increaseQuantity(quantity);
+                cartItem.increaseQuantity(addQty);
             } else {
-                CartItem newItem = CartItem.of(optionDetail, quantity);
+                CartItem newItem = CartItem.of(optionDetail, addQty);
                 cart.addItem(newItem);
             }
         }
     }
 
+
     // 개별 장바구니 항목 삭제
     @Transactional
     public void deleteCartItem(Long memberId, Long cartItemId) {
-        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-
-        permissionValidator.validate(cart, cart.getMember());
+        Cart cart = getCartWithItemsAndValidateOrThrow(memberId);
 
         CartItem target = cart.getCartItems().stream()
                 .filter(item -> item.getId().equals(cartItemId))
@@ -173,10 +191,7 @@ public class CartService {
     // 선택 상품 삭제
     @Transactional
     public void deleteSelectedCartItems(Long memberId, List<Long> cartItemIds) {
-        Cart cart = cartRepository.findWithItemsByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
-
-        permissionValidator.validate(cart, cart.getMember());
+        Cart cart = getCartWithItemsAndValidateOrThrow(memberId);
 
         List<CartItem> targets = cart.getCartItems().stream()
                 .filter(item -> cartItemIds.contains(item.getId()))
@@ -191,8 +206,38 @@ public class CartService {
 
     // 헤더에서 사용할 장바구니 아이템 카운트
     public int getCartCount(Long memberId) {
-        Cart cart = cartRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+        Cart cart = getCartOrThrow(memberId);
         return cart.getCartItems().size();
     }
+
+    // =========================
+    // 공통 로직
+    // =========================
+    private Cart getCartOrThrow(Long memberId) {
+        return cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+    }
+
+    private Cart getCartWithItemsOrThrow(Long memberId) {
+        return cartRepository.findWithItemsByMemberId(memberId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_NOT_FOUND));
+    }
+
+    private OptionDetail getOptionDetailOrThrow(Long optionDetailId) {
+        return optionalDetailRepository.findById(optionDetailId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OPTION_SIZE_NOT_FOUND));
+    }
+
+    private Cart getCartWithItemsAndValidateOrThrow(Long memberId) {
+        Cart cart = getCartWithItemsOrThrow(memberId);
+        validateCartOwner(cart);
+        return cart;
+    }
+
+    private void validateCartOwner(Cart cart) {
+        permissionValidator.validate(cart, cart.getMember());
+    }
+
+
+
 }

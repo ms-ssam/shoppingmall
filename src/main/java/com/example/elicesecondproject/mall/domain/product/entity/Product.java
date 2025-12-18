@@ -26,6 +26,7 @@ import java.util.List;
 })
 @Getter
 @NoArgsConstructor
+@Table(name = "products")
 public class Product extends SoftDeletableBaseEntity { // Basetime -> sofrDeletable로 수정했습니다.
 
     @Id

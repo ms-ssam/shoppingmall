@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "categorys")
 public class Category extends SoftDeletableBaseEntity {
 
     @Id

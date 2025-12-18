@@ -130,6 +130,7 @@ public class TossPaymentService {
         return response.getBody();
     }
 
+    @Transactional
     public Long handleFail(String orderId, Long memberId) {
         // 실제로 넘겨받은 주문번호에 해당하고 준비 상태인 사용자의 결제 건이 존재하는지 확인
         Payment payment = paymentRepository.findByOrderIdAndMemberIdAndPaymentStatus(orderId, memberId, PaymentStatus.READY)

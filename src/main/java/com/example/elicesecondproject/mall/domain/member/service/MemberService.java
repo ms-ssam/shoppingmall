@@ -1,16 +1,16 @@
 package com.example.elicesecondproject.mall.domain.member.service;
 
 import com.example.elicesecondproject.mall.domain.cart.entity.Cart;
+import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.PasswordChangeRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.UpdateMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.request.WithdrawMemberRequest;
 import com.example.elicesecondproject.mall.domain.member.dto.response.MemberProfileResponse;
-import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.entity.Member;
-import com.example.elicesecondproject.mall.domain.member.dto.request.AddMemberRequest;
+import com.example.elicesecondproject.mall.domain.member.entity.Role;
 import com.example.elicesecondproject.mall.domain.member.repositorty.MemberRepository;
-import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
 import com.example.elicesecondproject.mall.global.error.exception.FieldValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,8 +27,8 @@ public class MemberService {
 
     @Transactional
     public Long save(AddMemberRequest dto) {
-        if (memberRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        if (memberRepository.existsByEmail(dto.getEmail())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         Member member = Member.builder()
