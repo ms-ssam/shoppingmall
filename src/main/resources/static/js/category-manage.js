@@ -62,7 +62,6 @@ function renderCategoryTree() {
         return;
     }
 
-    // [변경] 평면 리스트를 필터링하는 것이 아니라, 트리 구조를 직접 순회합니다.
     categoryTreeData.forEach(parent => {
         // 1. 상위 카테고리 그리기
         const parentDiv = createParentCategoryItem(parent);
