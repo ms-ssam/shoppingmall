@@ -12,4 +12,8 @@ public class TossConfirmResponse {
     private int amount;
     private String method;
     private String approvedAt;
+
+    public boolean isDoneStatus() {
+        return this.status.equals("DONE");
+    }
 }
