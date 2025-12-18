@@ -42,9 +42,21 @@ deploy_job:
     - deploy
   script:
     - echo "운영 서버 배포를 시작합니다..."
-    - sudo pkill -f 'java' || true
+
+    - APP_JAR="$(ls -1 build/libs/*-SNAPSHOT.jar | head -n 1)"
+    - echo "Using JAR: ${APP_JAR}"
+    - test -f "${APP_JAR}"
+
+    - sudo pkill -f "EliceSecondProject-0.0.1-SNAPSHOT.jar" || true
     - sleep 5
-    - nohup java -Dspring.profiles.active=dev -jar build/libs/*-SNAPSHOT.jar > app.log 2>&1 &
+    
+    - nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" > app.log 2>&1 &
+    - echo "Started PID(s):"
+    - ps -ef | grep java | grep -v grep || true
+
+    - echo "Waiting for health check..."
+    - for i in 1 2 3 4 5 6 7 8 9 10; do curl -sf http://127.0.0.1:8080/ && exit 0; echo "waiting..."; sleep 3; done; exit 1
+    
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
 ######################################
