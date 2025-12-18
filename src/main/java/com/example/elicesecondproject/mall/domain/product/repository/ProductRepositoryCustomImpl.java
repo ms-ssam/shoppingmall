@@ -158,7 +158,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 calculateSalePrice(),
                 product.discountRate,
                 product.status,
-                product.thumbnailUrl,
+                selectMainImage(),
                 product.averageRating,
                 product.reviewCount,
                 product.wishListCount,
@@ -176,7 +176,18 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
                 .as(SALE_PRICE_ALIAS);
     }
 
-
+    private Expression<String> selectMainImage() {
+        return JPAExpressions
+                .select(productImage.imageUrl)
+                .from(productImage)
+                .where(
+                        productImage.product.eq(product),
+                        productImage.imageType.eq(ImageType.MAIN),
+                        productImage.deletedAt.isNull()
+                )
+                .orderBy(productImage.displayOrder.asc())
+                .limit(1);
+    }
 
     private BooleanExpression productNotDeleted() {
         return product.deletedAt.isNull()
