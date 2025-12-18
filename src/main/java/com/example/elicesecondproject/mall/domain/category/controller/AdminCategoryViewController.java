@@ -19,7 +19,7 @@ public class AdminCategoryViewController {
 
     // ✅관리자 카테고리 목록 조회(트리 구조로)
     @GetMapping
-    public String categoryManage(Model model) {
+    public String categoryManagePage(Model model) {
         List<CategoryTreeResponse> categoryTree = categoryService.getCategoryTreeForAdmin();
 
         model.addAttribute("categoryTree", categoryTree);
