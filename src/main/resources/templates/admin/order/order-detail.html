@@ -281,10 +281,13 @@
             </div>
             <div class="flex justify-between">
                 <span class="text-gray-500">결제일시</span>
-                <span th:text="${orderDetail.paymentInfo != null && orderDetail.paymentInfo.approvedAt != null}
-               ? ${#temporals.format(orderDetail.paymentInfo.approvedAt, 'yyyy-MM-dd HH:mm')}
-               : '-'">
-                    - (추후 추가 예정)
+                <span th:text="${orderDetail.paymentInfo != null and orderDetail.paymentInfo.approvedAt != null
+                ? #temporals.format(
+                orderDetail.paymentInfo.approvedAt.atZoneSameInstant(T(java.time.ZoneId).of('Asia/Seoul')),
+                'yyyy-MM-dd HH:mm'
+                )
+                : '-'}">
+                    -
                 </span>
             </div>
         </div>
