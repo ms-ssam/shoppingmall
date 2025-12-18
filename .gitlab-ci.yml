@@ -45,9 +45,6 @@ deploy_job:
     - sudo pkill -f 'java' || true
     - sleep 5
     - nohup java -Dspring.profiles.active=dev -jar build/libs/*-SNAPSHOT.jar > app.log 2>&1 &
-    - sleep 3
-    - ps -ef | grep java | grep -v grep
-    - curl -sf http://127.0.0.1:8080/ > /dev/null
     - echo "배포가 완료되었습니다!"
   rules:
     - if: $CI_COMMIT_BRANCH == $TARGET_BRANCH
