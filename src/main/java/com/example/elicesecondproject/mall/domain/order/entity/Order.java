@@ -169,4 +169,15 @@ public class Order extends BaseEntity implements Ownable {
     public Long getOwnerId() {
         return this.memberId;
     }
+
+    public void validOwnership(Long memberId) {
+        // 비교 대상 memberId가 null이면 안됨
+        assert memberId != null;
+
+        boolean ownershipConditionSatisfied = this.memberId.equals(memberId);
+
+        if (!ownershipConditionSatisfied) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+    }
 }
