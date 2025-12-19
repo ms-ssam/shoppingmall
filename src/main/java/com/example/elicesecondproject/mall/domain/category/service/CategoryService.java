@@ -164,31 +164,11 @@ public class CategoryService {
     }
     //[추가] 관리자용 카테고리 조회(숨김 처리한 것도 조회)
     public List<CategoryTreeResponse> getCategoryTreeForAdmin() {
-        // 1. 삭제되지 않은 최상위 카테고리 조회
         List<Category> rootCategories = categoryRepository
-                .findByParentIsNullAndDeletedAtIsNull();
+                .findByParentIsNullAndDeletedAtIsNull(); // isVisible 조건 제거
 
         return rootCategories.stream()
-                .map(root -> {
-                    List<CategoryTreeResponse> activeChildren = null;
-                    if (root.getChildren() != null) {
-                        activeChildren = root.getChildren().stream()
-                                .filter(child -> child.getDeletedAt() == null) // 삭제된 자식 제외
-                                .map(categoryMapper::toTreeResponse)           // 자식은 Mapper 이용
-                                .sorted(Comparator.comparing(CategoryTreeResponse::getDisplayOrder))
-                                .collect(Collectors.toList());
-                    }
-
-                    return CategoryTreeResponse.builder()
-                            .id(root.getId())
-                            .name(root.getName())
-                            .slug(root.getSlug())
-                            .displayOrder(root.getDisplayOrder())
-                            .isVisible(root.getIsVisible())
-                            .depth(root.getDepth())
-                            .children(activeChildren)
-                            .build();
-                })
+                .map(categoryMapper::toTreeResponse)
                 .sorted(Comparator.comparing(CategoryTreeResponse::getDisplayOrder))
                 .collect(Collectors.toList());
     }
