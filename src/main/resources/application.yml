@@ -37,8 +37,8 @@ spring:
   #      enabled: true
   servlet:
     multipart:
-      max-file-size: 5MB # 단일 파일 최대
-      max-request-size: 20MB # 여러 파일 합계
+      max-file-size: 7MB # 단일 파일 최대
+      max-request-size: 50MB # 여러 파일 합계
 
 springdoc:
   api-docs:
