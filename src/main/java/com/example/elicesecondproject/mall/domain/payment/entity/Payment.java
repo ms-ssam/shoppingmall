@@ -16,7 +16,8 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "payments")
 public class Payment extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -60,10 +61,18 @@ public class Payment extends BaseEntity {
     }
 
     private void changePaymentStatus(PaymentStatus newStatus) {
-        if(!paymentStatus.canChangeTo(newStatus)) {
+        if (!paymentStatus.canChangeTo(newStatus)) {
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS_CHANGE);
         }
         paymentStatus = newStatus;
     }
 
+    public void validAmount(Long amount) {
+        // 비교 총액이 null이면 안됨
+        assert amount != null;
+
+        if (this.amount != amount) {
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
+    }
 }

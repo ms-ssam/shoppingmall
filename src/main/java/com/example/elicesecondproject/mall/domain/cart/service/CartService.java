@@ -15,6 +15,8 @@ import com.example.elicesecondproject.mall.domain.option.entity.ProductOptionGro
 import com.example.elicesecondproject.mall.domain.option.mapper.OptionMapper;
 import com.example.elicesecondproject.mall.domain.option.repository.OptionDetailRepository;
 import com.example.elicesecondproject.mall.domain.option.repository.ProductOptionGroupRepository;
+import com.example.elicesecondproject.mall.domain.order.entity.Order;
+import com.example.elicesecondproject.mall.domain.order.entity.OrderItem;
 import com.example.elicesecondproject.mall.domain.product.entity.Product;
 import com.example.elicesecondproject.mall.global.common.PermissionValidator;
 import com.example.elicesecondproject.mall.global.error.ErrorCode;
@@ -186,6 +188,25 @@ public class CartService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
 
         cart.removeItem(target);  // 연관관계 편의 메서드 -> flush 시점에 orphanRemoval에 의해 DB delete
+    }
+
+    // 결제 성공시 장바구니를 정리한다
+    @Transactional
+    public void deleteCartItemOnPaymentSucceed(final Long memberId, final Order order) {
+        List<Long> optionDetailIds = order.getOrderItems().stream()
+                .map(OrderItem::getOptionDetailId)
+                .distinct()
+                .toList();
+
+        List<CartItem> cartItemsToDelete = cartItemRepository.findAllByCartMemberIdAndProductOptionDetailIdIn(memberId, optionDetailIds);
+
+        if (!cartItemsToDelete.isEmpty()) {
+            List<Long> cartItemIds = cartItemsToDelete.stream()
+                    .map(CartItem::getId)
+                    .toList();
+
+            deleteSelectedCartItems(memberId, cartItemIds);
+        }
     }
 
     // 선택 상품 삭제
