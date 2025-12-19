@@ -21,7 +21,10 @@
     <p class="payment-main-product" th:text="${order.mainProductName}">대표 상품명</p>
     <p class="payment-amount-line">
         총 결제 금액 :
-        <span class="payment-amount" th:text="${order.totalPaymentFee}">0</span> 원
+        <span class="payment-amount"
+              th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')}">
+            0
+        </span> 원
     </p>
 </section>
 

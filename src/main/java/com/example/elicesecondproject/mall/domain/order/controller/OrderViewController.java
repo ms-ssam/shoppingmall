@@ -135,18 +135,4 @@ public class OrderViewController {
             return "redirect:/cart";
         }
     }
-
-//    @GetMapping("/{orderId}/complete")
-//    public String orderComplete(@PathVariable Long orderId,
-//                                @AuthenticationPrincipal MemberDetail memberDetails,
-//                                Model model) {
-//
-//        Long memberId = memberDetails.getMember().getId();
-//
-//        // TODO : 제품 상세나오면 수정하기
-//        UserOrderInfoResponse order = orderService.getOrderForMember(orderId, memberId);  // 푸름님 여기 아예 다른 메서드로 갈아끼우셨음
-//        model.addAttribute("order", order);
-//
-//        return "order/order-complete";
-//    }
 }
