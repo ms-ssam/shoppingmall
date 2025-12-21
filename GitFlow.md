@@ -13,19 +13,6 @@ gitGraph
     checkout develop
     commit id: "chore: 기본 구조 설정"
 
-    branch feature/LOGIN-F-01
-    checkout feature/LOGIN-F-01
-    commit id: "chore: Security 설정"
-    commit id: "feat: 로그인/회원가입 기능"
-    checkout develop
-    merge feature/LOGIN-F-01
-
-    branch feature/MEM-F-01
-    checkout feature/MEM-F-01
-    commit id: "feat: 멤버 엔티티, DTO 작성"
-    commit id: "chore: 회원 초기 데이터"
-    checkout develop
-    merge feature/MEM-F-01
 
     
     branch feature/product
@@ -66,8 +53,8 @@ commit id: "fix: 상품 목록 조회 오류 해결" → 실제: [PROD-F-01] fix
 
 ### 브랜치 네이밍 전략
 
-프로젝트에서는 **기능명세서의 이슈 코드를 브랜치명에 직접 반영**하여 작업 추적이 가능하도록 했습니다.  
-예를 들어 `feature/PROD-F-01-prod-list`, `feature/LOGIN-F-01`처럼 기능명세 코드를 포함하여 어떤 요구사항을 구현하는 브랜치인지 명확히 식별할 수 있습니다.
+**기능명세서의 이슈 코드를 브랜치명에 직접 반영**
+- 예: `feature/PROD-F-01-prod-list`, `feature/LOGIN-F-01`
 
 ### 도메인별 통합 브랜치 전략
 
