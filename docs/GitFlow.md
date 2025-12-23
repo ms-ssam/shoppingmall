@@ -13,6 +13,19 @@ gitGraph
     checkout develop
     commit id: "chore: 기본 구조 설정"
 
+    branch feature/LOGIN-F-01
+    checkout feature/LOGIN-F-01
+    commit id: "chore: Security 설정"
+    commit id: "feat: 로그인/회원가입 기능"
+    checkout develop
+    merge feature/LOGIN-F-01
+
+    branch feature/MEM-F-01
+    checkout feature/MEM-F-01
+    commit id: "feat: 멤버 엔티티, DTO 작성"
+    commit id: "chore: 회원 초기 데이터"
+    checkout develop
+    merge feature/MEM-F-01
 
     
     branch feature/product
