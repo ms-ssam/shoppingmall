@@ -1,0 +1,80 @@
+<!-- src/main/resources/templates/cart/cart-item-edit-popup.html -->
+<div class="cart-edit-overlay"
+     th:fragment="popup(cartItem, cartItemId, errorMessage)">
+    <div class="cart-edit-modal">
+
+        <h2 class="cart-edit-title">옵션 변경</h2>
+
+        <!-- 수정 폼 -->
+        <form class="cart-edit-form"
+              th:action="@{'/cart/' + ${cartItemId} + '/option'}"
+              method="post"
+              onsubmit="return validateCartEditForm()">
+
+            <input type="hidden" name="_method" value="put">
+
+            <!-- 색상 / 사이즈 -->
+            <div class="cart-edit-row">
+                <!-- 색상 -->
+                <div class="cart-edit-field">
+                    <span class="cart-edit-label">색상</span>
+                    <select class="cart-edit-select"
+                            id="cartOptionGroupSelect"
+                            name="productOptionGroupId">
+                        <option value="">색상을 선택하세요</option>
+                        <option th:each="group : ${cartItem.optionGroups}"
+                                th:value="${group.id}"
+                                th:text="${group.name}"
+                                th:selected="${group.id} == ${cartItem.selectedProductOptionGroupId}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- 사이즈 -->
+                <div class="cart-edit-field">
+                    <span class="cart-edit-label">사이즈</span>
+                    <select class="cart-edit-select"
+                            id="cartOptionDetailSelect"
+                            name="optionDetailId">
+                        <option value="">사이즈를 선택하세요</option>
+                        <option th:each="detail : ${cartItem.optionDetails}"
+                                th:value="${detail.id}"
+                                th:text="${detail.name}"
+                                th:selected="${detail.id} == ${cartItem.selectedOptionDetailId}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 수량 -->
+            <div class="cart-edit-field">
+                <span class="cart-edit-label">수량</span>
+                <div class="qty-wrapper">
+                    <div class="qty-box">
+                        <button type="button"
+                                class="qty-btn"
+                                onclick="changeCartQty(-1)">−</button>
+                        <input type="number"
+                               class="cart-edit-qty-input"
+                               name="updatedQuantity"
+                               min="1"
+                               th:value="${cartItem.selectedQuantity}"
+                               id="cartEditQtyInput">
+                        <button type="button"
+                                class="qty-btn"
+                                onclick="changeCartQty(1)">＋</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 버튼 -->
+            <div class="cart-edit-actions">
+                <button type="submit" class="btn-edit-primary">변경</button>
+                <button type="button"
+                        class="btn-edit-secondary"
+                        onclick="closeCartEditPopup()">취소</button>
+            </div>
+
+        </form>
+    </div>
+</div>

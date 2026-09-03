@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      th:replace="~{fragments/admin-layout :: layout(~{::div})}">
+<head>
+    <!-- 카테고리 관리 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/category-manage.css}">
+</head>
+<body>
+
+<div class="w-full">
+
+    <div class="grid grid-cols-12 gap-6">
+
+        <!-- ==================== 좌측: 카테고리 트리 ==================== -->
+        <div class="col-span-12 lg:col-span-5">
+            <div class="bg-white p-6 rounded shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800">카테고리 목록</h4>
+                    <button type="button" onclick="openAddParentModal()"
+                            class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition text-sm">
+                        <i class="bi bi-plus-circle mr-1"></i> 최상위 추가
+                    </button>
+                </div>
+
+                <div id="categoryTree" class="space-y-2 max-h-[600px] overflow-y-auto">
+                    <!-- 카테고리 트리가 여기에 동적으로 생성됩니다 -->
+                </div>
+
+                <div class="mt-4 p-3 bg-gray-50 rounded text-xs text-gray-600">
+                    <p><i class="bi bi-info-circle mr-1"></i> 카테고리를 클릭하여 수정/삭제할 수 있습니다.</p>
+                    <p class="mt-1"><i class="bi bi-chevron-down mr-1"></i> 상위 카테고리를 클릭하면 하위 카테고리를 펼칠 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 우측: 카테고리 상세/편집 ==================== -->
+        <div class="col-span-12 lg:col-span-7">
+            <!-- 초기 안내 메시지 -->
+            <div id="emptyState" class="bg-white p-12 rounded shadow-sm border border-gray-200 text-center">
+                <i class="bi bi-folder text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">카테고리를 선택하거나 새로 추가해주세요.</p>
+            </div>
+
+            <!-- 카테고리 상세/편집 폼 (처음에는 숨김) -->
+            <div id="categoryDetailForm" class="bg-white p-6 rounded shadow-sm border border-gray-200 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800">카테고리 편집</h4>
+                    <button type="button" onclick="clearSelection()"
+                            class="text-gray-500 hover:text-gray-700">
+                        <i class="bi bi-x-lg text-xl"></i>
+                    </button>
+                </div>
+
+                <input type="hidden" id="categoryId">
+                <input type="hidden" id="categoryParentId">
+
+                <div class="space-y-4">
+                    <!-- 카테고리 레벨 표시 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">카테고리 레벨</label>
+                        <div id="categoryLevel" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-700">
+                            -
+                        </div>
+                    </div>
+
+                    <!-- 상위 카테고리 (하위 카테고리인 경우만 표시) -->
+                    <div id="parentCategorySection" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">상위 카테고리</label>
+                        <div id="parentCategoryDisplay" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-700">
+                            -
+                        </div>
+                    </div>
+
+                    <!-- 카테고리명 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            카테고리명 <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="categoryName"
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
+                               placeholder="카테고리명을 입력하세요"
+                               oninput="generateSlug()">
+                    </div>
+
+                    <!-- Slug (자동 생성 - 읽기 전용) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Slug (URL 식별자) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="categorySlug" readonly
+                               class="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded text-gray-600 cursor-not-allowed"
+                               placeholder="카테고리명 입력 시 자동 생성됩니다">
+                        <p class="text-xs text-gray-500 mt-1">카테고리명을 입력하면 자동으로 생성됩니다.</p>
+                    </div>
+
+                    <!-- 표시 순서 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">표시 순서</label>
+                        <input type="number" id="displayOrder" min="1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
+                               placeholder="1">
+                        <p class="text-xs text-gray-500 mt-1">숫자가 작을수록 먼저 표시됩니다.</p>
+                    </div>
+
+                    <!-- 노출 여부 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">노출 여부</label>
+                        <select id="isVisible"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500">
+                            <option value="true">노출</option>
+                            <option value="false">숨김</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 버튼 영역 -->
+                <div class="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                    <div>
+                        <button type="button" id="deleteBtn" onclick="deleteCategory()"
+                                class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm">
+                            <i class="bi bi-trash mr-1"></i> 삭제
+                        </button>
+                        <button type="button" id="addChildBtn" onclick="openAddChildModal()"
+                                class="ml-2 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition text-sm">
+                            <i class="bi bi-plus-circle mr-1"></i> 하위 카테고리 추가
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="clearSelection()"
+                                class="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition">
+                            취소
+                        </button>
+                        <button type="button" onclick="saveCategory()"
+                                class="px-6 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
+                            저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 최상위 카테고리 추가 모달 ==================== -->
+    <div id="addParentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">최상위 카테고리 추가</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        카테고리명 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="newParentName"
+                           class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
+                           placeholder="예: 상의, 하의, 아우터"
+                           oninput="generateModalSlug('parent')">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Slug <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="newParentSlug" readonly
+                           class="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded text-gray-600 cursor-not-allowed"
+                           placeholder="자동 생성됩니다">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">표시 순서</label>
+                    <input type="number" id="newParentOrder" min="1" value="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500">
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button type="button" onclick="closeAddParentModal()"
+                        class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition">
+                    취소
+                </button>
+                <button type="button" onclick="createParentCategory()"
+                        class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
+                    추가
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 하위 카테고리 추가 모달 ==================== -->
+    <div id="addChildModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">하위 카테고리 추가</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">상위 카테고리</label>
+                    <div id="selectedParentName" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-700 font-medium">
+                        -
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        카테고리명 <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="newChildName"
+                           class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500"
+                           placeholder="예: 민소매, 반팔, 긴팔"
+                           oninput="generateModalSlug('child')">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Slug <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="newChildSlug" readonly
+                           class="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded text-gray-600 cursor-not-allowed"
+                           placeholder="자동 생성됩니다">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">표시 순서</label>
+                    <input type="number" id="newChildOrder" min="1" value="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-teal-500 focus:border-teal-500">
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
+                <button type="button" onclick="closeAddChildModal()"
+                        class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition">
+                    취소
+                </button>
+                <button type="button" onclick="createChildCategory()"
+                        class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 transition">
+                    추가
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카테고리 관리 전용 JavaScript -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Thymeleaf에서 서버 데이터를 주입
+        const initialCategoryTree = /*[[${categoryTree}]]*/ [];
+        /*]]>*/
+    </script>
+    <script th:src="@{/js/category-manage.js}"></script>
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCategoryManager(initialCategoryTree);
+        });
+    </script>
+
+</div>
+</body>
+</html>

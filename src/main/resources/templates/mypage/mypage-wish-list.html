@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - 찜한 상품</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-wish-list.css}">
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+
+    <!-- 마이페이지 사이드바 -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="mypage-content">
+
+        <!-- 상단 타이틀 영역 -->
+        <section class="mypage-section-header">
+            <h2 class="mypage-section-title">찜한 상품</h2>
+            <p class="mypage-section-subtitle">
+                내가 찜한 상품들을 한눈에 확인할 수 있어요.
+            </p>
+        </section>
+
+        <!-- 찜한 상품이 없는 경우 -->
+        <section th:if="${wishList.empty}"
+                 class="wishlist-empty-state">
+            <p class="wishlist-empty-message">
+                아직 찜한 상품이 없어요 🥲<br>
+                마음에 드는 상품을 찜하고 여기에서 모아보세요.
+            </p>
+            <a th:href="@{/products}"
+               class="wishlist-empty-link">
+                상품 보러가기
+            </a>
+        </section>
+
+        <!-- 찜한 상품 목록 -->
+        <section th:if="${!wishList.empty}"
+                 class="wishlist-section">
+
+            <!-- 총 개수 -->
+            <div class="wishlist-summary">
+                <span th:text="|총 ${wishList.totalElements}개 상품|">
+                    총 0개 상품
+                </span>
+            </div>
+
+            <!-- 카드 그리드 -->
+            <div class="wishlist-grid">
+                <article class="wishlist-item-card"
+                         th:each="item : ${wishList.content}">
+
+                    <!-- 이미지 + 하트 -->
+                    <div class="wishlist-image-wrapper">
+                        <a th:href="@{|/products/${item.id}|}"
+                           class="wishlist-item-thumbnail">
+                            <img th:src="${item.thumbnailUrl}"
+                                 th:alt="${item.name}"
+                                 onerror="this.src='/images/no-image.png'">
+                        </a>
+
+                        <!-- 찜 해제 하트 (비동기) -->
+                        <button type="button"
+                                class="wishlist-heart-btn"
+                                th:attr="data-product-id=${item.id}">
+                            ♥
+                        </button>
+                    </div>
+
+                    <!-- 텍스트 영역 -->
+                    <div class="wishlist-item-body">
+                        <!-- 상품명 -->
+                        <h3 class="wishlist-item-name">
+                            <a th:href="@{|/products/${item.id}|}"
+                               th:text="${item.name}">
+                                상품명
+                            </a>
+                        </h3>
+
+                        <!-- 가격/할인 -->
+                        <div class="wishlist-price-row">
+                            <span class="wishlist-discount-rate"
+                                  th:if="${item.discountRate > 0}"
+                                  th:text="|${item.discountRate}%|">
+                                20%
+                            </span>
+                            <!-- 할인된 가격 -->
+                            <span class="wishlist-price"
+                                  th:text="${#numbers.formatInteger(item.price * (100 - item.discountRate) / 100, 0)} + '원'">
+                                71,200원
+                            </span>
+                        </div>
+
+                        <!-- 정가(취소선) -->
+                        <div class="wishlist-price-original-row"
+                             th:if="${item.discountRate > 0}">
+                            <span class="wishlist-price-original"
+                                  th:text="${#numbers.formatInteger(item.price, 0)} + '원'">
+                                89,000원
+                            </span>
+                        </div>
+
+                        <!-- 하단 좋아요/평점 영역 -->
+                        <div class="wishlist-bottom-row">
+                            <span class="wishlist-like-count"
+                                  th:if="${item.wishListCount > 0}">
+                                ♥ <span th:text="${item.wishListCount}">0</span>
+                            </span>
+
+                            <span class="wishlist-rating"
+                                  th:if="${item.reviewCount > 0}">
+                                <span class="wishlist-rating-star">★</span>
+                                <span th:text="${#numbers.formatDecimal(item.averageRating, 1, 1)}">4.8</span>
+                                (<span th:text="${item.reviewCount}">0</span>)
+                            </span>
+
+                            <span class="wishlist-rating"
+                                  th:if="${item.reviewCount == 0}">
+                                아직 리뷰 없음
+                            </span>
+                        </div>
+
+                    </div>
+
+                </article>
+            </div>
+
+            <!-- 페이징 네비게이션 -->
+            <nav class="wishlist-pagination"
+                 th:if="${wishList.totalPages > 1}">
+                <ul class="pagination-list">
+
+                    <!-- 이전 버튼 -->
+                    <li class="pagination-item"
+                        th:classappend="${wishList.first} ? ' disabled'">
+                        <a class="pagination-link"
+                           th:if="${!wishList.first}"
+                           th:href="@{/wish-list(page=${wishList.number - 1}, size=${wishList.size})}">
+                            이전
+                        </a>
+                        <span class="pagination-link"
+                              th:if="${wishList.first}">
+                            이전
+                        </span>
+                    </li>
+
+                    <!-- 페이지 번호들 -->
+                    <li class="pagination-item"
+                        th:each="pageNum : ${#numbers.sequence(0, wishList.totalPages - 1)}"
+                        th:classappend="${pageNum == wishList.number} ? ' active'">
+                        <a class="pagination-link"
+                           th:text="${pageNum + 1}"
+                           th:href="@{/wish-list(page=${pageNum}, size=${wishList.size})}">
+                            1
+                        </a>
+                    </li>
+
+                    <!-- 다음 버튼 -->
+                    <li class="pagination-item"
+                        th:classappend="${wishList.last} ? ' disabled'">
+                        <a class="pagination-link"
+                           th:if="${!wishList.last}"
+                           th:href="@{/wish-list(page=${wishList.number + 1}, size=${wishList.size})}">
+                            다음
+                        </a>
+                        <span class="pagination-link"
+                              th:if="${wishList.last}">
+                            다음
+                        </span>
+                    </li>
+
+                </ul>
+            </nav>
+
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const removeButtons = document.querySelectorAll('.wishlist-heart-btn');
+            const wishlistSection = document.querySelector('.wishlist-section');
+            const summarySpan = document.querySelector('.wishlist-summary span');
+
+            function updateSummaryCount() {
+                const cards = document.querySelectorAll('.wishlist-item-card');
+
+                if (summarySpan) {
+                    summarySpan.textContent = `총 ${cards.length}개 상품`;
+                }
+
+                if (cards.length === 0 && wishlistSection) {
+                    wishlistSection.style.display = 'none';
+
+                    let emptyState = document.querySelector('.wishlist-empty-state');
+                    if (!emptyState) {
+                        emptyState = document.createElement('section');
+                        emptyState.className = 'wishlist-empty-state';
+                        emptyState.innerHTML = `
+                        <p class="wishlist-empty-message">
+                            아직 찜한 상품이 없어요 🥲<br>
+                            마음에 드는 상품을 찜하고 여기에서 모아보세요.
+                        </p>
+                        <a href="/products" class="wishlist-empty-link">
+                            상품 보러가기
+                        </a>
+                    `;
+                        const main = document.querySelector('.mypage-content');
+                        if (main) main.appendChild(emptyState);
+                    }
+                }
+            }
+
+            removeButtons.forEach(function (btn) {
+                btn.addEventListener('click', async function () {
+                    const productId = btn.dataset.productId;
+                    if (!productId) return;
+
+                    try {
+                        const response = await fetch(`/api/products/${productId}/wish`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            alert('찜 해제에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+                            return;
+                        }
+
+                        const card = btn.closest('.wishlist-item-card');
+                        if (card) {
+                            card.remove();
+                            updateSummaryCount();
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('에러가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+                    }
+                });
+            });
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

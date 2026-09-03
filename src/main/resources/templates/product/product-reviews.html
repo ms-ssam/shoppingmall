@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${product.name} + ' - 상품 상세'">상품 상세</title>
+    <link rel="stylesheet" th:href="@{/css/product/user/product-reviews.css}">
+</head>
+<body>
+<div class="product-container" th:object="${product}">
+
+    <!-- 상품 상단 -->
+    <div class="product-top">
+
+        <!-- 메인 이미지 -->
+        <div>
+            <div class="product-image">
+                <img th:if="*{images != null and images.size() > 0}"
+                     th:src="*{images[0].imageUrl}"
+                     style="width:100%; height:100%; object-fit:cover;"/>
+
+                <span th:if="*{images == null or images.size() == 0}"
+                      style="color:#555;">메인 이미지</span>
+            </div>
+
+            <!-- 썸네일 영역 -->
+            <div class="thumbnail-row" th:if="*{images != null}">
+                <img class="thumbnail"
+                     th:each="img : *{images}"
+                     th:src="${img.imageUrl}"
+                     th:alt="'thumbnail-' + ${img.imageType}"/>
+            </div>
+        </div>
+
+        <!-- 상품 정보 -->
+        <div class="product-info">
+
+            <div class="product-name" th:text="*{name}">상품명</div>
+
+            <!-- 가격 + 할인가 -->
+            <div class="product-price">
+                <span th:if="*{salePrice != null}" class="price-original"
+                      th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'"></span>
+
+                <span th:if="*{salePrice != null}" class="price-sale"
+                      th:text="${#numbers.formatInteger(product.salePrice, 3, 'COMMA')} + '원'"></span>
+
+                <span th:if="*{salePrice == null}"
+                      th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'"></span>
+            </div>
+
+            <!-- 평점 / 리뷰수 -->
+            <div class="product-rating" th:if="*{averageRating != null}">
+                평점 <span th:text="*{averageRating}">4.5</span> / 5
+                ( <span th:text="*{reviewCount}">12</span>개 후기 )
+            </div>
+
+            <!-- 설명 -->
+            <div class="product-desc" th:text="*{description}">
+                상세 설명
+            </div>
+
+            <!-- 옵션 그룹 -->
+            <div class="option-group" th:each="group : *{optionGroups}">
+                <label class="option-label" th:text="${group.name}">옵션 그룹명</label>
+
+                <select>
+                    <option th:each="detail : ${group.details}"
+                            th:value="${detail.id}"
+                            th:text="${detail.name}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="button-row">
+                <button class="btn btn-like">♡ 좋아요 (<span th:text="*{wishListCount}">0</span>)</button>
+                <button class="btn btn-cart">장바구니</button>
+                <button class="btn btn-buy">구매하기</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ---------------- 탭 영역 ---------------- -->
+    <div class="tab-area">
+        <div class="tab-header">
+            <button class="tab-button active" data-tab="info">정보</button>
+            <button class="tab-button" data-tab="review">후기</button>
+            <button class="tab-button" data-tab="qna">문의</button>
+        </div>
+
+        <div class="tab-content">
+
+            <!-- 정보 탭 -->
+            <div class="tab-panel active" id="tab-info">
+                <p>상품 상세 정보 영역</p>
+            </div>
+
+            <!-- 후기 탭 -->
+            <div class="tab-panel" id="tab-review">
+                <div id="review-list">
+
+                    <!-- 리뷰가 있을 때 -->
+                    <div th:if="${reviews.content.size() > 0}">
+                        <div class="review-item" th:each="review : ${reviews.content}">
+
+                            <div class="review-body">
+                                <!-- 왼쪽 이미지 (있을 때만) -->
+                                <div class="review-image" th:if="${review.imageUrl != null}">
+                                    <img th:src="${review.imageUrl}" alt="리뷰 이미지">
+                                </div>
+
+                                <!-- 오른쪽 내용 -->
+                                <div class="review-right">
+                                    <div class="review-top-row">
+                                        <div class="review-stars">
+                                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                                  th:text="${i <= review.rating} ? '★' : '☆'">★</span>
+                                        </div>
+                                        <div class="review-date"
+                                             th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}">
+                                            2025.12.07
+                                        </div>
+                                    </div>
+
+                                    <div class="review-content" th:text="${review.content}">
+                                        리뷰 내용이 들어갑니다.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 간단 페이지네이션 (원래 있던 부분 그대로) -->
+                        <div class="pagination" th:if="${reviews.totalPages > 1}"
+                             style="margin-top:20px; display:flex; justify-content:center; gap:8px; font-size:13px;">
+                            <a th:href="@{|/products/${product.id}?page=${reviews.number - 1}|}"
+                               th:classappend="${reviews.first} ? 'disabled'"
+                               style="text-decoration:none; border:1px solid #ddd; padding:4px 8px;">
+                                이전
+                            </a>
+
+                            <a th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
+                               th:text="${pageNum + 1}"
+                               th:href="@{|/products/${product.id}?page=${pageNum}|}"
+                               th:classappend="${pageNum} == ${reviews.number} ? ' active'"
+                               style="text-decoration:none; border:1px solid #ddd; padding:4px 8px;">
+                            </a>
+
+                            <a th:href="@{|/products/${product.id}?page=${reviews.number + 1}|}"
+                               th:classappend="${reviews.last} ? 'disabled'"
+                               style="text-decoration:none; border:1px solid #ddd; padding:4px 8px;">
+                                다음
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 리뷰가 하나도 없을 때 -->
+                    <p th:if="${reviews.content.size() == 0}">
+                        아직 등록된 후기가 없습니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 문의 탭 -->
+            <div class="tab-panel" id="tab-qna">
+                <p>문의 영역</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 탭 전환 스크립트
+    document.querySelectorAll(".tab-button").forEach(btn => {
+        btn.onclick = () => {
+            const target = btn.dataset.tab;
+
+            document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+
+            btn.classList.add("active");
+            document.getElementById("tab-" + target).classList.add("active");
+        };
+    });
+</script>
+
+</body>
+</html>

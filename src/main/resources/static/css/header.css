@@ -1,0 +1,176 @@
+/* 공통 헤더 루트 */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.site-header .black-header {
+    background-color: #000;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+/* [1] 왼쪽 영역 */
+.site-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    min-width: 250px;
+}
+
+.site-header .logo {
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.site-header .nav-menu a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    margin-right: 20px;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+.site-header .nav-menu a:hover {
+    opacity: 0.7;
+}
+
+/* [2] 중앙 영역 (검색창) */
+.site-header .header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+}
+
+.site-header .search-form {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    min-width: 250px;
+}
+
+.site-header .search-input {
+    width: 100%;
+    padding: 12px 75px 12px 15px; /* 버튼 공간 확보 */
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.site-header .search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.site-header .search-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* [3] 오른쪽 영역 */
+.site-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 250px;
+    justify-content: flex-end;
+}
+
+.site-header .auth-menu {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.site-header .auth-links {
+    display: flex;
+    align-items: center;
+}
+
+.site-header .auth-links a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    margin-left: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* LOGOUT 버튼 */
+.site-header .logout-form {
+    margin: 0;
+}
+
+.site-header .logout-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    margin-left: 20px;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+/* [관리자 버튼 스타일] */
+.site-header .admin-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #374151; /* 진한 회색 */
+    color: #fff !important; /* 텍스트 흰색 강제 */
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 20px; /* 왼쪽 요소와 간격 */
+    transition: background-color 0.2s;
+    border: 1px solid #4b5563;
+}
+
+.site-header .admin-btn:hover {
+    background-color: #4b5563; /* 호버 시 조금 더 밝게 */
+}
+
+/* CART 링크 */
+.site-header .cart-link {
+    text-decoration: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+}

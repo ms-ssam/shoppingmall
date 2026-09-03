@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="container">
+    <h1>LOGIN</h1>
+
+    <form th:action="@{/login}" method="post">
+        <label for="email">ID</label>
+        <input id="email" class="input-box" type="text"
+               name="email" placeholder="ID" required>
+
+        <label for="password">Password</label>
+        <input id="password" class="input-box" type="password"
+               name="password" placeholder="Password" required>
+
+        <div class="sub-links">
+            <a th:href="@{/signup}">Sign up</a>
+            <div>
+                <a href="#" style="margin-right:8px;">Find ID</a> |
+                <a href="#" style="margin-left:8px;">Find Password</a>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary">로그인</button>
+    </form>
+
+    <p class="error-message"
+       th:if="${param.error}"
+       th:text="${param.error}">
+    </p>
+</div>
+</body>
+</html>

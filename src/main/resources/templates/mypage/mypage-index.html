@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - Account</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-index.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+    <!-- 사이드바 fragment -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <main class="mypage-content">
+        <section class="account-card">
+
+            <!-- ACCOUNT 타이틀 -->
+            <header class="account-card-header">
+                <h2 class="account-card-title">MY</h2>
+            </header>
+
+            <!-- 회원 정보 -->
+            <section class="account-section">
+                <h3 class="account-section-title">회원 정보</h3>
+
+                <div class="account-info-list">
+                    <div class="account-info-row">
+                        <span class="account-info-label">이메일</span>
+                        <span class="account-info-value" th:text="${member.email}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">이름</span>
+                        <span class="account-info-value" th:text="${member.name}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">닉네임</span>
+                        <span class="account-info-value" th:text="${member.nickname}"></span>
+                    </div>
+                    <div class="account-info-row">
+                        <span class="account-info-label">전화번호</span>
+                        <span class="account-info-value" th:text="${member.phone}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders -->
+            <section class="account-section account-orders">
+                <div class="account-section-header">
+                    <h3 class="account-section-title">Orders</h3>
+                    <a class="account-section-link" th:href="@{/mypage/orders}">
+                        모든 주문 내역
+                    </a>
+                </div>
+
+                <!-- 주문이 없을 때 -->
+                <p class="account-section-desc" th:if="${#lists.isEmpty(recentOrders)}">
+                    최근 주문 내역이 없습니다.
+                </p>
+
+                <!-- 주문이 있을 때 -->
+                <div class="orders-table-wrapper" th:if="${!#lists.isEmpty(recentOrders)}">
+                    <table class="orders-table">
+                        <thead>
+                        <tr>
+                            <th>주문번호</th>
+                            <th>상품</th>
+                            <th>주문일</th>
+                            <th>결제금액</th>
+                            <th>상태</th>
+                            <th></th> <!-- ✅ 상세보기 버튼 컬럼 -->
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="order : ${recentOrders}">
+                            <td th:text="${order.orderId}"></td>
+                            <td th:text="${order.mainProductName}"></td>
+                            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')} + '원'"></td>
+
+                            <!-- 상태 뱃지 -->
+                            <td>
+                    <span th:switch="${order.orderStatus.name()}">
+
+                        <span th:case="'PENDING'"           class="status-badge status-pending">결제 대기</span>
+                        <span th:case="'FAILED'"            class="status-badge status-failed">결제 실패</span>
+                        <span th:case="'PAID'"              class="status-badge status-paid">결제 완료</span>
+                        <span th:case="'PREPARING'"         class="status-badge status-preparing">상품 준비중</span>
+                        <span th:case="'DELIVERING'"        class="status-badge status-delivering">배송 진행</span>
+                        <span th:case="'DELIVERED'"         class="status-badge status-delivered">배송 완료</span>
+                        <span th:case="'CANCEL_REQUESTED'"  class="status-badge status-cancel-requested">취소 요청</span>
+                        <span th:case="'CANCELED'"          class="status-badge status-canceled">취소 승인</span>
+
+                        <span th:case="*" class="status-badge status-etc">기타</span>
+                    </span>
+                            </td>
+
+                            <!-- ✅ 상세보기 버튼 -->
+                            <td class="orders-detail-cell">
+                                <a th:href="@{'/mypage/orders/' + ${order.id}}"
+                                   class="orders-detail-btn">
+                                    상세보기
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </section>
+    </main>
+</div>
+</body>
+</html>

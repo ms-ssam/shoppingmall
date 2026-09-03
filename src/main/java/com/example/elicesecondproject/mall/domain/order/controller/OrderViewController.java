@@ -1,0 +1,138 @@
+package com.example.elicesecondproject.mall.domain.order.controller;
+
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetail;
+import com.example.elicesecondproject.mall.domain.order.dto.request.OrderCreateRequest;
+import com.example.elicesecondproject.mall.domain.order.dto.request.OrderSheetFromCartRequest;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetItemResponse;
+import com.example.elicesecondproject.mall.domain.order.dto.response.OrderSheetResponse;
+import com.example.elicesecondproject.mall.domain.order.service.OrderService;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/orders")
+public class OrderViewController {
+
+    private final OrderService orderService;
+
+    // 결제 페이지에서 '주문서로 돌아가기' 버튼 눌렀을 때
+    // 장바구니 -> 주문서 개념 재사용
+    @GetMapping("/{orderId}/sheet")
+    public String backToOrderSheet(@AuthenticationPrincipal MemberDetail memberDetail,
+                                   @PathVariable Long orderId,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
+
+        Long memberId = memberDetail.getMember().getId();
+
+        try {
+            // 1) 주문을 FAILED 로 바꾸고, Cart 기반 주문서 DTO 생성
+            OrderSheetResponse orderSheet =
+                    orderService.cancelPendingOrderAndCreateOrderSheet(memberId, orderId);
+
+            // 2) 주문 생성용 DTO (배송정보 입력 & cartItemIds)
+            OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+
+            List<Long> cartItemIds = orderSheet.getItems().stream()  // OrderSheetItemResponse 안에 cartItemIds 추출
+                    .map(OrderSheetItemResponse::getCartItemId)
+                    .toList();
+
+            orderCreateRequest.setCartItemIds(cartItemIds);  // 주문 생성용 DTO에 넣기
+
+            model.addAttribute("orderSheet", orderSheet);
+            model.addAttribute("orderCreateRequest", orderCreateRequest);
+
+            // 기존 주문서 화면 재사용
+            return "order/order-sheet";
+
+        } catch (BusinessException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/cart";
+        }
+    }
+
+    // 장바구니 -> 주문서 화면
+    // 모든 에러는 errorMessage 하나로 통일해서 /cart로 리다이렉트
+    @PostMapping("/sheet")
+    public String showOrderSheet(@AuthenticationPrincipal MemberDetail memberDetail,
+                                 @Valid @ModelAttribute OrderSheetFromCartRequest request,
+                                 BindingResult bindingResult,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
+
+        Long memberId = memberDetail.getMember().getId();
+
+        // DTO 검증 실패
+        if (bindingResult.hasErrors()) {
+            String errorMessage = bindingResult.hasFieldErrors("cartItemIds")
+                    ? bindingResult.getFieldError("cartItemIds").getDefaultMessage()
+                    : "요청 값이 올바르지 않습니다.";
+            redirectAttributes.addFlashAttribute("errorMessage", errorMessage);
+            return "redirect:/cart";
+        }
+
+        try{
+            OrderSheetResponse orderSheet = orderService.createOrderSheet(memberId, request);
+
+            // 주문 생성용 DTO (배송정보 입력)
+            OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+            orderCreateRequest.setCartItemIds(request.getCartItemIds());
+
+            model.addAttribute("orderSheet", orderSheet);
+            model.addAttribute("orderCreateRequest", orderCreateRequest);
+
+            return "order/order-sheet";
+
+        } catch(BusinessException e){
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/cart";
+        }
+    }
+
+    // 주문서 -> 주문 생성
+    @PostMapping
+    public String createOrder(@AuthenticationPrincipal MemberDetail memberDetail,
+                              @Valid @ModelAttribute OrderCreateRequest request,
+                              BindingResult bindingResult,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+
+        Long memberId = memberDetail.getMember().getId();
+        // 배송정보 입력, 약관 동의 -> dto에서 검증 ->실패 시 다시 주문서 화면으로
+        if (bindingResult.hasErrors()) {
+            OrderSheetFromCartRequest sheetRequest = new OrderSheetFromCartRequest();
+            sheetRequest.setCartItemIds(request.getCartItemIds());
+
+            try {
+                OrderSheetResponse orderSheet = orderService.createOrderSheet(memberId, sheetRequest);
+                model.addAttribute("orderSheet", orderSheet);
+                model.addAttribute("orderCreateRequest", request);
+                return "order/order-sheet";
+            } catch (BusinessException e) {
+                redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+                return "redirect:/cart";
+            }
+        }
+
+        try{
+            Long orderId = orderService.createOrder(memberId, request);
+
+            return "redirect:/orders/" + orderId + "/payment";  // 결제 페이지로 이동
+
+        } catch(BusinessException e) {
+            // 재고부족, 판매중지 상품 등 예외 -> 장바구니로
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/cart";
+        }
+    }
+}

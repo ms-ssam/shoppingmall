@@ -1,0 +1,192 @@
+/* -------------------------------------- */
+/* Profile Edit Page (회원 정보 수정)      */
+/* -------------------------------------- */
+
+.profile-edit-card {
+    background-color: #fff;
+    padding: 32px 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #eee;
+}
+
+.profile-edit-header {
+    margin-bottom: 24px;
+}
+
+.profile-edit-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+}
+
+/* 성공 메시지 알럿 */
+.alert {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.alert-success {
+    background-color: #e6ffed;
+    border: 1px solid #b7e8c4;
+    color: #256029;
+}
+
+/* 실패 메시지 알럿 */
+.alert-error {
+    background-color: #ffe6e6;
+    border: 1px solid #e8b7b7;
+    color: #a10000;
+}
+
+/* 폼 레이아웃 */
+.profile-edit-body {
+    max-width: 420px;   /* 너무 넓지 않게 */
+}
+
+.profile-edit-form .form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.profile-edit-form label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.profile-edit-form input[type="text"],
+.profile-edit-form input[type="password"] {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* 포커스 상태 */
+.profile-edit-form input[type="text"]:focus,
+.profile-edit-form input[type="password"]:focus {
+    border-color: #111;
+}
+
+/* 읽기 전용 상태 */
+.profile-edit-form input[type="text"][readonly] {
+    background-color: #f5f5f5;
+    color: #777;
+}
+
+/* 에러 메시지 */
+.profile-edit-form .error{
+    margin-top: 4px;
+    font-size: 12px;
+    color: #d32f2f;
+}
+
+/* 버튼 영역 */
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 8px;
+}
+
+/* 비밀번호 입력 힌트 */
+.password-hint {
+    font-size: 12px;
+    color: #888;       /* 연한 회색 */
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+/*============================
+         회원 탈퇴
+============================== */
+
+/* 회원 탈퇴 안내 문구 */
+.warning-text {
+    font-size: 13px;
+    color: #a10000;      /* 붉은 톤 경고 */
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+
+/*==========================
+       버튼 스타일
+============================ */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* 활성 상태의 기본 hover(타입별로 override 가능) */
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* 비활성 버튼 공통 */
+.btn:disabled {
+    background-color: #e0e0e0;
+    color: #999;
+    border-color: #d0d0d0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn:disabled:hover {
+    background-color: #e0e0e0;
+    color: #999;
+    border-color: #d0d0d0;
+}
+
+
+/* --------------------------------------
+   버튼 타입별 (Primary / Secondary / Danger)
+--------------------------------------- */
+
+/* 기본 버튼 (검정색) */
+.btn-primary {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.btn-primary:hover {
+    background-color: #222;
+}
+
+/* 취소 버튼(중립) */
+.btn-secondary {
+    background-color: #f5f5f5;
+    color: #333;
+    border-color: #d0d0d0;
+}
+
+.btn-secondary:hover {
+    background-color: #e4e4e4;
+    border-color: #c0c0c0;
+}
+
+/* 탈퇴 버튼(위험) */
+.btn-danger {
+    background-color: #d32f2f;
+    color: #fff;
+    border-color: #d32f2f;
+}
+
+.btn-danger:hover {
+    background-color: #b71c1c;
+    border-color: #b71c1c;
+}

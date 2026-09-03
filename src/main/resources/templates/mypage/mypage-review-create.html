@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>마이페이지 - 상품 리뷰 작성</title>
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+  <link rel="stylesheet" th:href="@{/css/mypage-review-create.css}">
+</head>
+<body>
+<!-- 공통 헤더 -->
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
+<div class="mypage-container">
+  <!-- 사이드바 -->
+  <div th:replace="~{fragments/mypage-sidebar :: mypageSidebar}"></div>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="mypage-content">
+    <section class="review-create-card">
+      <header class="review-create-header">
+        <h2 class="review-create-title">상품 품질 리뷰</h2>
+        <p class="review-create-subtitle">
+          이 상품의 품질에 대해서 얼마나 만족하시나요?
+        </p>
+      </header>
+
+      <section class="review-create-body">
+        <form th:action="@{'/mypage/orders/' + ${orderItemId} + '/review'}"
+              method="post"
+              enctype="multipart/form-data"
+              class="review-create-form">
+
+          <!-- 상품 정보 + 별점 -->
+          <div class="review-product-row">
+            <div class="review-product-thumb">
+              <img th:src="${product.thumbnailUrl}"
+                   th:alt="${product.name}"
+                   class="review-product-image">
+            </div>
+
+            <div class="review-product-main">
+              <p class="review-product-name"
+                 th:text="${product.name}">상품 이름</p>
+
+              <div class="review-rating-wrapper">
+                <div class="review-rating-stars">
+                  <input type="radio" id="star5" name="rating" value="5" required>
+                  <label for="star5" title="5점"></label>
+
+                  <input type="radio" id="star4" name="rating" value="4">
+                  <label for="star4" title="4점"></label>
+
+                  <input type="radio" id="star3" name="rating" value="3">
+                  <label for="star3" title="3점"></label>
+
+                  <input type="radio" id="star2" name="rating" value="2">
+                  <label for="star2" title="2점"></label>
+
+                  <input type="radio" id="star1" name="rating" value="1">
+                  <label for="star1" title="1점"></label>
+                </div>
+                <span class="review-rating-required">(필수)</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="review-divider">
+
+          <!-- 상세리뷰 -->
+          <section class="review-section">
+            <h3 class="review-section-title">상세리뷰</h3>
+            <div class="review-textarea-wrapper">
+              <textarea id="review-content"
+                        name="content"
+                        rows="8"
+                        class="review-textarea"
+                        required
+                        placeholder="다른 고객님에게 도움이 되도록 상품에 대한 솔직한 평가를 남겨주세요.&#10;(상품 품질과 관계 없는 배송, 포장, 질문 응대 등은 판매자 서비스 평가에 남겨주세요.)"></textarea>
+              <div class="review-textarea-counter">
+                <span id="content-length">0</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 사진 첨부 -->
+          <section class="review-section">
+            <h3 class="review-section-title">사진첨부</h3>
+            <div class="review-photo-row">
+              <label for="image" class="btn btn-secondary review-photo-button">
+                사진 첨부하기
+              </label>
+
+              <!-- 단일 이미지 업로드 (선택) -->
+              <input id="image"
+                     type="file"
+                     name="image"
+                     accept=".jpg,.jpeg,.png,.gif"
+                     class="review-photo-input">
+
+              <span class="review-photo-count">
+                <span id="photo-count">0</span> / 1
+              </span>
+            </div>
+            <p class="review-photo-help">
+              사진은 최대 20MB 이하의 JPG, PNG, GIF 파일 1장만 첨부 가능합니다.
+            </p>
+            <ul id="photo-file-list" class="review-photo-file-list"></ul>
+          </section>
+
+          <!-- 버튼 -->
+          <div class="review-button-group">
+            <a th:href="@{/mypage/orders}" class="btn btn-secondary">취소</a>
+            <button type="submit" class="btn btn-primary">리뷰 등록</button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const contentEl = document.getElementById('review-content');
+    const contentLenEl = document.getElementById('content-length');
+    const photoInput = document.getElementById('image');
+    const photoCountEl = document.getElementById('photo-count');
+    const photoListEl = document.getElementById('photo-file-list');
+    const form = document.querySelector('.review-create-form');
+
+    // 상세 리뷰 글자 수 카운트
+    if (contentEl) {
+      const updateContentLen = () => contentLenEl.textContent = contentEl.value.length;
+      contentEl.addEventListener('input', updateContentLen);
+      updateContentLen();
+    }
+
+    // 사진 선택 시 파일명 & 개수 표시
+    if (photoInput) {
+      photoInput.addEventListener('change', () => {
+        const files = Array.from(photoInput.files || []);
+        photoCountEl.textContent = files.length;
+        photoListEl.innerHTML = '';
+        files.forEach(f => {
+          const li = document.createElement('li');
+          li.textContent = f.name;
+          photoListEl.appendChild(li);
+        });
+      });
+    }
+
+    // 프론트 단 기본 검증
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        const ratingChecked = !!document.querySelector('input[name="rating"]:checked');
+        if (!ratingChecked) {
+          e.preventDefault();
+          alert('평점을 선택해 주세요.');
+          return;
+        }
+        if (!contentEl.value.trim()) {
+          e.preventDefault();
+          alert('리뷰 내용을 입력해 주세요.');
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>

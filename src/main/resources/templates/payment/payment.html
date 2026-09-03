@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제하기</title>
+
+    <link rel="stylesheet" th:href="@{/css/payment.css}">
+</head>
+<body>
+<h1>결제하기</h1>
+
+<!-- 주문서로 돌아가기 버튼 -->
+<div class="payment-header-actions">
+    <button type="button"
+            th:onclick="'location.href=\'/orders/' + ${order.id} + '/sheet\''">
+        주문서로 돌아가기
+    </button>
+</div>
+
+<section class="payment-summary">
+    <p class="payment-main-product" th:text="${order.mainProductName}">대표 상품명</p>
+    <p class="payment-amount-line">
+        총 결제 금액 :
+        <span class="payment-amount"
+              th:text="${#numbers.formatInteger(order.totalPaymentFee, 3, 'COMMA')}">
+            0
+        </span> 원
+    </p>
+</section>
+
+<div id="payment-method"></div>
+<div id="agreement"></div>
+
+<button id="pay-button" class="pay-button">결제하기</button>
+
+<!-- Toss SDK -->
+<script src="https://js.tosspayments.com/v2/standard"></script>
+
+<!-- ✅ Thymeleaf 데이터만 JS로 넘기는 "브릿지" 스크립트 (이건 분리 불가에 가깝다) -->
+<script th:inline="javascript">
+    window.__PAYMENT_PAGE__ = {
+        clientKey: /*[[${clientKey}]]*/ "",
+        customerKey: /*[[${customerKey}]]*/ "",
+        successPath: /*[[@{/payments/toss/success}]]*/ "",
+        failPath: /*[[@{/payments/toss/fail}]]*/ "",
+        order: {
+            idForBackToSheet: /*[[${order.id}]]*/ 0,
+            orderId: /*[[${order.orderId}]]*/ "",
+            orderName: /*[[${order.mainProductName}]]*/ "주문",
+            amount: /*[[${order.totalPaymentFee}]]*/ 0,
+            ordererEmail: /*[[${order.ordererEmail}]]*/ "",
+            ordererName: /*[[${order.ordererName}]]*/ ""
+        }
+    };
+</script>
+
+<script th:src="@{/js/payment.js}"></script>
+</body>
+</html>

@@ -1,19 +1,85 @@
 spring:
-  profiles:
-    active: local
-
   application:
     name: shoppingMall
-
-  thymeleaf:
-    cache: false
-
+  profiles:
+    active: local
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true  # PUT, DELETE 요청 hidden-method 지원
   jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 50
+    rest:
+      max-page-size: 50
+      default-page-size: 10
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+  #  datasource:
+  #    url: jdbc:h2:mem:testdb
+  #    username: sa
+  #    password:
+  #  h2:
+  #    console:
+  #      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 7MB # 단일 파일 최대
+      max-request-size: 50MB # 여러 파일 합계
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    try-it-out-enabled: true
+
+jwt:
+  secret: "s5TTgY4zdXRTZ58o/UdClxBqf4SKi3Hn11obMgLdP5w="
+  access-token-expiration: 1800000
+  refresh-token-expiration: 604800000
+
+file:
+  upload:
+    base-path: C:/uploads
+    product-path: products # /uploads/products
+    review-path: reviews
+    inquiry-path: inquiries
+    allowed-extensions: jpg,jpeg,png,webp
+  image:
+    resize:
+      max-width: 1920
+      quality: 0.85
+    thumbnail:
+      main-size: 300 # 300x300
+      slider-size: 100 # 100x100
+
+toss:
+  payments:
+    widget-client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm  # 프론트에서 사용 (위젯 초기화)
+    secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6  # 백엔드에서 사용 (결제 승인 - confirm)
+
+server:
+  port: 8080
 
 logging:
   level:
-    p6spy: info
+    root: INFO

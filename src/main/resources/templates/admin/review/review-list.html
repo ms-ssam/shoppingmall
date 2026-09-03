@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(~{::div})}">
+
+<body>
+
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+
+    <!-- 상단 헤더 -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">리뷰 관리</h3>
+    </div>
+
+    <!-- 검색 / 필터 -->
+    <form th:action="@{/admin/reviews}" method="get" class="mb-6">
+
+        <div class="grid grid-cols-4 gap-4 mb-3">
+            <!-- 상품명 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">상품명</label>
+                <input type="text" name="productName"
+                       th:value="${condition.productName}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                       placeholder="상품명 검색">
+            </div>
+
+            <!-- 작성자 닉네임 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">작성자 닉네임</label>
+                <input type="text" name="memberNickname"
+                       th:value="${condition.memberNickname}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                       placeholder="닉네임 검색">
+            </div>
+
+            <!-- 삭제 여부 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">삭제 여부</label>
+                <select name="deleted"
+                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">전체</option>
+                    <option value="false" th:selected="${condition.deleted == false}">정상 리뷰</option>
+                    <option value="true" th:selected="${condition.deleted == true}">삭제된 리뷰</option>
+                </select>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex items-end gap-2">
+                <button type="submit"
+                        class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">
+                    필터 적용
+                </button>
+                <a th:href="@{/admin/reviews}"
+                   class="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-50">
+                    초기화
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4">
+            <!-- 최소 평점 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">최소 평점</label>
+                <select name="minRating" id="minRating"
+                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">전체</option>
+                    <option th:each="i : ${#numbers.sequence(1,5)}"
+                            th:value="${i}"
+                            th:selected="${condition.minRating == i}"
+                            th:text="${i}"></option>
+                </select>
+            </div>
+
+            <!-- 최대 평점 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">최대 평점</label>
+                <select name="maxRating" id="maxRating"
+                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">전체</option>
+                    <option th:each="i : ${#numbers.sequence(1,5)}"
+                            th:value="${i}"
+                            th:selected="${condition.maxRating == i}"
+                            th:text="${i}"></option>
+                </select>
+            </div>
+
+            <!-- 작성일 시작 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">작성일 (시작)</label>
+                <input type="date" name="startDate" id="startDate"
+                       th:value="${condition.startDate}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+            </div>
+
+            <!-- 작성일 종료 -->
+            <div>
+                <label class="text-xs text-gray-500 mb-1 block">작성일 (종료)</label>
+                <input type="date" name="endDate" id="endDate"
+                       th:value="${condition.endDate}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+            </div>
+        </div>
+    </form>
+
+    <!-- 리스트 -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+            <tr>
+                <th class="px-4 py-3">ID</th>
+                <th class="px-4 py-3">이미지</th>
+                <th class="px-4 py-3">상품명</th>
+                <th class="px-4 py-3">회원</th>
+                <th class="px-4 py-3 text-center">평점</th>
+                <th class="px-4 py-3">내용</th>
+                <th class="px-4 py-3 text-center">작성일</th>
+                <th class="px-4 py-3 text-center">관리</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <!-- 빈 목록 -->
+            <tr th:if="${reviews.empty}">
+                <td colspan="8" class="px-4 py-8 text-center text-gray-400">
+                    등록된 리뷰가 없습니다.
+                </td>
+            </tr>
+
+            <!-- 데이터 -->
+            <tr th:each="review : ${reviews.content}"
+                class="bg-white border-b hover:bg-gray-50">
+
+                <!-- ID -->
+                <td class="px-4 py-3 text-gray-900" th:text="${review.id}"></td>
+
+                <!-- 이미지 (imageUrl) -->
+                <td class="px-4 py-3">
+                    <div class="w-12 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                        <img th:if="${review.imageUrl != null and !#strings.isEmpty(review.imageUrl)}"
+                             th:src="${review.imageUrl}"
+                             alt="리뷰 이미지"
+                             class="w-full h-full object-cover">
+                        <span th:if="${review.imageUrl == null or #strings.isEmpty(review.imageUrl)}"
+                              class="text-xs text-gray-400">
+                            없음
+                        </span>
+                    </div>
+                </td>
+
+                <!-- 상품명 -->
+                <td class="px-4 py-3 font-medium text-gray-900"
+                    th:text="${review.product.name}">
+                </td>
+
+                <!-- 회원 -->
+                <td class="px-4 py-3" th:text="${review.member.nickname}"></td>
+
+                <!-- 평점 -->
+                <td class="px-4 py-3 text-center">
+                    <span class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold"
+                          th:classappend="${review.rating >= 4} ? ' bg-yellow-100 text-yellow-800' : ' bg-gray-100 text-gray-700'">
+                        <i class="bi bi-star-fill mr-1 text-xs"></i>
+                        <span th:text="${review.rating}"></span>
+                    </span>
+                </td>
+
+                <!-- 내용 -->
+                <td class="px-4 py-3 max-w-xs">
+                    <div class="text-gray-700 text-sm line-clamp-2"
+                         th:text="${review.content}"></div>
+                </td>
+
+                <!-- 작성일 -->
+                <td class="px-4 py-3 text-center text-gray-500 text-xs">
+                    <div th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></div>
+                </td>
+
+                <!-- 관리(삭제만) -->
+                <td class="px-4 py-3 text-center">
+
+                    <!-- 삭제된 리뷰 -->
+                    <span th:if="${review.deletedAt != null}"
+                          class="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-400">
+                        삭제됨
+                    </span>
+
+                    <!-- 정상 리뷰: 삭제 버튼 -->
+                    <form th:if="${review.deletedAt == null}"
+                          th:action="@{'/admin/reviews/' + ${review.id}}"
+                          method="post"
+                          class="inline"
+                          onsubmit="return confirm('해당 리뷰를 삭제하시겠습니까?');">
+
+                        <input type="hidden" name="_method" value="delete"/>
+
+                        <button type="submit"
+                                class="border border-red-500 text-red-600 text-xs px-2 py-1 rounded hover:bg-red-50">
+                            삭제
+                        </button>
+                    </form>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-center gap-2 text-xs text-gray-500">
+
+        <!-- 이전 버튼 -->
+        <a th:if="${!reviews.empty and !reviews.first}"
+           th:href="@{/admin/reviews(page=${reviews.number - 1}, size=${reviews.size})}"
+           class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">
+            이전
+        </a>
+
+        <!-- 페이지 숫자 표시: 빈 리스트면 0/0, 아니면 정상 -->
+        <span>
+            <span th:if="${reviews.empty}">0</span>
+            <span th:unless="${reviews.empty}" th:text="${reviews.number + 1}"></span>
+            /
+            <span th:text="${reviews.empty ? 0 : reviews.totalPages}"></span>
+            페이지
+        </span>
+
+        <!-- 다음 버튼 -->
+        <a th:if="${!reviews.empty and !reviews.last}"
+           th:href="@{/admin/reviews(page=${reviews.number + 1}, size=${reviews.size})}"
+           class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">
+            다음
+        </a>
+
+    </div>
+
+    <!-- 평점 / 날짜 범위 제약 스크립트 -->
+    <script>
+        (function () {
+            const minRating = document.getElementById("minRating");
+            const maxRating = document.getElementById("maxRating");
+            const startDate = document.getElementById("startDate");
+            const endDate = document.getElementById("endDate");
+
+            if (minRating && maxRating) {
+                minRating.addEventListener("change", function () {
+                    if (minRating.value && maxRating.value &&
+                        parseInt(maxRating.value) < parseInt(minRating.value)) {
+                        maxRating.value = minRating.value;
+                    }
+                });
+
+                maxRating.addEventListener("change", function () {
+                    if (minRating.value && maxRating.value &&
+                        parseInt(maxRating.value) < parseInt(minRating.value)) {
+                        minRating.value = maxRating.value;
+                    }
+                });
+            }
+
+            if (startDate && endDate) {
+                if (startDate.value) {
+                    endDate.min = startDate.value;
+                }
+
+                startDate.addEventListener("change", function () {
+                    if (startDate.value) {
+                        endDate.min = startDate.value;
+                        if (endDate.value && endDate.value < startDate.value) {
+                            endDate.value = startDate.value;
+                        }
+                    } else {
+                        endDate.removeAttribute("min");
+                    }
+                });
+
+                endDate.addEventListener("change", function () {
+                    if (startDate.value && endDate.value < startDate.value) {
+                        startDate.value = endDate.value;
+                    }
+                });
+            }
+        })();
+    </script>
+
+</div>
+
+</body>
+</html>

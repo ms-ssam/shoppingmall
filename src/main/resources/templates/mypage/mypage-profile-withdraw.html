@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - 회원탈퇴</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-profile-edit.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<div class="mypage-container">
+    <!-- 사이드바 fragment -->
+    <div th:replace="fragments/mypage-sidebar :: mypageSidebar"></div>
+
+    <!-- 오른쪽 메인 콘텐츠 -->
+    <main class="mypage-content">
+        <section class="profile-edit-card">
+            <header class="profile-edit-header">
+                <h2 class="profile-edit-title">회원 탈퇴</h2>
+            </header>
+
+            <!-- 본문 영역 -->
+            <section class="profile-edit-body">
+
+                <!-- 안내 문구 -->
+                <p class="warning-text">
+                    탈퇴 시 계정은 복구가 어려울 수 있습니다.<br>
+                    정말 탈퇴하시려면 비밀번호를 다시 입력해주세요.
+                </p>
+
+                <!-- 회원 탈퇴 비밀번호 입력 폼 -->
+                <form th:action="@{/mypage/profile/withdraw}"
+                      th:object="${form}"
+                      method="post"
+                      class="profile-edit-form">
+
+                    <!-- hidden method: DELETE -->
+                    <input type="hidden" name="_method" value="DELETE"/>
+
+                    <!-- 비밀번호 입력 -->
+                    <div class="form-row">
+                        <label for="password">비밀번호</label>
+                        <input type="password"
+                               id="password"
+                               th:field="*{password}"
+                               placeholder="비밀번호를 입력해주세요"/>
+
+                        <!-- password 에러(공백, 불일치 등)를 여기서 보여줌 -->
+                        <div class="error"
+                             th:if="${#fields.hasErrors('password')}"
+                             th:errors="*{password}">
+                            비밀번호 오류
+                        </div>
+                    </div>
+
+                    <!-- 버튼 영역 -->
+                    <div class="button-group">
+                        <a th:href="@{/mypage/profile}" class="btn btn-secondary">취소</a>
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('정말 탈퇴하시겠습니까?');">
+                            탈퇴하기
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>

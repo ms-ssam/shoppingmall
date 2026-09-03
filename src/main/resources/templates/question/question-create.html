@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>상품 문의하기</title>
+
+    <!-- 공통 헤더 CSS -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <!-- 문의 페이지 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/question-create.css}">
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="fragments/header :: topHeader(${cartCount})"></div>
+
+<main class="qna-page">
+
+    <section class="qna-card">
+
+        <!-- 타이틀 -->
+        <header class="qna-header">
+            <h1>판매자에게 문의하기</h1>
+            <p>상품에 대해 궁금한 점을 남겨주세요.</p>
+        </header>
+
+        <!-- 상품 정보 -->
+        <section class="product-info">
+
+            <!-- 상품 썸네일 -->
+            <div class="product-thumb">
+                <img th:src="${product.thumbnailUrl != null ? product.thumbnailUrl : '/images/default.jpg'}"
+                     alt="상품 이미지">
+            </div>
+
+            <!-- 상품명 -->
+            <div class="product-name"
+                 th:text="${product.name}">
+                상품명
+            </div>
+
+        </section>
+
+
+        <hr>
+
+        <!-- 문의 작성 폼 -->
+        <form th:action="@{/products/{productId}/question(productId=${product.id})}"
+              method="post"
+              class="qna-form">
+
+            <!-- 제목 -->
+            <div class="form-group">
+                <label>제목 <span class="required">*</span></label>
+                <input type="text"
+                       name="title"
+                       maxlength="30"
+                       placeholder="30자 이내로 입력해주세요"
+                       th:value="${param.title}">
+            </div>
+
+            <!-- 비밀글 -->
+            <div class="form-group checkbox">
+                <label>
+                    <input type="checkbox"
+                           name="secret"
+                           th:checked="${param.secret}">
+                    비밀글
+                </label>
+                <span class="hint">비밀글은 작성자와 관리자만 볼 수 있어요.</span>
+            </div>
+
+            <!-- 내용 -->
+            <div class="form-group">
+                <label>문의 내용 <span class="required">*</span></label>
+                <textarea name="content"
+                          rows="6"
+                          maxlength="255"
+                          placeholder="문의할 내용을 입력해주세요"
+                          th:text="${param.content}"></textarea>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="form-actions">
+                <a th:href="@{/products/{productId}(productId=${product.id})}"
+                   class="btn cancel">
+                    취소
+                </a>
+                <button type="submit" class="btn submit">
+                    문의 등록
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+</main>
+
+</body>
+</html>

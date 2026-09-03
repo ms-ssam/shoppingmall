@@ -1,0 +1,125 @@
+package com.example.elicesecondproject.mall.domain.option.entity;
+
+import com.example.elicesecondproject.mall.domain.product.entity.Product;
+import com.example.elicesecondproject.mall.global.entity.SoftDeletableBaseEntity;
+import com.example.elicesecondproject.mall.global.error.exception.BusinessException;
+import com.example.elicesecondproject.mall.global.error.ErrorCode;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+
+@Entity
+@Getter
+@NoArgsConstructor
+@Table(name = "option_details")
+public class OptionDetail extends SoftDeletableBaseEntity {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_option_group_id", nullable = false)
+    private ProductOptionGroup productOptionGroup;
+
+    @NotBlank(message = "상세 옵션명은 필수입니다.") //사이즈 넣기
+    @Column(nullable = false)
+    private String name;
+
+    @NotBlank(message = "SKU는 필수입니다.") //sku 는 프론트에서 받아오기(중복 유효성 검사 O)
+    @Column(nullable = false, unique = true, length = 100)
+    private String sku;
+
+    @NotNull(message = "추가 금액은 필수입니다.")
+    @Min(value = 0, message = "추가 금액은 0원 이상이어야 합니다.")
+    @Column(nullable = false)
+    private Integer addPrice;
+
+    @NotNull(message = "재고 수량은 필수입니다.")
+    @Min(value = 0, message = "재고 수량은 0개 이상이어야 합니다.")
+    @Column(nullable = false)
+    private Integer stockQuantity; //TODO: 재고 이력 관리 하기
+
+    @NotNull(message = "정렬 순서는 필수입니다.")
+    @Column(nullable = false)
+    private Integer displayOrder;
+
+    @Version
+    private Long version; // 낙관적 락
+
+//    private LocalDateTime deletedAt;
+
+    @Builder
+    public OptionDetail(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
+        this.name = name;
+        this.sku = sku;
+        this.addPrice = addPrice;
+        this.stockQuantity = stockQuantity;
+        this.displayOrder = displayOrder != null ? displayOrder : 0;
+    }
+
+
+
+    // 부모 설정 편의 메서드 변경
+    public void initProductOptionGroup(ProductOptionGroup productOptionGroup) {
+        this.productOptionGroup = productOptionGroup;
+    }
+
+
+
+    public void removeStock(int quantity) {
+        int restStock = this.stockQuantity - quantity;
+        if (restStock < 0) {
+            throw new BusinessException(ErrorCode.NOT_ENOUGH_STOCK);
+        }
+        this.stockQuantity = restStock;
+
+        //상품의 전체 재고 자동 재계산
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
+    }
+
+    public void addStock(int quantity) {
+        if (quantity <= 0) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        this.stockQuantity += quantity;
+        if (this.productOptionGroup != null && this.productOptionGroup.getProduct() != null) {
+            this.productOptionGroup.getProduct().recalculateTotalStock();
+        }
+    }
+
+    public void update(String name, String sku, Integer addPrice, Integer stockQuantity, Integer displayOrder) {
+        this.name = name;
+        this.sku = sku;
+        this.addPrice = addPrice;
+        this.stockQuantity = stockQuantity;
+        this.displayOrder = displayOrder;
+    }
+
+    // 헬퍼 메서드
+    public Product getProduct() {
+        return this.productOptionGroup.getProduct();
+    }
+
+    // 옵션 적용가 (제품 자체 원가 + 옵션 추가금)
+    public int getOptionAppliedUnitPrice() {
+        return getProduct().getPrice() + addPrice;
+    }
+
+    // 최종 판매가 반환 (할인가 + 옵션 추가금)
+    public int getSaleUnitPrice() {
+        return getProduct().getSalePrice() + addPrice;
+    }
+
+    // 옵션 품절 여부 반환
+    public boolean isSoldOut() {
+        return stockQuantity <= 0 || getProduct().isSoldOut();
+    }
+
+}

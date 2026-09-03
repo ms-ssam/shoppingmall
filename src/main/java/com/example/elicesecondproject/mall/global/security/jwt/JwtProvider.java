@@ -1,0 +1,163 @@
+package com.example.elicesecondproject.mall.global.security.jwt;
+
+import com.example.elicesecondproject.mall.global.security.entity.MemberDetailService;
+import com.example.elicesecondproject.mall.global.common.MemberConstants;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtProvider {
+
+    private final MemberDetailService memberDetailService;
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenValidityInMilliseconds;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenValidityInMilliseconds;
+
+    private SecretKey key;
+
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String getUsername(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    public String createAccessToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream() // 인증 유저의 권한(role)을 토큰에 담아주기 위해 가져옴. STATELESS라 서버가 유저의 정보를 가지고 있지 않기 때문에 권한 정보도 포함해서 보내줘야함.
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+        Date validityDate = new Date(now + accessTokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .subject(authentication.getName())
+                .claim(MemberConstants.AUTH_CLAIM, authorities)
+                .claim(MemberConstants.TOKEN_TYPE_CLAIM, MemberConstants.TOKEN_TYPE_ACCESS)
+                .signWith(key)
+                .expiration(validityDate)
+                .compact();
+    }
+
+    // Refresh Token은 재발급 용도만 담당하므로 authorities(권한)은 필요없음
+    public String createRefreshToken(Authentication authentication) {
+        long now = (new Date()).getTime();
+        Date validityDate = new Date(now + refreshTokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .subject(authentication.getName())
+                .claim(MemberConstants.TOKEN_TYPE_CLAIM, MemberConstants.TOKEN_TYPE_REFRESH)
+                .signWith(key)
+                .expiration(validityDate)
+                .compact();
+    }
+
+
+    // 토큰으로 인증된 유저 객체 가져오기 (accessToken용)
+    public Authentication getAuthentication(String token) {
+        validateAccessToken(token);
+
+        Claims claims = parseClaims(token);
+
+        if (claims.get(MemberConstants.AUTH_CLAIM) == null) {
+            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+        }
+
+        // 권한을 GrantedAuthority 타입으로 변환해야 스프링 시큐리티에 사용 가능
+        String email = claims.getSubject();
+        UserDetails principal = memberDetailService.loadUserByUsername(email);
+
+        return new UsernamePasswordAuthenticationToken(
+                principal,
+                "",
+                principal.getAuthorities()
+        );
+    }
+
+    // 공통: 서명/만료/형식 검증
+    public void validateToken(String token) {
+        Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
+    }
+
+    // Access 토큰인지까지 검증 (서명/만료 + token_type=ACCESS)
+    public void validateAccessToken(String token) {
+        try {
+            validateToken(token);
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 ACCESS 토큰입니다.");
+            throw e;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.info("유효하지 않은 ACCESS 토큰입니다.");
+            throw e;
+        }
+
+        Claims claims = parseClaims(token);
+        String type = claims.get(MemberConstants.TOKEN_TYPE_CLAIM, String.class);
+
+        if (!MemberConstants.TOKEN_TYPE_ACCESS.equals(type)) {
+            throw new JwtException("ACCESS 토큰이 아닙니다.");
+        }
+    }
+
+    // Refresh 토큰인지까지 검증 (서명/만료 + token_type=REFRESH)
+    public void validateRefreshToken(String token) {
+        try {
+            validateToken(token);
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 REFRESH 토큰입니다.");
+            throw e;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.info("유효하지 않은 REFRESH 토큰입니다.");
+            throw e;
+        }
+
+        Claims claims = parseClaims(token);
+        String type = claims.get(MemberConstants.TOKEN_TYPE_CLAIM, String.class);
+
+        if (!MemberConstants.TOKEN_TYPE_REFRESH.equals(type)) {
+            throw new JwtException("REFRESH 토큰이 아닙니다.");
+        }
+    }
+
+    // JWT의 Payload(Claims)를 꺼내오는 함수
+    private Claims parseClaims(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(key)            // SecretKey 유효한지 검증
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+}
+

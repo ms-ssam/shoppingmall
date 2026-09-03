@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/admin-layout :: layout(~{::div})}">
+
+<body>
+
+<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+
+    <!-- 상단 헤더 -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">주문 관리</h3>
+        <!-- 필요하면 나중에 버튼 추가
+        <a href="#"
+           class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+            + 수동 주문 등록
+        </a>
+        -->
+    </div>
+
+    <!-- 검색 / 필터 영역 -->
+    <form th:action="@{/admin/orders}" method="get" class="mb-6 space-y-3">
+
+        <!-- 키워드 + 검색 버튼 -->
+        <div class="flex gap-3">
+            <input type="text"
+                   name="keyword"
+                   th:value="${searchCondition.keyword}"
+                   placeholder="주문번호, 상품명, 고객명 검색"
+                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"/>
+
+            <!-- 검색 버튼 -->
+            <button type="submit"
+                    class="px-5 py-2 rounded-md bg-gray-900 text-white text-sm font-semibold flex items-center gap-1">
+                <span>검색</span>
+            </button>
+
+            <!-- 초기화 버튼 -->
+            <button type="button"
+                    id="order-reset-btn"
+                    class="px-5 py-2 rounded-md border border-gray-300 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-100">
+                초기화
+            </button>
+        </div>
+
+
+        <!-- 정렬/상태/기간 필터 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+            <!-- 주문 상태 -->
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">주문 상태</label>
+                <select name="orderStatus"
+                        class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                    <option value="">전체</option>
+
+                    <option value="PENDING"          th:selected="${searchCondition.orderStatus} == 'PENDING'">결제 대기</option>
+                    <option value="FAILED"           th:selected="${searchCondition.orderStatus} == 'FAILED'">결제 실패</option>
+                    <option value="PAID"             th:selected="${searchCondition.orderStatus} == 'PAID'">결제 완료</option>
+                    <option value="PREPARING"        th:selected="${searchCondition.orderStatus} == 'PREPARING'">상품 준비중</option>
+                    <option value="DELIVERING"       th:selected="${searchCondition.orderStatus} == 'DELIVERING'">배송 진행</option>
+                    <option value="DELIVERED"        th:selected="${searchCondition.orderStatus} == 'DELIVERED'">배송 완료</option>
+                    <option value="CANCEL_REQUESTED" th:selected="${searchCondition.orderStatus} == 'CANCEL_REQUESTED'">취소 요청</option>
+                    <option value="CANCELED"         th:selected="${searchCondition.orderStatus} == 'CANCELED'">취소 승인</option>
+                </select>
+            </div>
+
+            <!-- 시작일 -->
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">시작일</label>
+                <input type="date"
+                       id="startDate"
+                       name="startDate"
+                       th:value="${searchCondition.startDate}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm"/>
+            </div>
+
+            <!-- 종료일 -->
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">종료일</label>
+                <input type="date"
+                       id="endDate"
+                       name="endDate"
+                       th:value="${searchCondition.endDate}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm"/>
+            </div>
+        </div>
+    </form>
+
+    <!-- 일괄 작업 바 -->
+    <div class="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 mb-4">
+        <div class="flex items-center gap-3 text-sm">
+            <span class="font-semibold">일괄 작업:</span>
+
+            <select id="bulk-status-select"
+                    class="border border-gray-300 rounded px-2 py-1 text-xs">
+                <option value="">상태 선택</option>
+                <option value="PREPARING">상품 준비</option>
+                <option value="DELIVERING">배송 진행</option>
+                <option value="DELIVERED">배송 완료</option>
+                <option value="CANCELED">취소 승인</option>
+            </select>
+
+            <button type="button"
+                    id="bulk-status-btn"
+                    class="px-3 py-1 rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700">
+                상태 변경
+            </button>
+        </div>
+        <div class="text-xs text-gray-500">
+            <span th:text="|${orders.totalElements}건 중 ${orders.numberOfElements}건 표시|">0개 선택</span>
+        </div>
+    </div>
+
+    <!-- 주문 리스트 테이블 -->
+    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+            <tr class="text-left text-xs text-gray-500">
+                <th class="px-4 py-3">
+                    <input type="checkbox" id="order-check-all"/>
+                </th>
+                <th class="px-4 py-3">주문번호</th>
+                <th class="px-4 py-3">고객명</th>
+                <th class="px-4 py-3">상품</th>
+                <th class="px-4 py-3 text-right">금액</th>
+                <th class="px-4 py-3">주문일시</th>
+                <th class="px-4 py-3">상태</th>
+                <th class="px-4 py-3 text-center">관리</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <!-- 주문 데이터가 없을 때 -->
+            <tr th:if="${orders.totalElements == 0}">
+                <td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500">
+                    등록된 주문이 없습니다.
+                </td>
+            </tr>
+
+            <!-- 주문 데이터가 있을 때 -->
+            <tr th:each="order : ${orders.content}"
+                class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="px-4 py-3 align-middle">
+                    <input type="checkbox"
+                           name="orderIds"
+                           class="order-checkbox"
+                           th:value="${order.id}"/>
+                </td>
+
+                <!-- 주문번호: 아직 필드가 없다면 id로 대체 -->
+                <td class="px-4 py-3 align-middle">
+                    <span class="text-blue-600 font-semibold"
+                          th:text="${order.orderId}">ORD</span>
+                </td>
+
+                <!-- 고객명 -->
+                <td class="px-4 py-3 align-middle">
+                    <span th:text="${order.ordererName}">홍길동</span>
+                </td>
+
+                <!-- 대표 상품명 -->
+                <td class="px-4 py-3 align-middle">
+                    <span th:text="${order.mainProductName}">블루 데님 재킷, 화이트 스니커즈</span>
+                </td>
+
+                <!-- 금액 -->
+                <td class="px-4 py-3 align-middle text-right">
+                    <span th:text="${#numbers.formatInteger(order.totalPaymentFee, 0, 'COMMA')} + '원'">
+                        ₩219,980
+                    </span>
+                </td>
+
+                <!-- 주문일시 -->
+                <td class="px-4 py-3 align-middle">
+                    <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">
+                        2024-11-29 14:32
+                    </span>
+                </td>
+
+                <!-- 상태 + 상태 변경 폼 -->
+                <td class="px-4 py-3 align-middle">
+                    <!-- 현재 상태 배지 -->
+                    <!-- 현재 상태 배지 -->
+                    <div class="mb-2">
+                        <span th:switch="${order.orderStatus.name()}">
+
+                            <span th:case="'PENDING'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-semibold">
+                                결제 대기
+                            </span>
+
+                            <span th:case="'FAILED'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold">
+                                결제 실패
+                            </span>
+
+                            <span th:case="'PAID'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+                                결제 완료
+                            </span>
+
+                            <span th:case="'PREPARING'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">
+                                상품 준비중
+                            </span>
+
+                            <span th:case="'DELIVERING'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold">
+                                배송 진행
+                            </span>
+
+                            <span th:case="'DELIVERED'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                배송 완료
+                            </span>
+
+                            <span th:case="'CANCEL_REQUESTED'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold">
+                                취소 요청
+                            </span>
+
+                            <span th:case="'CANCELED'"
+                                  class="inline-flex px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                취소 승인
+                            </span>
+
+                            <span th:case="*"
+                                  class="inline-flex px-2 py-1 rounded-full bg-gray-200 text-gray-600 text-xs font-semibold">
+                                기타
+                            </span>
+
+                        </span>
+                    </div>
+
+
+                    <!-- 개별 상태 변경 폼 -->
+                    <form th:action="@{|/admin/orders/${order.id}|}"
+                          method="post"
+                          class="flex items-center gap-2">
+
+                        <!-- PUT 매핑용 -->
+                        <input type="hidden" name="_method" value="put"/>
+
+                        <select name="status"
+                                class="border border-gray-300 rounded px-2 py-1 text-xs">
+                            <option value="PENDING"
+                                    th:selected="${order.orderStatus.name() == 'PENDING'}">
+                                결제 대기
+                            </option>
+                            <option value="FAILED"
+                                    th:selected="${order.orderStatus.name() == 'FAILED'}">
+                                결제 실패
+                            </option>
+                            <option value="PAID"
+                                    th:selected="${order.orderStatus.name() == 'PAID'}">
+                                결제 완료
+                            </option>
+                            <option value="PREPARING"
+                                    th:selected="${order.orderStatus.name() == 'PREPARING'}">
+                                상품 준비중
+                            </option>
+                            <option value="DELIVERING"
+                                    th:selected="${order.orderStatus.name() == 'DELIVERING'}">
+                                배송 진행
+                            </option>
+                            <option value="DELIVERED"
+                                    th:selected="${order.orderStatus.name() == 'DELIVERED'}">
+                                배송 완료
+                            </option>
+                            <option value="CANCEL_REQUESTED"
+                                    th:selected="${order.orderStatus.name() == 'CANCEL_REQUESTED'}">
+                                취소 요청
+                            </option>
+                            <option value="CANCELED"
+                                    th:selected="${order.orderStatus.name() == 'CANCELED'}">
+                                취소 승인
+                            </option>
+                        </select>
+
+                        <button type="submit"
+                                class="px-2 py-1 rounded bg-gray-900 text-white text-xs">
+                            변경
+                        </button>
+                    </form>
+                </td>
+
+                <!-- 관리 -->
+                <td class="px-4 py-3 align-middle text-center">
+                    <a th:href="@{|/admin/orders/${order.id}|}"
+                       class="px-3 py-1 border border-gray-300 rounded text-xs text-gray-700 hover:bg-gray-100">
+                        상세 보기
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="mt-4 flex justify-between items-center text-sm">
+
+        <div class="text-gray-500">
+            <span th:text="|전체 ${orders.totalElements}건|">전체 0건</span>
+        </div>
+
+        <div>
+            <ul class="inline-flex items-center border border-gray-200 rounded overflow-hidden text-sm">
+
+                <!-- 이전 버튼 -->
+                <li>
+                    <a th:if="${orders.hasPrevious()}"
+                       th:href="@{/admin/orders(
+                                page=${orders.number - 1},
+                                size=${orders.size},
+                                keyword=${searchCondition.keyword},
+                                orderStatus=${searchCondition.orderStatus},
+                                startDate=${searchCondition.startDate},
+                                endDate=${searchCondition.endDate}
+                                )}"
+                       class="px-3 py-1 hover:bg-gray-100">&laquo;</a>
+                    <span th:unless="${orders.hasPrevious()}"
+                          class="px-3 py-1 text-gray-300">&laquo;</span>
+                </li>
+
+                <!-- 페이지 번호들 -->
+                <li th:each="pageNum : ${#numbers.sequence(0, orders.totalPages > 0 ? orders.totalPages - 1 : 0)}">
+                    <a th:href="@{/admin/orders(
+                                page=${pageNum},
+                                size=${orders.size},
+                                keyword=${searchCondition.keyword},
+                                orderStatus=${searchCondition.orderStatus},
+                                startDate=${searchCondition.startDate},
+                                endDate=${searchCondition.endDate}
+                                )}"
+                       th:text="${pageNum + 1}"
+                       th:classappend="${pageNum} == ${orders.number} ? ' bg-gray-900 text-white' : ' hover:bg-gray-100'"
+                       class="px-3 py-1 border-l border-gray-200"></a>
+                </li>
+
+                <!-- 다음 버튼 -->
+                <li>
+                    <a th:if="${orders.hasNext()}"
+                       th:href="@{/admin/orders(
+                                page=${orders.number + 1},
+                                size=${orders.size},
+                                keyword=${searchCondition.keyword},
+                                orderStatus=${searchCondition.orderStatus},
+                                startDate=${searchCondition.startDate},
+                                endDate=${searchCondition.endDate}
+                                )}"
+                       class="px-3 py-1 border-l border-gray-200 hover:bg-gray-100">&raquo;</a>
+                    <span th:unless="${orders.hasNext()}"
+                          class="px-3 py-1 border-l border-gray-200 text-gray-300">&raquo;</span>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            const startDate = document.getElementById("startDate");
+            const endDate   = document.getElementById("endDate");
+
+            if (startDate && endDate) {
+                function initRange() {
+                    if (startDate.value) {
+                        endDate.min = startDate.value;
+                        if (endDate.value && endDate.value < startDate.value) {
+                            endDate.value = startDate.value;
+                        }
+                    }
+                }
+
+                startDate.addEventListener("change", function () {
+                    if (!startDate.value) {
+                        endDate.removeAttribute("min");
+                        return;
+                    }
+                    endDate.min = startDate.value;
+                    if (endDate.value && endDate.value < startDate.value) {
+                        endDate.value = startDate.value;
+                    }
+                });
+
+                endDate.addEventListener("change", function () {
+                    if (!endDate.value || !startDate.value) return;
+                    if (endDate.value < startDate.value) {
+                        endDate.value = startDate.value;
+                    }
+                });
+
+                initRange();
+            }
+
+            // =========================
+            // 전체 선택 체크박스 처리
+            // =========================
+            const masterCheckbox  = document.getElementById("order-check-all");
+            const orderCheckboxes = document.querySelectorAll(".order-checkbox");
+
+            if (masterCheckbox && orderCheckboxes.length > 0) {
+                masterCheckbox.addEventListener("change", function () {
+                    const checked = masterCheckbox.checked;
+                    orderCheckboxes.forEach(cb => {
+                        cb.checked = checked;
+                    });
+                });
+
+                orderCheckboxes.forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        if (!cb.checked) {
+                            masterCheckbox.checked = false;
+                            return;
+                        }
+                        const allChecked = Array.from(orderCheckboxes).every(c => c.checked);
+                        masterCheckbox.checked = allChecked;
+                    });
+                });
+            }
+
+            // =========================
+            // 일괄 상태 변경
+            // =========================
+            const bulkBtn    = document.getElementById("bulk-status-btn");
+            const bulkSelect = document.getElementById("bulk-status-select");
+
+            if (bulkBtn && bulkSelect) {
+                bulkBtn.addEventListener("click", function () {
+                    const status = bulkSelect.value;
+                    if (!status) {
+                        alert("변경할 상태를 선택하세요.");
+                        return;
+                    }
+
+                    const checked = Array.from(document.querySelectorAll(".order-checkbox:checked"));
+                    if (checked.length === 0) {
+                        alert("상태를 변경할 주문을 선택하세요.");
+                        return;
+                    }
+
+                    const form = document.createElement("form");
+                    form.method = "post";
+                    form.action = "/admin/orders/selected";
+
+                    const methodInput = document.createElement("input");
+                    methodInput.type  = "hidden";
+                    methodInput.name  = "_method";
+                    methodInput.value = "put";
+                    form.appendChild(methodInput);
+
+                    const statusInput = document.createElement("input");
+                    statusInput.type = "hidden";
+                    statusInput.name = "status";
+                    statusInput.value = status;
+                    form.appendChild(statusInput);
+
+                    checked.forEach(cb => {
+                        const idInput = document.createElement("input");
+                        idInput.type = "hidden";
+                        idInput.name = "orderIds";
+                        idInput.value = cb.value;
+                        form.appendChild(idInput);
+                    });
+
+                    document.body.appendChild(form);
+                    form.submit();
+                });
+            }
+
+            // =========================
+            // 검색 조건 초기화 버튼
+            // =========================
+            const resetBtn = document.getElementById("order-reset-btn");
+            if (resetBtn) {
+                resetBtn.addEventListener("click", function () {
+                    // 모든 검색 조건 제거한 상태로 진입
+                    window.location.href = "/admin/orders";
+                    // Thymeleaf 쓸 거면:
+                    // window.location.href = /*[[@{/admin/orders}]]*/ "/admin/orders";
+                });
+            }
+
+        })();
+    </script>
+</div>
+
+</body>
+</html>

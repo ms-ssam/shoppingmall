@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+
+    <!-- 공통 헤더 -->
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
+    <!-- ✅ signup 전용 CSS -->
+    <link rel="stylesheet" th:href="@{/css/signup.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: topHeader(${cartCount})}"></div>
+
+<div class="container">
+    <h1>Sign up</h1>
+
+    <form th:action="@{/signup}" th:object="${form}" method="post" id="signupForm">
+        <div class="form-row">
+            <label>Email <input class="input-box" type="email" th:field="*{email}" required></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('email')}"
+                 th:errors="*{email}">이메일 오류</div>
+        </div>
+
+        <div class="form-row">
+            <label>Password <input class="input-box" type="password" th:field="*{password}" required></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('password')}"
+                 th:errors="*{password}">비밀번호 오류</div>
+        </div>
+
+        <div class="form-row">
+            <label>Password Check <input class="input-box" type="password" th:field="*{passwordConfirm}" required></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('passwordConfirm')}"
+                 th:errors="*{passwordConfirm}">비밀번호 확인 오류</div>
+        </div>
+
+        <div class="form-row">
+            <label>Name <input class="input-box" type="text" th:field="*{name}" required></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('name')}"
+                 th:errors="*{name}">이름 오류</div>
+        </div>
+
+        <div class="form-row">
+            <label>Nickname <input class="input-box" type="text" th:field="*{nickname}" required></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('nickname')}"
+                 th:errors="*{nickname}">닉네임 오류</div>
+        </div>
+
+        <div class="form-row">
+            <label>Phone <input class="input-box" type="tel" th:field="*{phone}" required placeholder="01012345678"></label>
+            <div class="error"
+                 th:if="${#fields.hasErrors('phone')}"
+                 th:errors="*{phone}">전화번호 오류</div>
+        </div>
+
+        <button type="submit" class="btn-primary">회원가입</button>
+    </form>
+
+<!--
+    <p id="signupError" class="signup-error" style="display:none;"></p>
+-->
+
+    <p th:if="${successMessage}"
+       th:text="${successMessage}"
+       class="signup-success">
+    </p>
+
+    <div class="to-login">
+        이미 계정이 있으신가요?
+        <a th:href="@{/login}">로그인하러 가기</a>
+    </div>
+</div>
+
+<!-- ✅ signup 전용 JS -->
+<script th:src="@{/js/signup.js}"></script>
+</body>
+</html>
